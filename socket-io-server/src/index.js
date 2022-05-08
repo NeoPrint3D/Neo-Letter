@@ -1,22 +1,16 @@
-import express from 'express';
-import cors from 'cors';
-import http from 'http';
-import dotenv from 'dotenv';
-import { Server } from 'socket.io';
-import words from "./static/wordlist.js"
-import validGuesses from "./static/validGuesses.js"
-
 import { db, admin } from './utils/firebase.js';
-
+import { Server } from 'socket.io';
+import dotenv from "dotenv";
+import http from 'http';
 dotenv.config();
 
+function requestHandler(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(200)
+    res.end("hello world");
+}
 
-
-
-
-const app = express();
-const server = http.createServer(app);
-
+const server = http.createServer(requestHandler);
 const io = new Server(server, {
     cors: {
         origin: ['http://localhost:3000', "https://neo-letter.web.app"]
@@ -123,35 +117,9 @@ io.on('connection', async (socket) => {
     }
 });
 
+//create a route and send hi
 
 
-
-//add teh middleware for socket.io
-app.use(express.json())
-app.use(cors());
-
-
-app.get('/', (req, res) => {
-    //test firebase with a test write
-    res.send("hello world");
-})
-app.get("/api/words", (req, res) => {
-    //grab 10 random words from the wordslist
-    const count = req.query.count || 10;
-    const wordlist = []
-    for (let i = 0; i < count; i++) {
-        wordlist.push(words[Math.floor(Math.random() * words.length)])
-    }
-    res.json(wordlist)
-})
-//a route to see if the word is valid or not
-app.get("/api/valid", async (req, res) => {
-    const word = `${req.query.word}`.toLowerCase();
-    const valid = validGuesses.includes(word);
-    res.status(200).json({
-        isValid: valid
-    })
-})
 server.listen(PORT, () => {
     console.log(`Server is listening on port http://localhost:${PORT}`);
 });
