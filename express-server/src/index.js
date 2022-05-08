@@ -31,6 +31,7 @@ app.get("/api/valid", async (req, res) => {
         isValid: valid
     })
 })
+
 app.listen(PORT, () => {
     console.log(`listening on port http://localhost:${PORT}`);
 })

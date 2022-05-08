@@ -6,7 +6,7 @@
     "dev": "vite --host",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "prod": "tsc && vite build --mode prod && react-snap ",
+    "prod": "tsc && vite build --mode prod",
     "deploy": "tsc && vite build && react-snap && firebase deploy"
   },
   "reactSnap": {
