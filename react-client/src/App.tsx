@@ -19,9 +19,7 @@ const JoinRoom = lazy(() => import('./pages/Join'))
 
 function App() {
   const { width } = useWindowSize()
-  const location = useLocation()
   return (
-
     <AuthProvider>
         <div id="App"
           style={{
