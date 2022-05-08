@@ -3,8 +3,6 @@ on:
   push:
   - paths:
     - "express-server/**/*"
-  - branches:
-    - "master"
 jobs:
   deploy:
     runs-on: ubuntu-latest
