@@ -1,8 +1,7 @@
 name: deploy express on merge
-'on':
+"on":
   push:
-  - paths:
-    - "express-server/**/*"
+    - paths: "express-server/**/*"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -14,8 +13,8 @@ jobs:
       - uses: amondnet/vercel-action@v20 #deploy
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
-          github-token: ${{ secrets.GITHUB_TOKEN }} #Optional 
-          vercel-args: '--prod' #Optional
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}  #Required
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}} #Required 
+          github-token: ${{ secrets.GITHUB_TOKEN }} #Optional
+          vercel-args: "--prod" #Optional
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}} #Required
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}} #Required
           working-directory: ./sub-directory
