@@ -33,5 +33,5 @@ app.get("/api/valid", async (req, res) => {
 })
 
 app.listen(PORT, () => {
-    console.log(`listening on port http://localhost:${PORT}`);
+    console.log(`express listening on port http://localhost:${PORT}`);
 })

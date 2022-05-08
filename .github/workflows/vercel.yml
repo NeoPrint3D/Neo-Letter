@@ -2,7 +2,7 @@ name: deploy express on merge
 on:
   push:
     paths:
-      - "express-client/**/*"
+      - "express-server/**/*"
 jobs:
   deploy:
     runs-on: ubuntu-latest
