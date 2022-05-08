@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite --host",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build --prod",
     "preview": "vite preview",
-    "prod": "tsc && vite build --mode prod",
     "deploy": "tsc && vite build && react-snap && firebase deploy"
   },
   "reactSnap": {
