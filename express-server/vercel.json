@@ -1,5 +1,5 @@
 {
-  "version": "1.o",
+  "version": "1.0",
   "builds": [
     {
       "src": "src/index.js",
