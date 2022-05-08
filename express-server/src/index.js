@@ -4,8 +4,6 @@ import cors from 'cors';
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-dotenv.config();
-
 //add teh middleware for socket.io
 app.use(express.json())
 app.use(cors());
