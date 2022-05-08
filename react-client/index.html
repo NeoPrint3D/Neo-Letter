@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Neo Letter</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/images/pwa/icon-192x192.png" type="image/x-icon" />  
+    <link rel="apple-touch-icon" href="/images/pwa/icon-192x192.png" />
+    <meta name="theme-color" content="#023047" />
+
+
+
+    <script type="module">
+      import { registerSW } from "virtual:pwa-register";
+      registerSW();
+    </script>
+
+    <meta
+      name="google-site-verification"
+      content="5l4e38qu7KtpfJ1U4KHVVBJg0AjefxmP66rYJKkdIAc"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

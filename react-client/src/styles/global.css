@@ -1,0 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Crete+Round&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  background-color: #023047;
+}
+
+
+
+::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 10px 10px #ef233c;
+  border: solid 3px transparent;
+  border-radius: 10px;
+}
+
+.selectable {
+  -webkit-user-select: text !important;
+  -khtml-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  -o-user-select: text !important;
+  user-select: text !important;
+}
+
+.glass-container {
+  background: rgba(2, 48, 71, 0.49);
+  border-radius: 16px;
+  box-shadow: 0 3rem 7rem rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(12.4px);
+}
