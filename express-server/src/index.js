@@ -1,19 +1,17 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import compression from 'compression';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-dotenv.config();
-
 //add teh middleware for socket.io
 app.use(express.json())
 app.use(cors());
+app.use(compression());
 
 
 app.get('/', (req, res) => {
-    //test firebase with a test write
     res.send("hello world");
 })
 app.get("/api/words", (req, res) => {
