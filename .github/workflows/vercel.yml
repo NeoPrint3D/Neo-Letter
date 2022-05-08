@@ -1,5 +1,5 @@
 name: deploy express on merge
-on:
+'on':
   push:
   - paths:
     - "express-server/**/*"
