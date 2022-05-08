@@ -1,6 +1,6 @@
 {
-  "name": "firebase-limits",
-  "private": true,
+  "name": "neo_letter",
+  "private": false,
   "version": "0.0.0",
   "scripts": {
     "dev": "vite --host",
