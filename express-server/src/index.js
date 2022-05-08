@@ -12,7 +12,7 @@ app.use(compression());
 
 
 app.get('/', (req, res) => {
-    res.send("Hello World");
+    res.send("Hello World from Express Server");
 })
 app.get("/api/words", (req, res) => {
     //grab 10 random words from the wordslist

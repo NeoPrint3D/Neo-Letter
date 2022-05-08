@@ -4,7 +4,6 @@ import Header from './components/Header'
 import { AuthProvider } from './context/AuthContext'
 
 import { GameContextProvider } from './context/GameContext'
-import { SocketProvider } from './context/SocketContext'
 import { Loading } from './components/Loader/Loading'
 import { useWindowSize } from 'react-use'
 import AppToastContainer from './components/Toast/ToastContainer'

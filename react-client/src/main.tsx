@@ -1,8 +1,8 @@
 import { hydrate, render } from "react-dom"
-import "./styles/global.css"
-import App from './App'
-import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter } from "react-router-dom";
+import App from './App'
+import "./styles/global.css"
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const rootElement = document.getElementById("root");
