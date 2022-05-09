@@ -14,11 +14,24 @@ interface RoomProps {
 
 export default function CheckRoomExist({ children, roomStatus, round, answersLength, winner }: RoomProps) {
     const { height, width } = useWindowSize()
-    if (round >= answersLength) {
+    if ( round >= answersLength ) {
         return (
             <>
                 <div className="flex justify-center items-center min-h-screen ">
-                    Game over
+                    <div className="w-full max-w-sm sm:max-w-md bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl px-8 pt-6 pb-8 mb-4 shadow-2xl">
+                        <div className="flex flex-col items-center justify-center">
+                            {winner && <div className="text-center">
+                                <h1 className="text-3xl font-bold">{winner} won the game!</h1>
+                            </div>}
+                            <div className="text-center">
+                                <Link to="/">
+                                    <button className="mt-5">
+                                        <h1 className="text-3xl font-logo text-primary underline">Back to Home</h1>
+                                    </button>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <Confetti
                     width={width}

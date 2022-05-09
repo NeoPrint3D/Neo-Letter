@@ -15,7 +15,6 @@ export default function AppToastContainer() {
             toastStyle={{
                 backgroundColor: '#023047',
                 color: '#fff',
-                width: '75%',
             }}
         />
     );

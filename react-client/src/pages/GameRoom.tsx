@@ -214,14 +214,12 @@ export default function GameRoom() {
                         </RWebShare>
                     </div>
                 </div>
-                {answers[round]}
-
                 <div className="flex items-center h-[4.25rem] border-y-[3px] border-white/10 rounded">
                     <div className=" carousel carousel-center ">
                         <div className="flex items-center gap-2 carousel-item mx-5 py-2 px-3 rounded bg-gray-400/20">
                             {currentPlayer?.ready ? <AiFillCheckCircle className="text-green-500" size={25} /> : <AiOutlineLoading3Quarters className="animate-spin text-white" size={25} />}
                             <div className="flex items-center gap-2.5">
-                                <h1 className={`text-xl font-logo font-bold text-center ${placing[0]?.uid === currentPlayer?.uid ? "text-yellow-400" : "text-white"}`}>{currentPlayer?.name}: </h1>
+                                <h1 className={`text-xl font-logo font-bold text-center ${placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid ? "text-yellow-400" : "text-white"}`}>{currentPlayer?.name}: </h1>
                                 <AnimatePresence>
                                     {fireOff ?
                                         (<m.p
@@ -250,7 +248,7 @@ export default function GameRoom() {
                             >
                                 {player.ready ? <AiFillCheckCircle className="text-green-500" size={25} /> : <AiOutlineLoading3Quarters className="animate-spin text-white" size={25} />}
                                 <p className={`font-logo text-xl 
-                                 ${placing[0]?.uid === player?.uid ? "text-yellow-400" : "text-gray-200"}`}>
+                                 ${placing[0]?.points > 100 && placing[0]?.uid === player?.uid ? "text-yellow-400" : "text-gray-200"}`}>
                                     {player.name}: <a className="">{player.points}</a></p>
                             </div>
                         ))}
