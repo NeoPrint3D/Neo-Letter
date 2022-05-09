@@ -7,8 +7,8 @@ import Cell from "../Cell";
 
 
 export default function CurrentRow() {
-    const keypress = useContext(KeyboardContext);
-    const displayLetters = [...keypress.split(""), ...Array(5 - keypress.split("").length).fill("")];
+    const key = useContext(KeyboardContext);
+    const displayLetters = key ? [...key.split(""), ...Array(5 - key.split("").length).fill("")] : Array(5).fill("");
 
 
 

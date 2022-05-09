@@ -10,7 +10,7 @@ export default function CreateRoom() {
 
     const [maxPlayers, setMaxPlayers] = useState("party");
     const [roomType, setRoomType] = useState("private");
-    const [wordCount, setWordCount] = useState("10");
+    const [wordCount, setWordCount] = useState("20");
     const navigate = useNavigate()
     const uid = useContext(AuthContext);
 
@@ -101,7 +101,7 @@ export default function CreateRoom() {
                                         className="bg-primary-dark/90 focus:outline-none rounded  text-center shadow-2xl w-20 sm:w-18"
                                         value={wordCount}
                                         onChange={(e) => {
-                                            setWordCount((parseInt(e.target.value) > 0 && parseInt(e.target.value) <= 20) ? e.target.value : "")
+                                            setWordCount((parseInt(e.target.value) > 0 && parseInt(e.target.value) <= 500) ? e.target.value : "")
                                         }}
                                     />
                                 </div>
