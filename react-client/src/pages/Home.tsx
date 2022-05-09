@@ -15,6 +15,8 @@ function Home() {
     const [hasVisited, setHasVisited] = useState(false)
     const { width } = useWindowSize()
 
+    console.log(process.env.VITTE_TEST)
+
     //see if the user has already been to this page with a cookie
     useEffect(() => {
         if (document.cookie.includes("hasVisited")) {

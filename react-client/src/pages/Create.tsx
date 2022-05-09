@@ -1,12 +1,9 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useContext, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 //import io
-import { firestore } from '../utils/firebase';
-import MobileImage from "/images/assets/App-Mobile.jpg"
-import DesktopImage from "/images/assets/App-Desktop.jpg"
-import { useWindowSize } from 'react-use';
+import { firestore } from '../utils/firebase';;
 import { AuthContext } from '../context/AuthContext';
 
 export default function CreateRoom() {
@@ -43,7 +40,7 @@ export default function CreateRoom() {
 
     async function createroom() {
 
-        const answers = await fetch(`https://Neo-Letter.neoprint777.repl.co/api/words?count=${wordCount}`).then((res) => res.json())
+        const answers = await fetch(`https://neo-letter-express.vercel.app/api/words?count${wordCount}`).then((res) => res.json())
         const id = await generateCleanId()
 
         await Promise.all([
