@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",
-    "prod": "tsc && vite build --env production && react-snap",
+    "prod": "tsc && vite build && react-snap",
     "preview": "vite preview",
     "deploy": "tsc && vite build && react-snap && firebase deploy"
   },
