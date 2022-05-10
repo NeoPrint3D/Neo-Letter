@@ -30,11 +30,9 @@ fastify.get("/api/words", async (req, res) => {
 });
 //a route to see if the word is valid or not
 fastify.get("/api/valid", async (req, res) => {
-  const status = Promise.resolve((resolve) => {
-    const valid = validGuesses.includes(`${req.query.word}`.toLowerCase());
-    return resolve({ valid });
-  })
-  return { isValid: await status }
+
+  const valid = validGuesses.includes(`${req.query.word}`.toLowerCase());
+  return { isValid: valid }
 });
 
 const startServer = async () => {
