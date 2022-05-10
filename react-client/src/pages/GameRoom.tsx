@@ -158,7 +158,9 @@ export default function GameRoom() {
         if (key.length !== 5) return
         const res = await fetch(`https://neo-letter-express.vercel.app/api/valid?word=${key}`).then(res => res.json())
         if (!res.isValid) {
-            toast.error("Invalid Guess")
+            toast.error("Invalid Guess", {
+                theme: "dark"
+            })
             return
         }
         socket.emit("guess", {

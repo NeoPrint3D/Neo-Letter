@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 //import io
@@ -16,7 +16,7 @@ export default function CreateRoom() {
 
     async function generateCleanId() {
         const id = Math.floor(Math.random() * 100000).toString().padStart(5, "0");
-        if ((await getDoc(doc(firestore, "room", `${id}`))).exists()) {
+        if ((await getDoc(doc(firestore, "rooms", `${id}`))).exists()) {
             generateCleanId()
         } else {
             return id
@@ -39,15 +39,13 @@ export default function CreateRoom() {
 
 
     async function createroom() {
-
         const answers = await fetch(
             process.env.NODE_ENV === "development"
                 ? `http://localhost:4000/api/words?count=${wordCount}`
                 : `https://neo-letter-express.vercel.app/api/words?count${parseInt(wordCount)}`
         ).then((res) => res.json())
         const id = await generateCleanId()
-        console.log(answers)
-
+       
         await Promise.all([
             setDoc(doc(firestore, "rooms", `${id}`), {
                 id,

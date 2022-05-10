@@ -7,7 +7,6 @@ import { getGuessStatuses, } from "../utils/getStatuses";
 export default function FilledRow({ guess,  answer }: { guess: string, answer: string }) {
     const [status, setStatus] = useState<string[]>([]);
     const [isCorrect, setIsCorrect] = useState(false);
-    const [play, setPlay] = useState(false);
 
 
 
