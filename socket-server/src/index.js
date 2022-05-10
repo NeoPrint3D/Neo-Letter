@@ -109,10 +109,10 @@ io.on('connection', (socket) => {
 
             await new Promise(resolve => setTimeout(resolve, 3 * 60 * 1000));
 
-            const player = (await db.collection("rooms").doc(roomId).collection("players").doc(uid).get()).data();
+            const player = (await db.collection("rooms").doc(roomId).collection("players").doc(uid).get().catch(()=>console.log("error"))).data();
 
             console.log(player?.socketId === player?.prevSocketId)
-            if (player.socketId !== player.prevSocketId) {
+            if (player?.socketId !== player?.prevSocketId) {
                 console.log("not deleted")
                 return
             }
@@ -129,7 +129,7 @@ io.on('connection', (socket) => {
                 await Promise.all(players.docs.map(async (player) => {
                     await player.ref.delete();
                 }))
-            })
+            }).catch(() => console.log("error"))
             db.collection("rooms").doc(roomId).delete().catch(() => console.log("error"));
             db.collection("rooms").doc(roomId).update({
                 players: admin.firestore.FieldValue.arrayRemove(uid)
