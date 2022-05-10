@@ -156,7 +156,7 @@ export default function GameRoom() {
     //use a callback 
     const handleEnter = useCallback(async (socket) => {
         if (key.length !== 5) return
-        const res = await fetch(`https://neo-letter-express.vercel.app/api/valid?word=${key}`).then(res => res.json())
+        const res = await fetch(`https://neo-letter-fastify.vercel.app/api/valid?word=${key}`).then(res => res.json())
         if (!res.isValid) {
             toast.error("Invalid Guess", {
                 theme: "dark"

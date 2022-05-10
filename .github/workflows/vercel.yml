@@ -2,7 +2,7 @@ name: deploy express on merge
 on:
   push:
     paths:
-      - "express-server/**/*"
+      - "fastify-server/**/*"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -17,4 +17,4 @@ jobs:
           vercel-args: "--prod" #Optional
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID}} #Required
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}} #Required
-          working-directory: ./express-server
+          working-directory: ./fastify-server

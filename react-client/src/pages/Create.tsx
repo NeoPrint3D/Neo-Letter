@@ -39,20 +39,23 @@ export default function CreateRoom() {
 
 
     async function createroom() {
-        const answers = await fetch(
+        const res = await fetch(
             process.env.NODE_ENV === "development"
                 ? `http://localhost:4000/api/words?count=${wordCount}`
-                : `https://neo-letter-express.vercel.app/api/words?count${parseInt(wordCount)}`
+                : `https://neo-letter-fastify.vercel.app/api/words?count${parseInt(wordCount)}`
         ).then((res) => res.json())
+        const wordlist = res.words
+        console.log(wordlist)
+
         const id = await generateCleanId()
-       
+
         await Promise.all([
             setDoc(doc(firestore, "rooms", `${id}`), {
                 id,
                 maxPlayers: roomSelectToNumber(maxPlayers),
                 started: false,
                 roomType,
-                answers,
+                answers: wordlist,
                 players: [],
                 round: 0
             }),
