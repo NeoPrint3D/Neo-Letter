@@ -79,13 +79,8 @@ io.on('connection', (socket) => {
                 await db.collection("rooms").doc(roomId).collection("players").doc(uid).update({
                     points: admin.firestore.FieldValue.increment(1000 - guessLength * 100)
                 })
-                //Todo remove feature ?
-                // socket.broadcast.to(roomId).emit('notify', {
-                //     message: `${name} guessed ${emojiString}`,
-                // })
-                
-                socket.broadcast.to(roomId).emit("reset");
-                socket.emit("reset");
+                socket.broadcast.to(roomId).emit("reset", { uid });
+                socket.emit("reset", { uid });
             } else {
                 socket.broadcast.to(roomId).emit('notify', {
                     message: `${name} guessed ${emojiString}`,
@@ -109,7 +104,7 @@ io.on('connection', (socket) => {
 
             await new Promise(resolve => setTimeout(resolve, 3 * 60 * 1000));
 
-            const player = (await db.collection("rooms").doc(roomId).collection("players").doc(uid).get().catch(()=>console.log("error"))).data();
+            const player = (await db.collection("rooms").doc(roomId).collection("players").doc(uid).get().catch(() => console.log("error"))).data();
 
             console.log(player?.socketId === player?.prevSocketId)
             if (player?.socketId !== player?.prevSocketId) {
@@ -118,7 +113,7 @@ io.on('connection', (socket) => {
             }
             console.log("deleted")
             //delete player from room or if he player is the creator, delete the room
-            if (player.role !== "creator") {
+            if (player?.role !== "creator") {
                 db.collection("rooms").doc(roomId).collection("players").doc(uid).delete().catch(() => console.log("error"))
                 db.collection("rooms").doc(roomId).update({
                     players: admin.firestore.FieldValue.arrayRemove(uid)
@@ -135,7 +130,7 @@ io.on('connection', (socket) => {
                 players: admin.firestore.FieldValue.arrayRemove(uid)
             }).catch(() => console.log("error"))
             return
-            
+
         })
     } catch (error) {
         socket.disconnect();

@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { Loading } from "../Loader/Loading";
 import { useWindowSize } from "react-use";
 import Confetti from "react-confetti";
+import { m } from "framer-motion";
 
 interface RoomProps {
     children: any,
     roomStatus: "exists" | "room_not_found" | "user_not_found" | "room_full" | undefined,
     round: number,
     answersLength: number,
-   //define winner with two attributes: winner and winnerPoints
+    //define winner with two attributes: winner and winnerPoints
     winner: {
         name: string,
         points: number
@@ -22,7 +23,16 @@ export default function CheckRoomExist({ children, roomStatus, round, answersLen
         return (
             <>
                 <div className="flex justify-center items-center min-h-screen ">
-                    <div className="w-full max-w-sm sm:max-w-md bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl px-8 pt-6 pb-8 mb-4 shadow-2xl">
+                    <m.div
+                        className="w-full max-w-sm sm:max-w-md bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl px-8 pt-6 pb-8 mb-4 shadow-2xl"
+                        initial={{ scale: 0, y: "100%" }}
+                        animate={{ scale: 1, y: 0 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 20
+                        }}
+                    >
                         <div className="flex flex-col items-center justify-center">
                             {winner && <div className="text-center">
                                 <h1 className="text-3xl font-bold">{winner.name} won the game!</h1>
@@ -36,11 +46,15 @@ export default function CheckRoomExist({ children, roomStatus, round, answersLen
                                 </Link>
                             </div>
                         </div>
-                    </div>
+                    </m.div>
                 </div>
                 <Confetti
                     width={width}
-                    height={height} />
+                    height={height}
+                    wind={.001}
+                    gravity={.5}
+                    numberOfPieces={500}
+                />
             </>
         )
     }

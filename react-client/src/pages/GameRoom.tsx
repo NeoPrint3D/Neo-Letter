@@ -7,7 +7,7 @@ import { RWebShare } from "react-web-share";
 import { FiShare } from 'react-icons/fi'
 import Grid from "../components/Grid/Grid";
 import KeyBoard from "../components/Keyboard";
-import { collection, doc, getDoc, increment, onSnapshot, query, updateDoc } from "firebase/firestore";
+import { arrayUnion, collection, doc, getDoc, increment, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { AuthContext } from "../context/AuthContext";
 import CheckRoomExist from "../components/Checkers/CheckRoomExist";
 import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../context/GameContext";
@@ -69,14 +69,56 @@ export default function GameRoom() {
         //destoy the funcions when teh component is unmounted
         handleRoomStatus()
         handleRoomState()
+        getDoc(playerRef).then((res) => setGuesses(res.data()?.guesses))
     }, [])
 
-    async function handleRoomStatus() {
+    useEffect(() => {
+        if (roomStatus !== "exists") return
+        const socket = io(process.env.NODE_ENV === "development" ? "http://localhost:8080" : "https://Neo-Letter.neoprint777.repl.co", {
+            parser,
+            auth: {
+                token: `${currentPlayer.name}:${uid}:${id}`
+            }
+        })
+        if (round >= answers.length) {
+            socket.disconnect()
+            return
+        }
+        socket.emit("join")
+        socket.on("notify", (data) => {
+            console.log(data)
+            toast(data.message, { theme: "dark" })
+        })
+        socket.on("reset", (data) => {
+            new Promise(resolve => setTimeout(resolve, 5000)).then(async () => {
+                const { uid } = data
+                console.log("reset")
+                if (round < answers.length && currentPlayer.uid === uid) {
+                    updateDoc(roomRef, { round: increment(1) })
+                }
+                await updateDoc(playerRef, {
+                    guesses: []
+                })
+                setGuesses([])
+                setKey("")
+                setFireOff(true)
+                await new Promise(resolve => setTimeout(resolve, 500))
+                setFireOff(false)
+            })
+        })
+        setSocket(socket)
+        return () => {
+            socket.disconnect()
+        }
+    }, [roomStatus])
 
+
+
+    async function handleRoomStatus() {
         const q = query(collection(firestore, "rooms", `${id}`, "players"))
-        const roomExists = (await getDoc(roomRef)).exists()
+        const roomDoc = await getDoc(roomRef)
         const unsub = onSnapshot(q, (playersRes) => {
-            if (!roomExists) {
+            if (!roomDoc.exists()) {
                 setRoomStatus("room_not_found")
                 unsub()
                 return
@@ -117,43 +159,8 @@ export default function GameRoom() {
 
 
 
-    useEffect(() => {
-
-        if (roomStatus !== "exists") return
-        const socket = io(process.env.NODE_ENV === "development" ? "http://localhost:8080" : "https://Neo-Letter.neoprint777.repl.co", {
-            parser,
-            auth: {
-                token: `${currentPlayer.name}:${uid}:${id}`
-            }
-        })
-        socket.emit("join")
-        socket.on("notify", (data) => {
-            console.log(data)
-            toast(data.message, { theme: "dark" })
-        })
-        socket.on("reset", () => {
-            setFireOff(true)
-            new Promise(resolve => setTimeout(resolve, 5000)).then(() => {
-                console.log("reset")
-                if (room.answers.length > room.round && currentPlayer.role === "creator") {
-                    updateDoc(roomRef, { round: increment(1) })
-                }
-                setFireOff(false)
-                setGuesses([])
-                setKey("")
-            })
-        })
-        setSocket(socket)
-    }, [roomStatus])
 
 
-    async function handleReady() {
-        await updateDoc(playerRef, {
-            ready: true
-        })
-    }
-
-    //use a callback 
     const handleEnter = useCallback(async (socket) => {
         if (key.length !== 5) return
         const res = await fetch(`https://neo-letter-fastify.vercel.app/api/valid?word=${key}`).then(res => res.json())
@@ -163,14 +170,25 @@ export default function GameRoom() {
             })
             return
         }
+        setKey("")
+        await new Promise(resolve => setTimeout(resolve, 150))
+        setGuesses([...guesses, key])
         socket.emit("guess", {
             statuses: getGuessStatuses(`${room.answers[room.round]}`.toUpperCase() as string, key),
             guessLength: guesses.length
         })
-        setKey("")
-        await new Promise(resolve => setTimeout(resolve, 300))
-        setGuesses([...guesses, key])
-    }, [key, socket, room.answers, guesses])
+        updateDoc(playerRef, {
+            guesses: arrayUnion(key)
+        })
+    }, [key, socket, answers, guesses])
+
+    async function handleReady() {
+        await updateDoc(playerRef, {
+            ready: true
+        })
+    }
+
+    //use a callback 
 
 
 

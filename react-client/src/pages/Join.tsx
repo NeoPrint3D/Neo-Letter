@@ -73,6 +73,7 @@ export default function JoinRoom() {
             ready: false,
             socketId: "",
             prevSocketId: "",
+            guesses: [],
             role: "user",
             status: ""
         })

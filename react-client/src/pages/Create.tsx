@@ -5,9 +5,10 @@ import { useNavigate } from 'react-router-dom';
 //import io
 import { firestore } from '../utils/firebase';;
 import { AuthContext } from '../context/AuthContext';
+import { Loading } from '../components/Loader/Loading';
 
 export default function CreateRoom() {
-
+    const [loading, setLoading] = useState(false)
     const [maxPlayers, setMaxPlayers] = useState("party");
     const [roomType, setRoomType] = useState("private");
     const [wordCount, setWordCount] = useState("20");
@@ -39,6 +40,7 @@ export default function CreateRoom() {
 
 
     async function createroom() {
+        setLoading(true)
         const res = await fetch(
             process.env.NODE_ENV === "development"
                 ? `http://localhost:4000/api/words?count=${wordCount}`
@@ -67,12 +69,14 @@ export default function CreateRoom() {
                 socketId: "",
                 prevSocketId: "",
                 role: "creator",
+                guesses: [],
                 status: ""
             }),
         ])
+        setLoading(false)
         navigate(`/join?id=${id}`)
     }
-    return (
+    return !loading ? (
         <>
             <Helmet>
                 <title>Neo Letter | Create Room</title>
@@ -124,5 +128,7 @@ export default function CreateRoom() {
                 </div>
             </div>
         </>
-    );
+    ) : (
+        <Loading />
+    )
 }
