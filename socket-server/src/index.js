@@ -118,6 +118,9 @@ io.on('connection', (socket) => {
             //delete player from room or if he player is the creator, delete the room
             if (player.role !== "creator") {
                 db.collection("rooms").doc(roomId).collection("players").doc(uid).delete().catch(() => console.log("error"))
+                db.collection("rooms").doc(roomId).update({
+                    players: admin.firestore.FieldValue.arrayRemove(uid)
+                }).catch(() => console.log("error"))
                 return
             }
             await db.collection("rooms").doc(roomId).collection("players").get().then(async (players) => {
@@ -126,6 +129,11 @@ io.on('connection', (socket) => {
                 }))
             })
             db.collection("rooms").doc(roomId).delete().catch(() => console.log("error"));
+            db.collection("rooms").doc(roomId).update({
+                players: admin.firestore.FieldValue.arrayRemove(uid)
+            }).catch(() => console.log("error"))
+            return
+            
         })
     } catch (error) {
         socket.disconnect();
