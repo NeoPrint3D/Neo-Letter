@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'production') {
 dotenv.config();
 const requestHandler = (req, res) => {
     res.writeHead(200);
-    res.end();
+    res.end("Hello World");
 }
 const server = http.createServer(requestHandler);
 const PORT = process.env.PORT || 8080;
