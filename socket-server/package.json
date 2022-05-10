@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "cross-env NODE_ENV=production node ./src/index.js",
     "dev": "nodemon src/index.js"
   },
   "keywords": [],
@@ -18,5 +18,8 @@
     "firebase-admin": "^10.0.2",
     "socket.io": "^4.4.1",
     "socket.io-msgpack-parser": "^3.0.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }

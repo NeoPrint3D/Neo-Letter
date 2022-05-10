@@ -13,8 +13,9 @@ import CheckRoomExist from "../components/Checkers/CheckRoomExist";
 import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../context/GameContext";
 import { AiFillCheckCircle, AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useWindowSize } from "react-use";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { toast } from "react-toastify";
+import { FaCrown } from 'react-icons/fa'
 import { RiArrowDropLeftLine, RiArrowDropRightLine } from "react-icons/ri";
 import { AnimatePresence, m } from "framer-motion";
 import { getGuessStatuses } from "../components/Grid/utils/getStatuses";
@@ -47,11 +48,11 @@ interface Player {
 export default function GameRoom() {
     const [roomStatus, setRoomStatus] = useState(undefined as "exists" | "room_not_found" | "user_not_found" | "room_full" | undefined);
     const [room, setRoom] = useState<Room>({} as Room);
-    const [socket, setSocket] = useState({})
+    const [socket, setSocket] = useState({} as Socket);
     const [fireOff, setFireOff] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState<Player>({} as Player);
     const [players, setPlayers] = useState<Player[]>([])
-    const [answers, setAnswers] = useState([])
+    const [answers, setAnswers] = useState<string[]>([])
     const [round, setRound] = useState(0)
     const [placing, setPlacing] = useState<Player[]>([])
     const { id } = useParams()
@@ -65,45 +66,51 @@ export default function GameRoom() {
     const playerRef = useMemo(() => doc(firestore, "rooms", `${id}`, "players", uid), [id, uid])
 
     useEffect(() => {
-        handleRoom()
+        //destoy the funcions when teh component is unmounted
+        handleRoomStatus()
+        handleRoomState()
     }, [])
 
-
-    async function handleRoom() {
+    async function handleRoomStatus() {
 
         const q = query(collection(firestore, "rooms", `${id}`, "players"))
         const roomExists = (await getDoc(roomRef)).exists()
-        const unsub1 = onSnapshot(q, (playersRes) => {
+        const unsub = onSnapshot(q, (playersRes) => {
             if (!roomExists) {
                 setRoomStatus("room_not_found")
+                unsub()
                 return
             }
             setPlayers(playersRes.docs.map(p => p.data()) as Player[])
             setCurrentPlayer(playersRes.docs.find(p => p.data().uid === uid)?.data() as Player)
-            setPlacing(playersRes.docs.sort((a, b) => b.data().score - a.data().score).map(p => p.data()).reverse() as Player[])
+            setPlacing(playersRes.docs.sort((a, b) => b.data().score - a.data().score).map(p => p.data()) as Player[])
             if (playersRes.docs.length === room.maxPlayers) {
                 setRoomStatus("room_full")
+                unsub()
                 return
             }
             if (!playersRes.docs.map(p => p.data().uid).includes(uid)) {
                 setRoomStatus("user_not_found")
+                unsub()
                 return
             }
             setRoomStatus("exists")
             //set the first place based on the highest score
         })
-        const unsub2 = onSnapshot(roomRef, (roomRes) => {
-            if (roomRes.exists()) {
-                setRoom(roomRes.data() as Room)
-                setAnswers(roomRes.data().answers)
-                setRound(roomRes.data().round)
+    }
 
+    async function handleRoomState() {
+        const unsub = onSnapshot(roomRef, (roomRes) => {
+            const room = roomRes.data()
+            if (!room) {
+                unsub()
+                return
             }
+            setRoom(room as Room)
+            setAnswers(room.answers)
+            setRound(room.round)
         })
-        return () => {
-            unsub1()
-            unsub2()
-        }
+
     }
 
 
@@ -119,20 +126,19 @@ export default function GameRoom() {
                 token: `${currentPlayer.name}:${uid}:${id}`
             }
         })
-        console.log(socket)
         socket.emit("join")
         socket.on("notify", (data) => {
             console.log(data)
             toast(data.message, { theme: "dark" })
         })
         socket.on("reset", () => {
-            toast("New Round", { theme: "dark" })
-            new Promise(resolve => setTimeout(resolve, 6000)).then(() => {
+            setFireOff(true)
+            new Promise(resolve => setTimeout(resolve, 5000)).then(() => {
                 console.log("reset")
-                //only increment round the round isnt greater than the words length
                 if (room.answers.length > room.round) {
                     updateDoc(roomRef, { round: increment(1) })
                 }
+                setFireOff(false)
                 setGuesses([])
                 setKey("")
             })
@@ -151,7 +157,10 @@ export default function GameRoom() {
     const handleEnter = useCallback(async (socket) => {
         if (key.length !== 5) return
         const res = await fetch(`https://neo-letter-express.vercel.app/api/valid?word=${key}`).then(res => res.json())
-        if (!res.isValid) toast.error("Invalid Guess")
+        if (!res.isValid) {
+            toast.error("Invalid Guess")
+            return
+        }
         socket.emit("guess", {
             statuses: getGuessStatuses(`${room.answers[room.round]}`.toUpperCase() as string, key),
             guessLength: guesses.length
@@ -161,14 +170,17 @@ export default function GameRoom() {
         setGuesses([...guesses, key])
     }, [key, socket, room.answers, guesses])
 
-    useEffect(() => {
-        console.log(placing)
-    }, [placing])
-
 
 
     return (
-        <CheckRoomExist winner={placing[0]?.name} answersLength={answers.length} round={round - 10} roomStatus={roomStatus}>
+        <CheckRoomExist
+            winner={{
+                name: placing[0]?.name,
+                points: placing[0]?.points
+            }}
+            answersLength={answers.length}
+            round={round}
+            roomStatus={roomStatus} >
             <Helmet>
                 <title>Neo Letter Room</title>
                 <meta name="description" content={`Room ${id} is where the paty is at`} />
@@ -184,22 +196,26 @@ export default function GameRoom() {
                         </Link>
                     </div>
                     <div className="flex flex-col justify-center items-center font-logo">
-                        <h1 className="text-xl font-logo text-center">Room <a className="selectable  font-sans font-semibold ">{id}</a></h1>
-                        <AnimatePresence>
-                            <div className="flex tetx-xl gap-2">
-                                <p>Round: </p>
+                        <h1 className="text-2xl font-logo text-center font-semibold">Room <a className="  font-sans select-text font-semibold">{id}</a></h1>
+                        <div className="flex text-xl gap-2">
+                            <p>Round</p>
+                            <AnimatePresence>
                                 {fireOff ?
                                     <m.p
                                         initial={{ scale: 0, y: 50 }}
-                                        animate={{ scale: 1, y: 0 }}
-                                        exit={{ scale: 0, y: 50 }}
-                                    >{round}</m.p> :
+                                        animate={{ scale: [3, 1], y: 0 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 100,
+                                            damping: 10
+                                        }}
+                                    >{round + 1}/{answers.length}</m.p> :
                                     <p>
-                                        {round}
+                                        {round + 1}/{answers.length}
                                     </p>
                                 }
-                            </div>
-                        </AnimatePresence>
+                            </AnimatePresence>
+                        </div>
                     </div>
                     <div className="flex justify-end items-center mr-3 ">
                         <RWebShare
@@ -218,37 +234,26 @@ export default function GameRoom() {
                     <div className=" carousel carousel-center ">
                         <div className="flex items-center gap-2 carousel-item mx-5 py-2 px-3 rounded bg-gray-400/20">
                             {currentPlayer?.ready ? <AiFillCheckCircle className="text-green-500" size={25} /> : <AiOutlineLoading3Quarters className="animate-spin text-white" size={25} />}
-                            <div className="flex items-center gap-2.5">
-                                <h1 className={`text-xl font-logo font-bold text-center ${placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid ? "text-yellow-400" : "text-white"}`}>{currentPlayer?.name}: </h1>
-                                <AnimatePresence>
-                                    {fireOff ?
-                                        (<m.p
-                                            className="text-xl font-sans font-semibold text-center"
-                                            animate={{
-                                                scale: [.5, 1, 1.5, 1],
-                                                color: ["#fff", "#22c55e", "#fff"],
-                                                y: [50, 0]
-                                            }}
-                                            transition={{
-                                                type: "spring",
-                                                stiffness: 100,
-                                                damping: 10
-                                            }}
-                                        >
-                                            {currentPlayer?.points}
-                                        </m.p>) :
-                                        <p className="text-xl font-sans text-white font-semibold">{currentPlayer?.points}</p>
-                                    }
-                                </AnimatePresence>
+                            <div className={`flex items-center gap-2 ${placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid ? "text-yellow-400" : "text-white"}`}>
+                                {placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid && (
+                                    <FaCrown aria-label="Crown" size={25} />
+                                )}
+                                <h1 className={`text-xl font-logo font-bold text-center `}>{currentPlayer?.name}: </h1>
+                                <p className="text-xl font-sans font-semibold text-center"
+                                >
+                                    {currentPlayer?.points}
+                                </p>
                             </div>
                         </div>
                         {players && players.filter(p => p.uid !== uid).map((player, i) => (
-                            <div className="flex items-center gap-2 carousel-item mx-5 py-2 px-3 rounded bg-gray-400/20"
+                            <div className={`flex items-center gap-2 carousel-item mx-5 py-2 px-3 rounded bg-gray-400/20  ${placing[0]?.points > 100 && placing[0]?.uid === player?.uid ? "text-yellow-400" : "text-gray-200"}`}
                                 key={i}
                             >
-                                {player.ready ? <AiFillCheckCircle className="text-green-500" size={25} /> : <AiOutlineLoading3Quarters className="animate-spin text-white" size={25} />}
-                                <p className={`font-logo text-xl 
-                                 ${placing[0]?.points > 100 && placing[0]?.uid === player?.uid ? "text-yellow-400" : "text-gray-200"}`}>
+                                {placing[0]?.points > 0 && placing[0]?.uid === player?.uid && (
+                                    <FaCrown aria-label="Crown" size={25} />
+                                )}
+                                {/* {player.ready ? <AiFillCheckCircle className="text-green-500" size={25} /> : <AiOutlineLoading3Quarters className="animate-spin text-white" size={25} />} */}
+                                <p className={`font-logo text-xl`}>
                                     {player.name}: <a className="">{player.points}</a></p>
                             </div>
                         ))}
@@ -268,7 +273,7 @@ export default function GameRoom() {
                     </div>
                 </div>
             </div>
-        </CheckRoomExist>
+        </CheckRoomExist >
     );
 }
 

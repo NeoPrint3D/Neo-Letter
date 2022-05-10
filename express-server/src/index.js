@@ -21,7 +21,7 @@ app.get("/", (req, res) => {
 });
 app.get("/api/words", (req, res) => {
   //grab 10 random words from the wordslist
-  const count = req.query.count || 10;
+  const count = req.query.count || 20;
   const wordlist = [];
   for (let i = 0; i < count; i++) {
     wordlist.push(words[Math.floor(Math.random() * words.length)]);

@@ -15,7 +15,7 @@ export default function CreateRoom() {
     const uid = useContext(AuthContext);
 
     async function generateCleanId() {
-        const id = Math.floor(Math.random() * 1000000).toString().padStart(6, "0");
+        const id = Math.floor(Math.random() * 100000).toString().padStart(5, "0");
         if ((await getDoc(doc(firestore, "room", `${id}`))).exists()) {
             generateCleanId()
         } else {
@@ -40,8 +40,13 @@ export default function CreateRoom() {
 
     async function createroom() {
 
-        const answers = await fetch(`https://neo-letter-express.vercel.app/api/words?count${wordCount}`).then((res) => res.json())
+        const answers = await fetch(
+            process.env.NODE_ENV === "development"
+                ? `http://localhost:4000/api/words?count=${wordCount}`
+                : `https://neo-letter-express.vercel.app/api/words?count${parseInt(wordCount)}`
+        ).then((res) => res.json())
         const id = await generateCleanId()
+        console.log(answers)
 
         await Promise.all([
             setDoc(doc(firestore, "rooms", `${id}`), {
@@ -51,7 +56,7 @@ export default function CreateRoom() {
                 roomType,
                 answers,
                 players: [],
-                round : 0
+                round: 0
             }),
             setDoc(doc(firestore, "rooms", `${id}`, "players", `${uid}`), {
                 name: "",
@@ -97,7 +102,7 @@ export default function CreateRoom() {
                                         Rounds
                                     </label>
                                     <input type="text"
-                                        placeholder='10'
+                                        placeholder='20'
                                         className="bg-primary-dark/90 focus:outline-none rounded  text-center shadow-2xl w-20 sm:w-18"
                                         value={wordCount}
                                         onChange={(e) => {

@@ -3,6 +3,9 @@ import { Server } from 'socket.io';
 import dotenv from "dotenv";
 import http from 'http';
 import parser from 'socket.io-msgpack-parser';
+if (process.env.NODE_ENV === 'production') {
+    console.log = () => { };
+}
 dotenv.config();
 const requestHandler = (req, res) => {
     res.writeHead(200);
@@ -102,11 +105,11 @@ io.on('connection', (socket) => {
                 prevSocketId: socket.id
             }).catch(() => console.log("error"))
 
-            await new Promise(resolve => setTimeout(resolve, 5 * 60 * 1000));
+            await new Promise(resolve => setTimeout(resolve, 3 * 60 * 1000));
 
             const player = (await db.collection("rooms").doc(roomId).collection("players").doc(uid).get()).data();
 
-            console.log(player.socketId === player.prevSocketId)
+            console.log(player?.socketId === player?.prevSocketId)
             if (player.socketId !== player.prevSocketId) {
                 console.log("not deleted")
                 return

@@ -4,12 +4,14 @@ import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
+import { Loading } from "../components/Loader/Loading";
 import { AuthContext } from "../context/AuthContext";
 import { firestore } from "../utils/firebase";
 
 
 
 export default function JoinRoom() {
+    const [loading, setLoading] = useState(false);
     const [username, setUserame] = useState("");
     const [roomId, setRoomId] = useState("");
     const [roomValid, setValidRoom] = useState(false);
@@ -50,31 +52,32 @@ export default function JoinRoom() {
 
     async function joinRoom(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        if (username.length >= 3) {
-            const docRef = doc(firestore, "rooms", roomId, "players", uid)
-            //see if user is already in room 
-            const player = await getDoc(docRef)
-            await Promise.all([
-                player.exists() ?
-                    updateDoc(docRef, { name: username.charAt(0).toUpperCase() + username.slice(1) }) :
-                    setDoc(docRef, {
-                        name: username.charAt(0).toUpperCase() + username.slice(1),
-                        uid,
-                        points: 0,
-                        ready: false,
-                        socketId: "",
-                        prevSocketId: "",
-                        role: "user",
-                        status: ""
-                    }),
-                updateDoc(doc(firestore, "rooms", roomId), {
-                    players: arrayUnion(uid)
-                }),
-            ])
-            navigate(`/room/${roomId}`);
-        } else {
+        if (!(username.length >= 3)) {
             toast.error("Username is too short. Must be three or more charchtr", { theme: "dark" })
+            return
+        } const docRef = doc(firestore, "rooms", roomId, "players", uid)
+        const player = await getDoc(docRef)
+        setLoading(true)
+        if (player.exists()) {
+            await updateDoc(docRef, {
+                name: username.charAt(0).toUpperCase() + username.slice(1),
+            })
+            setLoading(false)
+            navigate(`/room/${roomId}`);
+            return
         }
+        await setDoc(docRef, {
+            name: username.charAt(0).toUpperCase() + username.slice(1),
+            uid,
+            points: 0,
+            ready: false,
+            socketId: "",
+            prevSocketId: "",
+            role: "user",
+            status: ""
+        })
+        setLoading(false)
+        navigate(`/room/${roomId}`);
     }
 
 
@@ -91,7 +94,7 @@ export default function JoinRoom() {
 
 
 
-    return (
+    return !loading ? (
         <>
             <Helmet>
                 <title>Neo Letter | Join</title>
@@ -152,5 +155,7 @@ export default function JoinRoom() {
                 </div>
             )}
         </>
+    ) : (
+        <Loading />
     )
 }
