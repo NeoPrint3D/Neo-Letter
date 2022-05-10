@@ -79,9 +79,11 @@ io.on('connection', (socket) => {
                 await db.collection("rooms").doc(roomId).collection("players").doc(uid).update({
                     points: admin.firestore.FieldValue.increment(1000 - guessLength * 100)
                 })
-                socket.broadcast.to(roomId).emit('notify', {
-                    message: `${name} guessed ${emojiString}`,
-                })
+                //Todo remove feature ?
+                // socket.broadcast.to(roomId).emit('notify', {
+                //     message: `${name} guessed ${emojiString}`,
+                // })
+                
                 socket.broadcast.to(roomId).emit("reset");
                 socket.emit("reset");
             } else {

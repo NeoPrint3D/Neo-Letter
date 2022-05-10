@@ -135,7 +135,7 @@ export default function GameRoom() {
             setFireOff(true)
             new Promise(resolve => setTimeout(resolve, 5000)).then(() => {
                 console.log("reset")
-                if (room.answers.length > room.round) {
+                if (room.answers.length > room.round && currentPlayer.role === "creator") {
                     updateDoc(roomRef, { round: increment(1) })
                 }
                 setFireOff(false)
