@@ -1,9 +1,13 @@
+
+import { createRequire } from "module";
 import cors from "cors";
 import compression from "compression";
-import words from "./static/wordlist.js";
-import validGuesses from "./static/validGuesses.js";
 import fastifyServer from "fastify";
 import middie from "middie";
+const require = createRequire(import.meta.url);
+const wordList = require("./static/words.json");
+const validList = require("./static/validGuesses.json");
+
 
 
 const fastify = fastifyServer()
@@ -20,19 +24,21 @@ fastify.get("/", async (req, res) => {
   return { hello: "world" }
 });
 fastify.get("/api/words", async (req, res) => {
-  const count = req.query.count || 20;
-  const wordlist = [];
-  //turn this for statement into a one liner
+  const count = req.query.count || 10;
+  const wordlist = []
   for (let i = 0; i < count; i++) {
-    wordlist.push(words[Math.floor(Math.random() * words.length)]);
+    wordlist.push(wordList.words[Math.floor(Math.random() * wordList.words.length)])
   }
   return { words: wordlist }
-});
+})
 //a route to see if the word is valid or not
 fastify.get("/api/valid", async (req, res) => {
-
-  const valid = validGuesses.includes(`${req.query.word}`.toLowerCase());
-  return { isValid: valid }
+  if (req.query.word.length !== 5) {
+    res.status(400).send({ isValid: false })
+    return
+  }
+  const valid = validList.words.includes(`${req.query.word}`.toLowerCase());
+  res.send({ isValid: valid })
 });
 
 const startServer = async () => {

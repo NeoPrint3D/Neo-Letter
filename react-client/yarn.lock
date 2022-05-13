@@ -3771,6 +3771,11 @@ puppeteer@^1.8.0:
     rimraf "^2.6.1"
     ws "^6.1.0"
 
+qrcode-terminal@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/qrcode-terminal/-/qrcode-terminal-0.12.0.tgz#bb5b699ef7f9f0505092a3748be4464fe71b5819"
+  integrity sha512-EXtzRZmC+YGmGlDFbXKxQiMZNwCLEO6BANKXG4iCtSIM0yqc/pappSx3RIKr4r0uh5JsBckOXeKrB3Iz7mdQpQ==
+
 qs@6.5.2:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
@@ -4699,6 +4704,13 @@ vite-plugin-pwa@^0.12.0:
     rollup "^2.70.2"
     workbox-build "^6.5.3"
     workbox-window "^6.5.3"
+
+vite-plugin-qrcode@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/vite-plugin-qrcode/-/vite-plugin-qrcode-0.1.1.tgz#b41c1aec81e1d578f6c10539fc99930ce396f5fc"
+  integrity sha512-ov0o1V4gL9DrPuSW0k22LUzz9UDSk4g2JiLhLfS7XEGj+Ptlq+1VF22Kg2ciLYT8h0vmjNklVgsDN16LOGkvTw==
+  dependencies:
+    qrcode-terminal "^0.12.0"
 
 vite@^2.9.0:
   version "2.9.5"

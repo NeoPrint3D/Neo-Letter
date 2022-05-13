@@ -52,28 +52,6 @@ io.on('connection', (socket) => {
         socket.on("guess", async (data) => {
             console.log("guess")
             const { statuses, guessLength } = data;
-            console.log(statuses, guessLength)
-            let emojiString = ""
-
-            statuses.forEach(status => {
-                switch (status) {
-                    case "correct":
-                        emojiString += "🟩"
-                        break;
-                    case "present":
-                        emojiString += "🟨 "
-                        break;
-                    case "absent":
-                        emojiString += "⬛"
-                        break;
-                    default:
-                        return
-                }
-            })
-            //see if all the statuses are correct
-            console.log(emojiString, name)
-
-
             const allCorrect = statuses.every(status => status === "correct");
             if (allCorrect) {
                 await db.collection("rooms").doc(roomId).collection("players").doc(uid).update({
@@ -82,11 +60,11 @@ io.on('connection', (socket) => {
                 socket.broadcast.to(roomId).emit("reset", { uid });
                 socket.emit("reset", { uid });
             } else {
-                socket.broadcast.to(roomId).emit('notify', {
-                    message: `${name} guessed ${emojiString}`,
-                })
+                socket.broadcast.to(roomId).emit("fireGuess", {
+                    uid,
+                    name,
+                });
             }
-
         })
 
 
@@ -112,7 +90,6 @@ io.on('connection', (socket) => {
                 return
             }
             console.log("deleted")
-            //delete player from room or if he player is the creator, delete the room
             if (player?.role !== "creator") {
                 db.collection("rooms").doc(roomId).collection("players").doc(uid).delete().catch(() => console.log("error"))
                 db.collection("rooms").doc(roomId).update({
@@ -129,8 +106,6 @@ io.on('connection', (socket) => {
             db.collection("rooms").doc(roomId).update({
                 players: admin.firestore.FieldValue.arrayRemove(uid)
             }).catch(() => console.log("error"))
-            return
-
         })
     } catch (error) {
         socket.disconnect();

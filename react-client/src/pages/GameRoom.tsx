@@ -9,52 +9,38 @@ import Grid from "../components/Grid/Grid";
 import KeyBoard from "../components/Keyboard";
 import { arrayUnion, collection, doc, getDoc, increment, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { AuthContext } from "../context/AuthContext";
-import CheckRoomExist from "../components/Checkers/CheckRoomExist";
+import RoomStatusHandler from "../components/Handlers/RoomStatusHandler";
 import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../context/GameContext";
-import { AiFillCheckCircle, AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useWindowSize } from "react-use";
 import { io, Socket } from "socket.io-client";
 import { toast } from "react-toastify";
 import { FaCrown } from 'react-icons/fa'
 import { RiArrowDropLeftLine, RiArrowDropRightLine } from "react-icons/ri";
+import { IoClose } from 'react-icons/io5'
 import { AnimatePresence, m } from "framer-motion";
 import { getGuessStatuses } from "../components/Grid/utils/getStatuses";
 //@ts-expect-error
 import parser from "socket.io-msgpack-parser";
+import { FaSquare } from 'react-icons/fa'
 
-interface Room {
-    id: string;
-    answers: string[];
-    maxPlayers: number;
-    players: string[];
-    started: boolean;
-    round: number;
-}
 
-interface Player {
-    name: string;
-    uid: string;
-    points: number;
-    ready: boolean;
-    role: "user" | "creator";
-    socketId: string;
-    prevSocketId: string;
-}
 
 
 
 
 
 export default function GameRoom() {
-    const [roomStatus, setRoomStatus] = useState(undefined as "exists" | "room_not_found" | "user_not_found" | "room_full" | undefined);
+    const [roomStatus, setRoomStatus] = useState<RoomStatuses>();
     const [room, setRoom] = useState<Room>({} as Room);
-    const [socket, setSocket] = useState({} as Socket);
     const [fireOff, setFireOff] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState<Player>({} as Player);
     const [players, setPlayers] = useState<Player[]>([])
     const [answers, setAnswers] = useState<string[]>([])
     const [round, setRound] = useState(0)
     const [placing, setPlacing] = useState<Player[]>([])
+    const [selectedId, setSelectedId] = useState("")
+    const [selectedPlayer, setSelectedPlayer] = useState<Player>({} as Player)
+    const [guessFireOff, setGuessFireOff] = useState("")
     const { id } = useParams()
     const { width } = useWindowSize()
     const uid = useContext(AuthContext)
@@ -64,12 +50,32 @@ export default function GameRoom() {
     const setGuesses = useContext(GuessesDispatchContext)
     const roomRef = useMemo(() => doc(firestore, "rooms", `${id}`), [id])
     const playerRef = useMemo(() => doc(firestore, "rooms", `${id}`, "players", uid), [id, uid])
+    const [socket, setSocket] = useState<Socket>()
 
     useEffect(() => {
-        //destoy the funcions when teh component is unmounted
-        handleRoomStatus()
-        handleRoomState()
+        const q = query(collection(firestore, "rooms", `${id}`, "players"))
+        const unsub1 = onSnapshot(q, (playersRes) => {
+            const players = playersRes.docs.map((doc) => { return { ...doc.data() } })
+            setPlayers(players as Player[])
+            setPlacing(players.sort((a, b) => b.points - a.points) as Player[])
+            setCurrentPlayer(players.find((p) => p.uid === uid) as Player)
+        })
+
+        const unsub2 = onSnapshot(roomRef, (roomRes) => {
+            const room = roomRes.data()
+            if (!room) {
+                return
+            }
+            setRoom(room as Room)
+            setAnswers(room.answers)
+            setRound(room.round)
+        })
         getDoc(playerRef).then((res) => setGuesses(res.data()?.guesses))
+
+        return () => {
+            unsub1()
+            unsub2()
+        }
     }, [])
 
     useEffect(() => {
@@ -80,17 +86,24 @@ export default function GameRoom() {
                 token: `${currentPlayer.name}:${uid}:${id}`
             }
         })
+        console.log("connected")
+        setSocket(socket)
         if (round >= answers.length) {
             socket.disconnect()
             return
         }
         socket.emit("join")
+        socket.on("fireGuess", (data) => {
+            console.log(data.uid)
+            setGuessFireOff(data.uid)
+            new Promise((resolve) => setTimeout(resolve, 600)).then(() => setGuessFireOff(""))
+        })
         socket.on("notify", (data) => {
             console.log(data)
             toast(data.message, { theme: "dark" })
         })
         socket.on("reset", (data) => {
-            new Promise(resolve => setTimeout(resolve, 5000)).then(async () => {
+            new Promise(resolve => setTimeout(resolve, 4000)).then(async () => {
                 const { uid } = data
                 console.log("reset")
                 if (round < answers.length && currentPlayer.uid === uid) {
@@ -106,70 +119,58 @@ export default function GameRoom() {
                 setFireOff(false)
             })
         })
-        setSocket(socket)
         return () => {
             socket.disconnect()
         }
     }, [roomStatus])
+    //create and array with the current player first
 
 
-
-    async function handleRoomStatus() {
-        const q = query(collection(firestore, "rooms", `${id}`, "players"))
-        const roomDoc = await getDoc(roomRef)
-        const unsub = onSnapshot(q, (playersRes) => {
-            if (!roomDoc.exists()) {
-                setRoomStatus("room_not_found")
-                unsub()
-                return
-            }
-            setPlayers(playersRes.docs.map(p => p.data()) as Player[])
-            setCurrentPlayer(playersRes.docs.find(p => p.data().uid === uid)?.data() as Player)
-            setPlacing(playersRes.docs.sort((a, b) => b.data().score - a.data().score).map(p => p.data()) as Player[])
-            if (playersRes.docs.length === room.maxPlayers) {
-                setRoomStatus("room_full")
-                unsub()
-                return
-            }
-            if (!playersRes.docs.map(p => p.data().uid).includes(uid)) {
-                setRoomStatus("user_not_found")
-                unsub()
-                return
-            }
+    useEffect(() => {
+        if (!room) {
+            setRoomStatus("room_not_found")
+            return
+        }
+        if (players.length === room.maxPlayers) {
+            setRoomStatus("room_full")
+            return
+        }
+        if (!players.map(p => p.uid).includes(uid) && room?.id) {
+            setRoomStatus("user_not_found")
+            return
+        }
+        if (round >= answers.length && answers.length > 0) {
+            console.log("finished")
+            setRoomStatus("room_finished")
+            return
+        }
+        if ((!players.every(p => p.ready) && !room.started) || (players.length <= 1 && players.length > 0)) {
+            setRoomStatus("players_not_ready")
+            return
+        }
+        if (room && uid && currentPlayer && players && players.length > 1) {
             setRoomStatus("exists")
-            //set the first place based on the highest score
-        })
-    }
-
-    async function handleRoomState() {
-        const unsub = onSnapshot(roomRef, (roomRes) => {
-            const room = roomRes.data()
-            if (!room) {
-                unsub()
-                return
-            }
-            setRoom(room as Room)
-            setAnswers(room.answers)
-            setRound(room.round)
-        })
-
-    }
+            updateDoc(roomRef, {
+                started: true
+            })
+            return
+        }
 
 
-
-
-
-
+    }, [players, room, round, answers])
 
     const handleEnter = useCallback(async (socket) => {
         if (key.length !== 5) return
         const res = await fetch(`https://neo-letter-fastify.vercel.app/api/valid?word=${key}`).then(res => res.json())
         if (!res.isValid) {
             toast.error("Invalid Guess", {
-                theme: "dark"
+                theme: "dark",
             })
             return
         }
+        updateDoc(playerRef, {
+            guesses: arrayUnion(key)
+        })
         setKey("")
         await new Promise(resolve => setTimeout(resolve, 150))
         setGuesses([...guesses, key])
@@ -177,34 +178,70 @@ export default function GameRoom() {
             statuses: getGuessStatuses(`${room.answers[room.round]}`.toUpperCase() as string, key),
             guessLength: guesses.length
         })
-        updateDoc(playerRef, {
-            guesses: arrayUnion(key)
-        })
     }, [key, socket, answers, guesses])
 
-    async function handleReady() {
-        await updateDoc(playerRef, {
-            ready: true
-        })
-    }
-
-    //use a callback 
 
 
 
     return (
-        <CheckRoomExist
+        <RoomStatusHandler
             winner={{
                 name: placing[0]?.name,
                 points: placing[0]?.points
             }}
-            answersLength={answers.length}
-            round={round}
+            players={players}
             roomStatus={roomStatus} >
             <Helmet>
                 <title>Neo Letter Room</title>
                 <meta name="description" content={`Room ${id} is where the paty is at`} />
             </Helmet>
+            <AnimatePresence>
+                {selectedId &&
+                    (<div className="flex justify-center items-center fixed h-screen w-screen"
+                        onBlurCapture={() => setSelectedId("")}
+                    >
+                        <m.div
+                            className="flex flex-col bg-gray-200/10 backdrop-blur-xl p-4 rounded-3xl h-[60%] w-[75%] shadow-2xl"
+                            layoutId={selectedId}
+                        >
+                            <div className="grid grid-cols-5">
+                                <div></div>
+                                <div className="flex justify-center col-span-3 text-white">
+                                    <h1 className="text-center text-3xl font-bold">{selectedPlayer.name}</h1>
+                                </div>
+                                <div className="flex justify-end w-full ">
+                                    <button className=" transition-shadow duration-700 text-white hover:shadow-xl p-2 rounded-full" onClick={() => setSelectedId("")} >
+                                        <IoClose size={30} />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex justify-center mt-1">
+                                <p className="text-2xl text-white font-logo">
+                                    Points: {selectedPlayer.points}
+                                </p>
+                            </div>
+                            <div className="flex flex-col items-center  mt-5">
+                                {selectedPlayer.guesses.map((guess, i) => ((
+                                    <div key={i} className="grid grid-cols-5 ">
+                                        {getGuessStatuses(`${room.answers[room.round]}`.toUpperCase() as string, guess).map((status, j) => (
+                                            <div key={j} className="flex justify-center ">
+                                                <div className="tooltip" data-tip={status.charAt(0).toLocaleUpperCase() + status.slice(1)}>
+                                                    <FaSquare size={45} className={`text-white 
+                                                        ${status === "correct" && "text-success"}
+                                                        ${status === "present" && "text-warning"}
+                                                        ${status === "absent" && "text-gray-700"}`}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )))}
+                            </div>
+
+                        </m.div>
+                    </div>)}
+            </AnimatePresence>
+
             <header>
                 <div className="grid grid-cols-3">
                     <div className="flex justify-start items-center">
@@ -216,7 +253,6 @@ export default function GameRoom() {
                         </Link>
                     </div>
                     <div className="flex flex-col justify-center items-center font-logo">
-                        <h1 className="text-2xl font-logo text-center font-semibold">Room <a className="  font-sans select-text font-semibold">{id}</a></h1>
                         <div className="flex text-xl gap-2">
                             <p>Round</p>
                             <AnimatePresence>
@@ -236,6 +272,8 @@ export default function GameRoom() {
                                 }
                             </AnimatePresence>
                         </div>
+                        <h1 className=" text-xl font-sans select-text font-semibold">{id}</h1>
+
                     </div>
                     <div className="flex justify-end items-center mr-3 ">
                         <RWebShare
@@ -250,50 +288,86 @@ export default function GameRoom() {
                         </RWebShare>
                     </div>
                 </div>
-                <div className="flex items-center h-[4.25rem] border-y-[3px] border-white/10 rounded">
-                    <div className=" carousel carousel-center ">
-                        <div className="flex items-center gap-2 carousel-item mx-5 py-2 px-3 rounded bg-gray-400/20">
-                            {currentPlayer?.ready ? <AiFillCheckCircle className="text-green-500" size={25} /> : <AiOutlineLoading3Quarters className="animate-spin text-white" size={25} />}
-                            <div className={`flex items-center gap-2 ${placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid ? "text-yellow-400" : "text-white"}`}>
-                                {placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid && (
-                                    <FaCrown aria-label="Crown" size={25} />
-                                )}
-                                <h1 className={`text-xl font-logo font-bold text-center `}>{currentPlayer?.name}: </h1>
-                                <p className="text-xl font-sans font-semibold text-center"
-                                >
-                                    {currentPlayer?.points}
-                                </p>
-                            </div>
-                        </div>
-                        {players && players.filter(p => p.uid !== uid).map((player, i) => (
-                            <div className={`flex items-center gap-2 carousel-item mx-5 py-2 px-3 rounded bg-gray-400/20  ${placing[0]?.points > 100 && placing[0]?.uid === player?.uid ? "text-yellow-400" : "text-gray-200"}`}
-                                key={i}
+                <div className="flex items-center h-[4.25rem] border-white/10 border-y-4 rounded ">
+                    <div className="flex overflow-auto scroll-hidden w-full">
+                        {players && players.filter((p) => p.uid !== uid).map((player) => (
+                            <m.div
+                                className={`flex items-center gap-2 carousel-item mx-5 py-2 px-3 rounded  bg-gray-400/20  ${placing[0]?.points > 100 && placing[0]?.uid === player?.uid ? "text-yellow-400" : "text-gray-200"}`}
+                                layoutId={player.uid}
+                                key={player.uid}
                             >
-                                {placing[0]?.points > 0 && placing[0]?.uid === player?.uid && (
-                                    <FaCrown aria-label="Crown" size={25} />
-                                )}
-                                {/* {player.ready ? <AiFillCheckCircle className="text-green-500" size={25} /> : <AiOutlineLoading3Quarters className="animate-spin text-white" size={25} />} */}
-                                <p className={`font-logo text-xl`}>
-                                    {player.name}: <a className="">{player.points}</a></p>
-                            </div>
+                                <AnimatePresence>
+                                    {placing[0]?.points > 0 && placing[0]?.uid === player?.uid && (
+                                        <m.div
+                                            initial={{ y: -100 }}
+                                            animate={{ y: 0 }}
+                                            exit={{ y: -100 }}
+                                            transition={{
+                                                type: "spring",
+                                                stiffness: 100,
+                                                damping: 10
+                                            }}
+                                        >
+                                            <FaCrown aria-label="Crown" size={25} />
+                                        </m.div>
+                                    )}
+                                </AnimatePresence>
+                                <button className={` 
+                                transition-all duration-500 font-logo text-xl
+                                 ${guessFireOff === player.uid ? "text-success scale-110" : "scale-100"} 
+                                 ${placing[0]?.points > 0 && placing[0]?.uid === player?.uid ? "text-yellow-400" : "text-gray-200"}
+                                  `}
+                                    onClick={() => {
+                                        setSelectedId(player.uid)
+                                        setSelectedPlayer(player)
+                                    }}
+                                >
+                                    {player.name}: {player.points}
+                                </button>
+                            </m.div>
                         ))}
+
                     </div>
                 </div>
             </header>
 
-
-
-            <div className={`flex items-center sm:items-end justify-center h-[calc(100vh-8rem)] sm:h-[calc(95vh)] ${width <= 380 && "scale-[90%]"}`}>
-                <div className="flex flex-col items-center  sm:grid  sm:grid-rows-6 sm:items-end">
+            <div className={`flex-col items-center sm:items-end justify-center h-screen  ${width <= 380 && "scale-[90%]"}`}>
+                <m.div
+                    className={`flex  gap-3 justify-center text-xl font-logo my-2
+                    ${placing[0]?.points > 100 && placing[0]?.uid === currentPlayer?.uid ? "text-yellow-400" : "text-gray-200"}
+                    `}
+                    layout
+                >
+                    <AnimatePresence>
+                        {placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid && (
+                            <m.div
+                                initial={{ y: -100 }}
+                                animate={{ y: 0 }}
+                                exit={{ y: -25, scale: 0, opacity: 0 }}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 100,
+                                    damping: 10
+                                }}
+                            >
+                                <FaCrown aria-label="Crown" size={25} />
+                            </m.div>
+                        )}
+                    </AnimatePresence>
+                    <h1>
+                        {currentPlayer?.name} : {currentPlayer?.points}
+                    </h1>
+                </m.div>
+                <div className="flex flex-col items-center ">
                     <div className="flex justify-center items-center sm:items-end sm:row-span-5 mb-5">
                         <Grid answer={`${answers[round]}`.toUpperCase() || ""} />
                     </div>
-                    <div className="flex justify-center items-end mb-3 sm:mb-0">
+                    <div className={`flex justify-center items-end mb-3 sm:mb-0 ${width < 400 && "scale-[93.5%]"}`}>
                         <KeyBoard handleEnter={() => handleEnter(socket)} answer={`${answers[round]}`.toUpperCase()} />
                     </div>
                 </div>
             </div>
-        </CheckRoomExist >
+        </RoomStatusHandler >
     );
 }
 

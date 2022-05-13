@@ -1,7 +1,6 @@
-
-
 import { defineConfig } from "vite";
-import { VitePWA as pwa } from "vite-plugin-pwa";
+import { VitePWA } from "vite-plugin-pwa";
+
 //@ts-ignore
 import manifest from "./manifest.json";
 import react from "@vitejs/plugin-react";
@@ -11,7 +10,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [
     react(),
-    pwa({
+    VitePWA({
       strategies: "injectManifest",
       srcDir: "",
       filename: "service-worker.js",
