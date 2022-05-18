@@ -5,6 +5,7 @@ import compression from "compression";
 import fastifyServer from "fastify";
 import middie from "middie";
 import "dotenv/config.js"
+import {db} from "./utils/firebase.js"
 const require = createRequire(import.meta.url);
 const wordList = require("./static/words.json");
 const validList = require("./static/validGuesses.json");
@@ -59,6 +60,7 @@ app.delete("/api/rooms", async (req, res) => {
   }
   catch (error) {
     res.status(500).send({ error })
+    console.log(error)
   }
 })
 
