@@ -5,7 +5,7 @@ import compression from "compression";
 import fastifyServer from "fastify";
 import middie from "middie";
 import "dotenv/config.js"
-import {db} from "./utils/firebase.js"
+import { db } from "./utils/firebase.js"
 const require = createRequire(import.meta.url);
 const wordList = require("./static/words.json");
 const validList = require("./static/validGuesses.json");

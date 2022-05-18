@@ -1,0 +1,12 @@
+name: Run Delete Rooms
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+jobs:
+  build:
+    name: Delete Rooms
+    runs-on: ubuntu-latest
+    steps:
+      - name: cURL request
+        run: curl -X DELETE -H 'Authorization: '${{ secrets.DELETE_KEY }} 'https://neo-letter-fastify.vercel.app/api/rooms'
