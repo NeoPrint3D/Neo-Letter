@@ -31,7 +31,7 @@ app.get("/api/words", async (req, res) => {
   for (let i = 0; i < count; i++) {
     wordlist.push(wordList.words[Math.floor(Math.random() * wordList.words.length)])
   }
-  res.send({ words: wordlist })
+  res.status(200).send({ words: wordlist })
 })
 //a route to see if the word is valid or not
 app.get("/api/valid", async (req, res) => {
@@ -55,10 +55,10 @@ app.delete("/api/rooms", async (req, res) => {
       deleteStack.push(db.collection("rooms").doc(id).delete())
     })
     await Promise.all(deleteStack)
-    res.status(202).json({ message: "deleted" })
+    res.status(202).send({ message: "deleted" })
   }
   catch (error) {
-    res.status(500).json({ error })
+    res.status(500).send({ error })
   }
 })
 
