@@ -9,4 +9,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: cURL request
-        run: curl -X DELETE -H 'Authorization: '${{ secrets.DELETE_KEY }} 'https://neo-letter-fastify.vercel.app/api/rooms'
+        run: "curl -X DELETE -H 'Authorization: ${{ secrets.DELETE_KEY }}' 'https://neo-letter-fastify.vercel.app/api/rooms'"
