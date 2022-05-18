@@ -2,7 +2,7 @@ name: Run Delete Rooms
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '0 3 * * *'
 jobs:
   build:
     name: Delete Rooms
