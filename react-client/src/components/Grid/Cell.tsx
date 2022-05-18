@@ -29,4 +29,4 @@ function Cell({ keypress, status = 'empty' }: { keypress?: string; status?: "emp
     );
 }
 
-export default memo(Cell);
+export default Cell

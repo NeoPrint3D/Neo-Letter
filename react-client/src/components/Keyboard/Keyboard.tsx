@@ -1,18 +1,16 @@
-import { useContext, useEffect, useState } from "react";
+import { memo, useContext, useEffect, useState } from "react";
 import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../../context/GameContext";
 import Key from "./Key";
 import { CharStatus, getGuessStatuses } from "../Grid/utils/getStatuses";
 import { m } from "framer-motion";
 
-export default function KeyBoard({ answer, handleEnter }: { answer: string, handleEnter: any }) {
+function KeyBoard({ answer, handleEnter, hasGuessed }: { answer: string, handleEnter: any, hasGuessed: boolean }) {
+    const [statuses, setStatuses] = useState<{ [key: string]: CharStatus }>({})
     const guesses = useContext(GuessesContext)
     const key = useContext(KeyboardContext)
     const setKey = useContext(KeyBoardDispatchContext)
 
 
-    const [statuses, setStatuses] = useState<{
-        [key: string]: CharStatus;
-    }>({})
 
     useEffect(() => {
         handlekeyboardStatuses()
@@ -68,10 +66,11 @@ export default function KeyBoard({ answer, handleEnter }: { answer: string, hand
             </div>
             <div className="flex just ify-center gap-[0.1875rem]">
                 <m.button
-                    className="px-3 py-4 bg-primary rounded text-white "
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.9 }}
+                    className=" transition-colors duration-300 px-3 py-4 bg-primary hover:bg-red-400 active:bg-red-600 rounded shadow-key text-white disabled:bg-primary/40 "
+                    whileHover={{ scale: 1.025 }}
+                    whileTap={{ scale: 0.975 }}
                     onClick={handleEnter}
+                    disabled={hasGuessed || guesses.length === 6 || `${key}`.length < 5}
                 >
                     Enter
                 </m.button>
@@ -84,9 +83,9 @@ export default function KeyBoard({ answer, handleEnter }: { answer: string, hand
                     />
                 ))}
                 <m.button
-                    className="px-3 py-4 bg-primary rounded text-white "
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.9 }}
+                    className="transition-colors shadow-key duration-300 px-3 py-4 bg-primary hover:bg-red-400 active:bg-red-600 rounded text-white "
+                    whileHover={{ scale: 1.025 }}
+                    whileTap={{ scale: 0.975 }}
                     onClick={() => setKey(key.slice(0, -1))}
                 >
                     Delete
@@ -95,4 +94,7 @@ export default function KeyBoard({ answer, handleEnter }: { answer: string, hand
         </div>
     )
 }
+
+
+export default memo(KeyBoard)
 

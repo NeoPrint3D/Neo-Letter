@@ -9,7 +9,7 @@ export default function Header() {
     const hideHeader = ['/room'].includes(`/${location.pathname.split("/")[1]}`);
 
     return !hideHeader ? (
-        <header className={` grid grid-cols-2 lg:grid-cols-3 h-20 items-center w-full border-b-white/40 ${location.pathname === "/" && "fixed"} `}>
+        <header className={` grid grid-cols-2 lg:grid-cols-3 h-20 items-center w-full border-b-white/40 ${location.pathname === "/" && "absolute"} `}>
             <div className="hidden lg:flex"></div>
             <div className="flex justify-start lg:justify-center ml-5">
                 <Link to="/" >

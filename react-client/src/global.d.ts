@@ -3,11 +3,13 @@ interface Room {
   answers: string[];
   maxPlayers: number;
   players: string[];
+  roomType: "public" | "private";
   started: boolean;
   round: number;
 }
 
 interface Player {
+  guessed: any;
   name: string;
   uid: string;
   points: number;

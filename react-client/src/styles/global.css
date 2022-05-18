@@ -17,6 +17,19 @@ html {
   display: none;
 }
 
+.scroll-lobby::-webkit-scrollbar {
+  display: block;
+  width: 18px;
+  background-color: #023047d8;
+  border-top-right-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+}
+.scroll-lobby::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 10px 10px #ef233c;
+  border: solid 5px transparent;
+  border-radius: 0.75rem;
+}
+
 .selectable {
   -webkit-user-select: text !important;
   -khtml-user-select: text !important;
@@ -28,7 +41,6 @@ html {
 
 .glass-container {
   background: rgba(2, 48, 71, 0.49);
-  border-radius: 16px;
   box-shadow: 0 3rem 7rem rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(12.4px);
@@ -48,4 +60,8 @@ input[type="number"]::-webkit-outer-spin-button {
 .shadow-input-inner {
   box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset,
     rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+.shadow-key {
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }

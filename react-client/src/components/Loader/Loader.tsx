@@ -1,7 +1,6 @@
 import { m } from 'framer-motion';
-import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
-export function Loading() {
+function Loader() {
   return (
     <div className="flex justify-center items-center min-h-page">
       <m.div
@@ -22,3 +21,6 @@ export function Loading() {
     </div>
   );
 }
+
+
+export default Loader

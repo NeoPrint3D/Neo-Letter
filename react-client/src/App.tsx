@@ -1,16 +1,17 @@
-import { Suspense, lazy, useEffect } from 'react'
-import { Routes, Route, BrowserRouter, useLocation } from 'react-router-dom'
+import { Suspense, lazy } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
-import { AuthProvider } from './context/AuthContext'
-
+import { AuthProvider } from "./context/AuthContext";
 import { GameContextProvider } from './context/GameContext'
-import { Loading } from './components/Loader/Loading'
+import Loader from './components/Loader'
 import { useWindowSize } from 'react-use'
 import AppToastContainer from './components/Toast/ToastContainer'
 import MobileImage from "/images/assets/App-Mobile.webp"
 import DesktopImage from "/images/assets/App-Desktop.webp"
 import Home from './pages/Home'
-import { domMax, LazyMotion } from 'framer-motion'
+import { domAnimation, LazyMotion } from 'framer-motion'
+import BottomNavbar from './components/BottomNavbar'
+import Footer from './components/Footer';
 const GameRoom = lazy(() => import('./pages/GameRoom'))
 const CreateRoom = lazy(() => import('./pages/Create'))
 const JoinRoom = lazy(() => import('./pages/Join'))
@@ -21,28 +22,29 @@ function App() {
   const { width } = useWindowSize()
   return (
     <AuthProvider>
-        <div id="App"
-          style={{
-            backgroundImage: ` url(${width > 600 ? DesktopImage : MobileImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className={" min-h-screen bg-primary-dark/70"}>
-            <Header />
-            <LazyMotion features={domMax}>
-              <Suspense fallback={<Loading />}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/create" element={<CreateRoom />} />
-                  <Route path="/join" element={<JoinRoom />} />
-                  <Route path="/room/:id" element={<GameContextProvider><GameRoom /></GameContextProvider>} />
-                </Routes>
-              </Suspense>
-            </LazyMotion>
-          </div>
+      <div id="App"
+        style={{
+          backgroundImage: ` url(${width > 600 ? DesktopImage : MobileImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className={" min-h-screen bg-primary-dark/70"}>
+          <Header />
+          <LazyMotion features={domAnimation}>
+            <Suspense fallback={<Loader />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/create" element={<CreateRoom />} />
+                <Route path="/join" element={<JoinRoom />} />
+                <Route path="/room/:id" element={<GameContextProvider><GameRoom /></GameContextProvider>} />
+              </Routes>
+            </Suspense>
+          </LazyMotion>
         </div>
-        <AppToastContainer />
+      </div>
+      <Footer />
+      <AppToastContainer />
     </AuthProvider>
   )
 }

@@ -5,8 +5,9 @@ import { useNavigate } from 'react-router-dom';
 //import io
 import { firestore } from '../utils/firebase';;
 import { AuthContext } from '../context/AuthContext';
-import { Loading } from '../components/Loader/Loading';
+import Loader from '../components/Loader';
 import { AnimatePresence, AnimateSharedLayout, LayoutGroup, m } from 'framer-motion';
+import BottomNavbar from '../components/BottomNavbar';
 
 export default function CreateRoom() {
     const [loading, setLoading] = useState(false)
@@ -50,27 +51,28 @@ export default function CreateRoom() {
         ).then((res) => res.json())
         const wordlist = res.words
         const id = await generateCleanId()
+        const playerdata: Player = {
+            name: "",
+            uid,
+            points: 0,
+            ready: false,
+            socketId: "",
+            prevSocketId: "",
+            role: "creator",
+            guesses: [],
+            guessed: false,
+        }
         await Promise.all([
             setDoc(doc(firestore, "rooms", `${id}`), {
                 id,
-                maxPlayers: roomSelectToNumber(maxPlayers),
+                maxPlayers: customMaxPlayers || roomSelectToNumber(maxPlayers),
                 started: false,
                 roomType,
                 answers: wordlist,
                 players: [],
                 round: 0
             }),
-            setDoc(doc(firestore, "rooms", `${id}`, "players", `${uid}`), {
-                name: "",
-                uid,
-                points: 0,
-                ready: false,
-                socketId: "",
-                prevSocketId: "",
-                role: "creator",
-                guesses: [],
-                status: ""
-            }),
+            setDoc(doc(firestore, "rooms", `${id}`, "players", `${uid}`), playerdata),
         ])
         setLoading(false)
         navigate(`/join?id=${id}`)
@@ -85,10 +87,12 @@ export default function CreateRoom() {
                 <div className="flex justify-center items-center min-h-page">
                     <m.div
                         className="sm:w-full px-20 sm:max-w-lg bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl p-5 shadow-2xl"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
                         transition={{
-                            duration: 1,
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30,
                         }}
                         layout
                     >
@@ -156,6 +160,6 @@ export default function CreateRoom() {
             </LayoutGroup>
         </>
     ) : (
-        <Loading />
+        <Loader />
     )
 }

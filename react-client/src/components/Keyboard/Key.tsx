@@ -14,22 +14,24 @@ function Key({ value, status }: { value?: string, status?: CharStatus, socket?: 
             setKey(key + value)
         }
     }
+
     return (
         <m.button
             className={`
+            shadow-key
                 text-white
-                transition-colors duration-1000 rounded py-4 px-3 delay-1000
-                ${status ? `
+                transition-colors rounded py-4 px-3 
+                ${status ? `duration-1000 delay-1000
                 ${status === "correct" && "bg-success"}
                 ${status === "present" && "bg-warning"}
-                ${status === "absent" && "bg-gray-700/60"}` : `bg-[#6a6c80] first:px-3.5 last:px-3.5`}`}
+                ${status === "absent" && "bg-gray-700/60"}` :
+                `bg-[#6a6c80] hover:bg-gray-400 active:bg-slate-600 first:px-3.5 last:px-3.5`}`}
             onClick={handleClick}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.9 }}
-
+            whileHover={{ scale: 1.025 }}
+            whileTap={{ scale: 0.975 }}
         >
             {value}
         </m.button >
     )
 }
-export default memo(Key)
+export default Key

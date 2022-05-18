@@ -1,13 +1,13 @@
 import { arrayUnion, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { AnimatePresence, AnimateSharedLayout, m } from "framer-motion";
+import { m } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
-import { Loading } from "../components/Loader/Loading";
 import { AuthContext } from "../context/AuthContext";
 import { firestore } from "../utils/firebase";
+import Loader from "../components/Loader";
 
 
 
@@ -78,6 +78,7 @@ export default function JoinRoom() {
             socketId: "",
             prevSocketId: "",
             guesses: [],
+            guessed: false,
             role: "user",
             status: ""
         })
@@ -117,17 +118,19 @@ export default function JoinRoom() {
             <div className="flex justify-center items-center min-h-page">
                 {!roomValid && (
                     <m.div className="bg-primary-dark/30 backdrop-blur-3xl rounded-3xl p-5 shadow-2xl px-20"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
                         transition={{
-                            duration: 1
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30,
                         }}
                     >
                         <div className="flex justify-center mb-7 font-logo">
                             <h1 className="text-4xl sm:text-4xl">Join room</h1>
                         </div>
                         <form className="flex flex-col items-center gap-5" onSubmit={handleSubmit}>
-                            <input className="p-2 shadow-input text-center rounded-xl font-semibold  bg-transparent placeholder:font-semibold focus:outline-none" type="text" placeholder="Room ID"
+                            <input className="p-2 shadow-input text-center rounded-xl font-semibold bg-transparent placeholder:font-semibold focus:outline-none" type="text" placeholder="Room ID"
                                 value={roomId}
                                 onChange={(e) => setRoomId(e.target.value.replace(/[^0-9]/g, '').slice(0, 5))}
                             />
@@ -144,10 +147,12 @@ export default function JoinRoom() {
                 )}
                 {roomValid && (
                     <m.div className="px-20 bg-primary-dark/30 backdrop-blur-3xl rounded-3xl p-5 shadow-2xl"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
                         transition={{
-                            duration: 1
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30,
                         }}
                     >
                         <div className="flex justify-center mb-7 font-logo">
@@ -171,6 +176,6 @@ export default function JoinRoom() {
             </div>
         </>
     ) : (
-        <Loading />
+        <Loader />
     )
 }

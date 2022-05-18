@@ -7,7 +7,7 @@ import { RWebShare } from "react-web-share";
 import { FiShare } from 'react-icons/fi'
 import Grid from "../components/Grid/Grid";
 import KeyBoard from "../components/Keyboard";
-import { arrayUnion, collection, doc, getDoc, increment, onSnapshot, query, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, increment, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { AuthContext } from "../context/AuthContext";
 import RoomStatusHandler from "../components/Handlers/RoomStatusHandler";
 import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../context/GameContext";
@@ -40,7 +40,9 @@ export default function GameRoom() {
     const [placing, setPlacing] = useState<Player[]>([])
     const [selectedId, setSelectedId] = useState("")
     const [selectedPlayer, setSelectedPlayer] = useState<Player>({} as Player)
-    const [guessFireOff, setGuessFireOff] = useState("")
+    const [guessFireOff, setGuessFireOff] = useState<string[]>([])
+    const [hasGuessed, setHasGuessed] = useState(false)
+    const [everyoneGuessed, setEveryoneGuessed] = useState(false)
     const { id } = useParams()
     const { width } = useWindowSize()
     const uid = useContext(AuthContext)
@@ -52,18 +54,73 @@ export default function GameRoom() {
     const playerRef = useMemo(() => doc(firestore, "rooms", `${id}`, "players", uid), [id, uid])
     const [socket, setSocket] = useState<Socket>()
 
+
+    const playersGuessed = useCallback((players: Player[]) => {
+        const peopleGuessed = players.filter(player => player.guessed)
+        setGuessFireOff(peopleGuessed.map(player => player.uid))
+    }, [])
+    const resetRound = useCallback(async (players: Player[]) => {
+        if (players.every((p) => p.guesses.length === 6)) {
+            const updateStack: Promise<void>[] = []
+            toast.warning("Everyone has guessed", { theme: "dark" })
+            await new Promise((resolve) => setTimeout(resolve, 2000))
+            if (currentPlayer.role === "creator") {
+                players.map((p) => updateStack.push(updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), { guesses: [] })))
+                await Promise.all([
+                    ...updateStack,
+                    updateDoc(roomRef, { round: round < answers.length ? increment(1) : round })
+                ])
+            }
+            setFireOff(true)
+            await new Promise(resolve => setTimeout(resolve, 500))
+            setFireOff(false)
+            setGuesses([])
+            setKey("")
+        }
+    }, [players, currentPlayer, id, roomRef, round])
+    const handleEnter = useCallback(async (socket) => {
+        if (key.length !== 5) return
+        setHasGuessed(true)
+        const res = await fetch(`https://neo-letter-fastify.vercel.app/api/valid?word=${key}`).then(res => res.json())
+        if (!res.isValid) {
+            toast.error("Invalid Guess", {
+                theme: "dark",
+            })
+            setHasGuessed(false)
+            return
+        }
+        setKey("")
+        await new Promise(resolve => setTimeout(resolve, 150))
+        setGuesses([...guesses, key])
+        await updateDoc(playerRef, {
+            guesses: [...guesses, key],
+            guessed: true
+        })
+        socket.emit("guess", {
+            statuses: getGuessStatuses(`${room.answers[room.round]}`.toUpperCase() as string, key),
+            guessLength: guesses.length,
+            everyoneGuessed,
+        })
+        await updateDoc(playerRef, { guessed: false })
+        setHasGuessed(false)
+    }, [key, socket, answers, guesses])
+
     useEffect(() => {
         const q = query(collection(firestore, "rooms", `${id}`, "players"))
-        const unsub1 = onSnapshot(q, (playersRes) => {
-            const players = playersRes.docs.map((doc) => { return { ...doc.data() } })
-            setPlayers(players as Player[])
-            setPlacing(players.sort((a, b) => b.points - a.points) as Player[])
+        const unsub1 = onSnapshot(q, async (playersRes) => {
+            const players = playersRes.docs.map((doc) => { return { ...doc.data() } }) as Player[]
+            playersGuessed(players)
+            resetRound(players)
+            setPlayers(players)
+            //see if one person has points
+            setPlacing(players.filter((p) => p.points > 0).length > 0 ? players.sort((a, b) => b.points! - a.points!) : [])
             setCurrentPlayer(players.find((p) => p.uid === uid) as Player)
         })
 
         const unsub2 = onSnapshot(roomRef, (roomRes) => {
             const room = roomRes.data()
             if (!room) {
+                setRoomStatus("room_not_found")
                 return
             }
             setRoom(room as Room)
@@ -71,13 +128,38 @@ export default function GameRoom() {
             setRound(room.round)
         })
         getDoc(playerRef).then((res) => setGuesses(res.data()?.guesses))
-
         return () => {
             unsub1()
             unsub2()
         }
     }, [])
+    useEffect(() => {
+        if (players.length > room.maxPlayers) {
+            setRoomStatus("room_full")
+            return
+        }
+        if (!players.map(p => p.uid).includes(uid) && players.length > 0) {
+            setRoomStatus("user_not_found")
+            return
+        }
+        if (round >= answers.length && answers.length > 0) {
+            console.log("finished")
+            setRoomStatus("room_finished")
+            return
+        }
+        if ((!players.every(p => p.ready) && !room.started) || (players.length <= 1 && players.length > 0)) {
+            setRoomStatus("players_not_ready")
+            return
+        }
+        if (room && uid && currentPlayer && players && players.length > 1) {
+            setRoomStatus("exists")
+            updateDoc(roomRef, {
+                started: true
+            })
+            return
 
+        }
+    }, [room, players])
     useEffect(() => {
         if (roomStatus !== "exists") return
         const socket = io(process.env.NODE_ENV === "development" ? "http://localhost:8080" : "https://Neo-Letter.neoprint777.repl.co", {
@@ -93,17 +175,12 @@ export default function GameRoom() {
             return
         }
         socket.emit("join")
-        socket.on("fireGuess", (data) => {
-            console.log(data.uid)
-            setGuessFireOff(data.uid)
-            new Promise((resolve) => setTimeout(resolve, 600)).then(() => setGuessFireOff(""))
-        })
         socket.on("notify", (data) => {
             console.log(data)
             toast(data.message, { theme: "dark" })
         })
         socket.on("reset", (data) => {
-            new Promise(resolve => setTimeout(resolve, 4000)).then(async () => {
+            new Promise(resolve => setTimeout(resolve, 3500)).then(async () => {
                 const { uid } = data
                 console.log("reset")
                 if (round < answers.length && currentPlayer.uid === uid) {
@@ -123,71 +200,17 @@ export default function GameRoom() {
             socket.disconnect()
         }
     }, [roomStatus])
+
+
+
     //create and array with the current player first
-
-
-    useEffect(() => {
-        if (!room) {
-            setRoomStatus("room_not_found")
-            return
-        }
-        if (players.length === room.maxPlayers) {
-            setRoomStatus("room_full")
-            return
-        }
-        if (!players.map(p => p.uid).includes(uid) && room?.id) {
-            setRoomStatus("user_not_found")
-            return
-        }
-        if (round >= answers.length && answers.length > 0) {
-            console.log("finished")
-            setRoomStatus("room_finished")
-            return
-        }
-        if ((!players.every(p => p.ready) && !room.started) || (players.length <= 1 && players.length > 0)) {
-            setRoomStatus("players_not_ready")
-            return
-        }
-        if (room && uid && currentPlayer && players && players.length > 1) {
-            setRoomStatus("exists")
-            updateDoc(roomRef, {
-                started: true
-            })
-            return
-        }
-
-
-    }, [players, room, round, answers])
-
-    const handleEnter = useCallback(async (socket) => {
-        if (key.length !== 5) return
-        const res = await fetch(`https://neo-letter-fastify.vercel.app/api/valid?word=${key}`).then(res => res.json())
-        if (!res.isValid) {
-            toast.error("Invalid Guess", {
-                theme: "dark",
-            })
-            return
-        }
-        updateDoc(playerRef, {
-            guesses: arrayUnion(key)
-        })
-        setKey("")
-        await new Promise(resolve => setTimeout(resolve, 150))
-        setGuesses([...guesses, key])
-        socket.emit("guess", {
-            statuses: getGuessStatuses(`${room.answers[room.round]}`.toUpperCase() as string, key),
-            guessLength: guesses.length
-        })
-    }, [key, socket, answers, guesses])
-
-
-
+    //create a function to wait 500ms 
 
     return (
         <RoomStatusHandler
             winner={{
-                name: placing[0]?.name,
-                points: placing[0]?.points
+                name: placing[0]?.name || "No one won",
+                points: placing[0]?.points || 0
             }}
             players={players}
             roomStatus={roomStatus} >
@@ -197,11 +220,9 @@ export default function GameRoom() {
             </Helmet>
             <AnimatePresence>
                 {selectedId &&
-                    (<div className="flex justify-center items-center fixed h-screen w-screen"
-                        onBlurCapture={() => setSelectedId("")}
-                    >
+                    (<div className="flex justify-center items-center fixed h-screen w-screen">
                         <m.div
-                            className="flex flex-col bg-gray-200/10 backdrop-blur-xl p-4 rounded-3xl h-[60%] w-[75%] shadow-2xl"
+                            className="flex flex-col bg-gray-200/10 backdrop-blur-xl p-4 rounded-3xl h-[75%] w-[75%] shadow-2xl"
                             layoutId={selectedId}
                         >
                             <div className="grid grid-cols-5">
@@ -264,28 +285,25 @@ export default function GameRoom() {
                                             type: "spring",
                                             stiffness: 100,
                                             damping: 10
-                                        }}
-                                    >{round + 1}/{answers.length}</m.p> :
-                                    <p>
-                                        {round + 1}/{answers.length}
-                                    </p>
+                                        }}>{round + 1}/{answers.length}</m.p> : <p>{round + 1}/{answers.length}</p>
                                 }
                             </AnimatePresence>
                         </div>
-                        <h1 className=" text-xl font-sans select-text font-semibold">{id}</h1>
-
+                        <h1 className=" text-xl font-sans select-text font-semibold">ID: {id}</h1>
                     </div>
-                    <div className="flex justify-end items-center mr-3 ">
-                        <RWebShare
-                            data={{
-                                title: `Join room ${id}`,
-                                text: `${currentPlayer?.name} sent you a request to join room ${id}`,
-                                url: `${process.env.NODE_ENV === "development" ? `http://localhost:3000/join?id=${id}` : `https://neo-letter.web.app/join?id=${id}`}`,
-                            }}>
-                            <button className=" transition-all flex justify-center  items-center rounded-full p-3 bg-primary text-white focus:scale-90 focus:bg-red-600">
-                                <FiShare size={25} />
-                            </button>
-                        </RWebShare>
+                    <div className="flex items-center justify-end mr-3">
+                        <div className="tooltip tooltip-left" data-tip={"Share?"}>
+                            <RWebShare
+                                data={{
+                                    title: `Join room ${id}`,
+                                    text: `${currentPlayer?.name} sent you a request to join room ${id}`,
+                                    url: `${process.env.NODE_ENV === "development" ? `http://localhost:3000/join?id=${id}` : `https://neo-letter.web.app/join?id=${id}`}`,
+                                }}>
+                                <button className=" transition-all duration-300 flex justify-center  items-center rounded-full p-3 bg-primary text-white active:scale-90">
+                                    <FiShare size={25} />
+                                </button>
+                            </RWebShare>
+                        </div>
                     </div>
                 </div>
                 <div className="flex items-center h-[4.25rem] border-white/10 border-y-4 rounded ">
@@ -314,8 +332,9 @@ export default function GameRoom() {
                                 </AnimatePresence>
                                 <button className={` 
                                 transition-all duration-500 font-logo text-xl
-                                 ${guessFireOff === player.uid ? "text-success scale-110" : "scale-100"} 
-                                 ${placing[0]?.points > 0 && placing[0]?.uid === player?.uid ? "text-yellow-400" : "text-gray-200"}
+                                 ${placing[0]?.points > 0 && placing[0]?.uid === player?.uid ?
+                                        `${guessFireOff.includes(player.uid) ? "text-success scale-[150%] " : "scale-100 text-yellow-400"}` :
+                                        `${guessFireOff.includes(player.uid) ? "text-success scale-[150%] " : "scale-100 text-gray-200"} `}
                                   `}
                                     onClick={() => {
                                         setSelectedId(player.uid)
@@ -334,7 +353,7 @@ export default function GameRoom() {
             <div className={`flex-col items-center sm:items-end justify-center h-screen  ${width <= 380 && "scale-[90%]"}`}>
                 <m.div
                     className={`flex  gap-3 justify-center text-xl font-logo my-2
-                    ${placing[0]?.points > 100 && placing[0]?.uid === currentPlayer?.uid ? "text-yellow-400" : "text-gray-200"}
+                    ${placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid ? "text-yellow-400" : "text-gray-200"}
                     `}
                     layout
                 >
@@ -363,7 +382,7 @@ export default function GameRoom() {
                         <Grid answer={`${answers[round]}`.toUpperCase() || ""} />
                     </div>
                     <div className={`flex justify-center items-end mb-3 sm:mb-0 ${width < 400 && "scale-[93.5%]"}`}>
-                        <KeyBoard handleEnter={() => handleEnter(socket)} answer={`${answers[round]}`.toUpperCase()} />
+                        <KeyBoard handleEnter={() => handleEnter(socket)} hasGuessed={hasGuessed} answer={`${answers[round]}`.toUpperCase()} />
                     </div>
                 </div>
             </div>

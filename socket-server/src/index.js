@@ -51,62 +51,74 @@ io.on('connection', (socket) => {
         })
         socket.on("guess", async (data) => {
             console.log("guess")
-            const { statuses, guessLength } = data;
+            const { statuses, guessLength, everyoneGuessed } = data;
+            console.log(everyoneGuessed)
             const allCorrect = statuses.every(status => status === "correct");
-            if (allCorrect) {
-                await db.collection("rooms").doc(roomId).collection("players").doc(uid).update({
-                    points: admin.firestore.FieldValue.increment(1000 - guessLength * 100)
-                })
+            if (everyoneGuessed) {
+                console.log("everyone guessed")
                 socket.broadcast.to(roomId).emit("reset", { uid });
                 socket.emit("reset", { uid });
-            } else {
+                socket.emit("notify", {
+                    message: "No one guessed correctly"
+                })
+                socket.broadcast.to(roomId).emit("notify", {
+                    message: "No one guessed correctly"
+                })
+            }
+            if (!allCorrect) {
                 socket.broadcast.to(roomId).emit("fireGuess", {
                     uid,
                     name,
                 });
+                return
             }
+            await db.collection("rooms").doc(roomId).collection("players").doc(uid).update({
+                points: admin.firestore.FieldValue.increment(1000 - guessLength * 100)
+            })
+            socket.broadcast.to(roomId).emit("reset", { uid });
+            socket.emit("reset", { uid });
         })
 
 
         //disconnection
 
-        socket.on("disconnect", async () => {
-            console.log("disconnected")
-            socket.broadcast.to(roomId).emit('notify', {
-                message: `${name} has left the room`
-            })
+        // socket.on("disconnect", async () => {
+        //     console.log("disconnected")
+        //     socket.broadcast.to(roomId).emit('notify', {
+        //         message: `${name} has left the room`
+        //     })
 
-            await db.collection("rooms").doc(roomId).collection("players").doc(uid).update({
-                prevSocketId: socket.id
-            }).catch(() => console.log("error"))
+        //     await db.collection("rooms").doc(roomId).collection("players").doc(uid).update({
+        //         prevSocketId: socket.id
+        //     }).catch(() => console.log("error"))
 
-            await new Promise(resolve => setTimeout(resolve, 3 * 60 * 1000));
+        //     await new Promise(resolve => setTimeout(resolve, 3 * 60 * 1000));
 
-            const player = (await db.collection("rooms").doc(roomId).collection("players").doc(uid).get().catch(() => console.log("error"))).data();
+        //     const player = (await db.collection("rooms").doc(roomId).collection("players").doc(uid).get().catch(() => console.log("error"))).data();
 
-            console.log(player?.socketId === player?.prevSocketId)
-            if (player?.socketId !== player?.prevSocketId) {
-                console.log("not deleted")
-                return
-            }
-            console.log("deleted")
-            if (player?.role !== "creator") {
-                db.collection("rooms").doc(roomId).collection("players").doc(uid).delete().catch(() => console.log("error"))
-                db.collection("rooms").doc(roomId).update({
-                    players: admin.firestore.FieldValue.arrayRemove(uid)
-                }).catch(() => console.log("error"))
-                return
-            }
-            await db.collection("rooms").doc(roomId).collection("players").get().then(async (players) => {
-                await Promise.all(players.docs.map(async (player) => {
-                    await player.ref.delete();
-                }))
-            }).catch(() => console.log("error"))
-            db.collection("rooms").doc(roomId).delete().catch(() => console.log("error"));
-            db.collection("rooms").doc(roomId).update({
-                players: admin.firestore.FieldValue.arrayRemove(uid)
-            }).catch(() => console.log("error"))
-        })
+        //     console.log(player?.socketId === player?.prevSocketId)
+        //     if (player?.socketId !== player?.prevSocketId) {
+        //         console.log("not deleted")
+        //         return
+        //     }
+        //     console.log("deleted")
+        //     if (player?.role !== "creator") {
+        //         db.collection("rooms").doc(roomId).collection("players").doc(uid).delete().catch(() => console.log("error"))
+        //         db.collection("rooms").doc(roomId).update({
+        //             players: admin.firestore.FieldValue.arrayRemove(uid)
+        //         }).catch(() => console.log("error"))
+        //         return
+        //     }
+        //     await db.collection("rooms").doc(roomId).collection("players").get().then(async (players) => {
+        //         await Promise.all(players.docs.map(async (player) => {
+        //             await player.ref.delete();
+        //         }))
+        //     }).catch(() => console.log("error"))
+        //     db.collection("rooms").doc(roomId).delete().catch(() => console.log("error"));
+        //     db.collection("rooms").doc(roomId).update({
+        //         players: admin.firestore.FieldValue.arrayRemove(uid)
+        //     }).catch(() => console.log("error"))
+        // })
     } catch (error) {
         socket.disconnect();
     }
