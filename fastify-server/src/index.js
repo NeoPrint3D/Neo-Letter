@@ -45,22 +45,22 @@ app.get("/api/valid", async (req, res) => {
 });
 
 app.delete("/api/rooms", async (req, res) => {
-  try {
-    const deleteStack = []
-    const api_key = req.headers.authorization
-    if (api_key !== process.env.DELETE_KEY) {
-      res.status(401).send({ message: "Unauthorized" })
-    }
-    const ids = (await db.collection("rooms").get()).docs.map(doc => doc.id)
-    ids.map(id => {
-      deleteStack.push(db.collection("rooms").doc(id).delete())
+  console.log("deleting room")
+  const ids = (await db.collection("rooms").get()).docs.map((doc) => doc.data().id)
+  if (ids.length > 0) {
+    ids.map(async (id) => {
+      console.log(id)
+      await db.collection("rooms").doc(id).delete()
+
+      await db.collection("rooms").doc(id).collection("players").get().then(async (snapshot) => {
+        snapshot.docs.map(async (doc) => {
+          await doc.ref.delete()
+        })
+      })
     })
-    await Promise.all(deleteStack)
-    res.status(202).send({ message: "deleted" })
-  }
-  catch (error) {
-    res.status(500).send({ error })
-    console.log(error)
+    res.status(202).send({ message: "deleted rooms" })
+  } else {
+    res.status(404).send({ message: "no rooms to delete" })
   }
 })
 

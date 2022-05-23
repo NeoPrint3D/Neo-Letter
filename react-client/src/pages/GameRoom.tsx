@@ -12,7 +12,6 @@ import { AuthContext } from "../context/AuthContext";
 import RoomStatusHandler from "../components/Handlers/RoomStatusHandler";
 import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../context/GameContext";
 import { useWindowSize } from "react-use";
-import { io, Socket } from "socket.io-client";
 import { toast } from "react-toastify";
 import { FaCrown } from 'react-icons/fa'
 import { RiArrowDropLeftLine, RiArrowDropRightLine } from "react-icons/ri";
@@ -43,7 +42,9 @@ export default function GameRoom() {
     const [guessFireOff, setGuessFireOff] = useState<string[]>([])
     const [hasGuessed, setHasGuessed] = useState(false)
     const [everyoneGuessed, setEveryoneGuessed] = useState(false)
+    const [resetWinner, setResetWinner] = useState(false)
     const { id } = useParams()
+
     const { width } = useWindowSize()
     const uid = useContext(AuthContext)
     const key = useContext(KeyboardContext)
@@ -52,10 +53,9 @@ export default function GameRoom() {
     const setGuesses = useContext(GuessesDispatchContext)
     const roomRef = useMemo(() => doc(firestore, "rooms", `${id}`), [id])
     const playerRef = useMemo(() => doc(firestore, "rooms", `${id}`, "players", uid), [id, uid])
-    const [socket, setSocket] = useState<Socket>()
 
 
-    const playersGuessed = useCallback((players: Player[]) => {
+    const playersGuessed = useCallback(async (players: Player[]) => {
         const peopleGuessed = players.filter(player => player.guessed)
         setGuessFireOff(peopleGuessed.map(player => player.uid))
     }, [])
@@ -63,7 +63,7 @@ export default function GameRoom() {
         if (players.every((p) => p.guesses.length === 6)) {
             const updateStack: Promise<void>[] = []
             toast.warning("Everyone has guessed", { theme: "dark" })
-            await new Promise((resolve) => setTimeout(resolve, 2000))
+            await new Promise((resolve) => setTimeout(resolve, 1750))
             if (currentPlayer.role === "creator") {
                 players.map((p) => updateStack.push(updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), { guesses: [] })))
                 await Promise.all([
@@ -72,13 +72,13 @@ export default function GameRoom() {
                 ])
             }
             setFireOff(true)
-            await new Promise(resolve => setTimeout(resolve, 500))
+            await new Promise(resolve => setTimeout(resolve, 300))
             setFireOff(false)
             setGuesses([])
             setKey("")
         }
     }, [players, currentPlayer, id, roomRef, round])
-    const handleEnter = useCallback(async (socket) => {
+    const handleEnter = useCallback(async () => {
         if (key.length !== 5) return
         setHasGuessed(true)
         const res = await fetch(`https://neo-letter-fastify.vercel.app/api/valid?word=${key}`).then(res => res.json())
@@ -94,16 +94,11 @@ export default function GameRoom() {
         setGuesses([...guesses, key])
         await updateDoc(playerRef, {
             guesses: [...guesses, key],
-            guessed: true
+            guessed: true,
         })
-        socket.emit("guess", {
-            statuses: getGuessStatuses(`${room.answers[room.round]}`.toUpperCase() as string, key),
-            guessLength: guesses.length,
-            everyoneGuessed,
-        })
-        await updateDoc(playerRef, { guessed: false })
+        await updateDoc(playerRef, { guessed: false, guessedCorrectly: false })
         setHasGuessed(false)
-    }, [key, socket, answers, guesses])
+    }, [key, answers, guesses])
 
     useEffect(() => {
         const q = query(collection(firestore, "rooms", `${id}`, "players"))
@@ -112,7 +107,6 @@ export default function GameRoom() {
             playersGuessed(players)
             resetRound(players)
             setPlayers(players)
-            //see if one person has points
             setPlacing(players.filter((p) => p.points > 0).length > 0 ? players.sort((a, b) => b.points! - a.points!) : [])
             setCurrentPlayer(players.find((p) => p.uid === uid) as Player)
         })
@@ -142,6 +136,7 @@ export default function GameRoom() {
             setRoomStatus("user_not_found")
             return
         }
+        console.log(round, answers.length)
         if (round >= answers.length && answers.length > 0) {
             console.log("finished")
             setRoomStatus("room_finished")
@@ -159,52 +154,35 @@ export default function GameRoom() {
             return
 
         }
-    }, [room, players])
+    }, [room, players, round, answers])
+
     useEffect(() => {
-        if (roomStatus !== "exists") return
-        const socket = io(process.env.NODE_ENV === "development" ? "http://localhost:8080" : "https://Neo-Letter.neoprint777.repl.co", {
-            parser,
-            auth: {
-                token: `${currentPlayer.name}:${uid}:${id}`
-            }
-        })
-        console.log("connected")
-        setSocket(socket)
-        if (round >= answers.length) {
-            socket.disconnect()
-            return
-        }
-        socket.emit("join")
-        socket.on("notify", (data) => {
-            console.log(data)
-            toast(data.message, { theme: "dark" })
-        })
-        socket.on("reset", (data) => {
-            new Promise(resolve => setTimeout(resolve, 3500)).then(async () => {
-                const { uid } = data
-                console.log("reset")
-                if (round < answers.length && currentPlayer.uid === uid) {
-                    updateDoc(roomRef, { round: increment(1) })
+        async function roomWinnerHandler(players: Player[]) {
+            const c = players.filter(p => p.guesses.includes(answers[round]?.toUpperCase()))
+            console.log(c)
+            if (c.length > 0 && !resetWinner) {
+                setResetWinner(true)
+                const updateStack: Promise<void>[] = []
+                await new Promise((resolve) => setTimeout(resolve, 4500))
+                if (currentPlayer.uid === c[0].uid) {
+                    players.map((p) => updateStack.push(updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), { guesses: [], points: c[0].uid === p.uid ? increment(1000 - (p.guesses.length - 1) * 100) : p.points })))
+                    await Promise.all([
+                        ...updateStack,
+                        updateDoc(roomRef, { round: round < answers.length ? increment(1) : round })
+                    ])
                 }
-                await updateDoc(playerRef, {
-                    guesses: []
-                })
+                setFireOff(true)
+                await new Promise(resolve => setTimeout(resolve, 1000))
+                setFireOff(false)
                 setGuesses([])
                 setKey("")
-                setFireOff(true)
-                await new Promise(resolve => setTimeout(resolve, 500))
-                setFireOff(false)
-            })
-        })
-        return () => {
-            socket.disconnect()
+                setResetWinner(false)
+            }
+
         }
-    }, [roomStatus])
+        roomWinnerHandler(players)
+    }, [answers, players])
 
-
-
-    //create and array with the current player first
-    //create a function to wait 500ms 
 
     return (
         <RoomStatusHandler
@@ -382,7 +360,7 @@ export default function GameRoom() {
                         <Grid answer={`${answers[round]}`.toUpperCase() || ""} />
                     </div>
                     <div className={`flex justify-center items-end mb-3 sm:mb-0 ${width < 400 && "scale-[93.5%]"}`}>
-                        <KeyBoard handleEnter={() => handleEnter(socket)} hasGuessed={hasGuessed} answer={`${answers[round]}`.toUpperCase()} />
+                        <KeyBoard handleEnter={() => handleEnter()} hasGuessed={hasGuessed} answer={`${answers[round]}`.toUpperCase()} />
                     </div>
                 </div>
             </div>

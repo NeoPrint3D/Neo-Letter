@@ -18,14 +18,13 @@ function Key({ value, status }: { value?: string, status?: CharStatus, socket?: 
     return (
         <m.button
             className={`
-            shadow-key
                 text-white
                 transition-colors rounded py-4 px-3 
                 ${status ? `duration-1000 delay-1000
                 ${status === "correct" && "bg-success"}
                 ${status === "present" && "bg-warning"}
                 ${status === "absent" && "bg-gray-700/60"}` :
-                `bg-[#6a6c80] hover:bg-gray-400 active:bg-slate-600 first:px-3.5 last:px-3.5`}`}
+                `bg-[#9294a3] hover:bg-gray-300 active:bg-slate-600 first:px-3.5 last:px-3.5`}`}
             onClick={handleClick}
             whileHover={{ scale: 1.025 }}
             whileTap={{ scale: 0.975 }}
