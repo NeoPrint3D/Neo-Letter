@@ -18,9 +18,8 @@ import { RiArrowDropLeftLine, RiArrowDropRightLine } from "react-icons/ri";
 import { IoClose } from 'react-icons/io5'
 import { AnimatePresence, m } from "framer-motion";
 import { getGuessStatuses } from "../components/Grid/utils/getStatuses";
-//@ts-expect-error
-import parser from "socket.io-msgpack-parser";
 import { FaSquare } from 'react-icons/fa'
+import UserPreview from "../components/UserPreview";
 
 
 
@@ -41,10 +40,8 @@ export default function GameRoom() {
     const [selectedPlayer, setSelectedPlayer] = useState<Player>({} as Player)
     const [guessFireOff, setGuessFireOff] = useState<string[]>([])
     const [hasGuessed, setHasGuessed] = useState(false)
-    const [everyoneGuessed, setEveryoneGuessed] = useState(false)
     const [resetWinner, setResetWinner] = useState(false)
     const { id } = useParams()
-
     const { width } = useWindowSize()
     const uid = useContext(AuthContext)
     const key = useContext(KeyboardContext)
@@ -55,29 +52,25 @@ export default function GameRoom() {
     const playerRef = useMemo(() => doc(firestore, "rooms", `${id}`, "players", uid), [id, uid])
 
 
-    const playersGuessed = useCallback(async (players: Player[]) => {
-        const peopleGuessed = players.filter(player => player.guessed)
-        setGuessFireOff(peopleGuessed.map(player => player.uid))
+    const handlePlayerGuess = useCallback((players: Player[]) => {
+        setGuessFireOff(players.filter(player => player.guessed).map(player => player.uid))
     }, [])
-    const resetRound = useCallback(async (players: Player[]) => {
-        if (players.every((p) => p.guesses.length === 6)) {
-            const updateStack: Promise<void>[] = []
-            toast.warning("Everyone has guessed", { theme: "dark" })
-            await new Promise((resolve) => setTimeout(resolve, 1750))
-            if (currentPlayer.role === "creator") {
-                players.map((p) => updateStack.push(updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), { guesses: [] })))
-                await Promise.all([
-                    ...updateStack,
-                    updateDoc(roomRef, { round: round < answers.length ? increment(1) : round })
-                ])
-            }
-            setFireOff(true)
-            await new Promise(resolve => setTimeout(resolve, 300))
-            setFireOff(false)
-            setGuesses([])
-            setKey("")
+    const handleEveryoneGuessed = useCallback(async (players: Player[]) => {
+        if (!players.every((p) => p.guesses.length === 6)) return
+        toast.warning("Everyone has guessed", { theme: "dark" })
+        await new Promise((resolve) => setTimeout(resolve, 1750))
+        if (currentPlayer.role === "creator") {
+            await Promise.all([
+                players.map((p) => updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), { guesses: [] })),
+                updateDoc(roomRef, { round: round < answers.length ? increment(1) : round })
+            ])
         }
-    }, [players, currentPlayer, id, roomRef, round])
+        setFireOff(true)
+        await new Promise(resolve => setTimeout(resolve, 300))
+        setFireOff(false)
+        setGuesses([])
+        setKey("")
+    }, [players])
     const handleEnter = useCallback(async () => {
         if (key.length !== 5) return
         setHasGuessed(true)
@@ -96,16 +89,42 @@ export default function GameRoom() {
             guesses: [...guesses, key],
             guessed: true,
         })
+        await new Promise(resolve => setTimeout(resolve, 450))
         await updateDoc(playerRef, { guessed: false, guessedCorrectly: false })
         setHasGuessed(false)
-    }, [key, answers, guesses])
+    }, [key, guesses])
+    const handleRoomWinner = useCallback(async (players: Player[]) => {
+        const c = players.filter(p => p.guesses.includes(answers[round]?.toUpperCase()));
+        if (c.length > 0 && !resetWinner) {
+            setResetWinner(true);
+            const updateStack: Promise<void>[] = [];
+            await new Promise(resolve => setTimeout(resolve, 4500));
+
+            if (currentPlayer.uid === c[0].uid) {
+                players.map(p => updateStack.push(updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), {
+                    guesses: [],
+                    points: c[0].uid === p.uid ? increment(1000 - (p.guesses.length - 1) * 100) : p.points
+                })));
+                await Promise.all([...updateStack, updateDoc(roomRef, {
+                    round: round < answers.length ? increment(1) : round
+                })]);
+            }
+
+            setFireOff(true);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            setFireOff(false);
+            setGuesses([]);
+            setKey("");
+            setResetWinner(false);
+        }
+    }, [answers, players])
 
     useEffect(() => {
         const q = query(collection(firestore, "rooms", `${id}`, "players"))
         const unsub1 = onSnapshot(q, async (playersRes) => {
             const players = playersRes.docs.map((doc) => { return { ...doc.data() } }) as Player[]
-            playersGuessed(players)
-            resetRound(players)
+            handlePlayerGuess(players)
+            handleEveryoneGuessed(players)
             setPlayers(players)
             setPlacing(players.filter((p) => p.points > 0).length > 0 ? players.sort((a, b) => b.points! - a.points!) : [])
             setCurrentPlayer(players.find((p) => p.uid === uid) as Player)
@@ -136,7 +155,6 @@ export default function GameRoom() {
             setRoomStatus("user_not_found")
             return
         }
-        console.log(round, answers.length)
         if (round >= answers.length && answers.length > 0) {
             console.log("finished")
             setRoomStatus("room_finished")
@@ -156,31 +174,11 @@ export default function GameRoom() {
         }
     }, [room, players, round, answers])
 
-    useEffect(() => {
-        async function roomWinnerHandler(players: Player[]) {
-            const c = players.filter(p => p.guesses.includes(answers[round]?.toUpperCase()))
-            console.log(c)
-            if (c.length > 0 && !resetWinner) {
-                setResetWinner(true)
-                const updateStack: Promise<void>[] = []
-                await new Promise((resolve) => setTimeout(resolve, 4500))
-                if (currentPlayer.uid === c[0].uid) {
-                    players.map((p) => updateStack.push(updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), { guesses: [], points: c[0].uid === p.uid ? increment(1000 - (p.guesses.length - 1) * 100) : p.points })))
-                    await Promise.all([
-                        ...updateStack,
-                        updateDoc(roomRef, { round: round < answers.length ? increment(1) : round })
-                    ])
-                }
-                setFireOff(true)
-                await new Promise(resolve => setTimeout(resolve, 1000))
-                setFireOff(false)
-                setGuesses([])
-                setKey("")
-                setResetWinner(false)
-            }
 
-        }
-        roomWinnerHandler(players)
+
+
+    useEffect(() => {
+        handleRoomWinner(players)
     }, [answers, players])
 
 
@@ -196,51 +194,7 @@ export default function GameRoom() {
                 <title>Neo Letter Room</title>
                 <meta name="description" content={`Room ${id} is where the paty is at`} />
             </Helmet>
-            <AnimatePresence>
-                {selectedId &&
-                    (<div className="flex justify-center items-center fixed h-screen w-screen">
-                        <m.div
-                            className="flex flex-col bg-gray-200/10 backdrop-blur-xl p-4 rounded-3xl h-[75%] w-[75%] shadow-2xl"
-                            layoutId={selectedId}
-                        >
-                            <div className="grid grid-cols-5">
-                                <div></div>
-                                <div className="flex justify-center col-span-3 text-white">
-                                    <h1 className="text-center text-3xl font-bold">{selectedPlayer.name}</h1>
-                                </div>
-                                <div className="flex justify-end w-full ">
-                                    <button className=" transition-shadow duration-700 text-white hover:shadow-xl p-2 rounded-full" onClick={() => setSelectedId("")} >
-                                        <IoClose size={30} />
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="flex justify-center mt-1">
-                                <p className="text-2xl text-white font-logo">
-                                    Points: {selectedPlayer.points}
-                                </p>
-                            </div>
-                            <div className="flex flex-col items-center  mt-5">
-                                {selectedPlayer.guesses.map((guess, i) => ((
-                                    <div key={i} className="grid grid-cols-5 ">
-                                        {getGuessStatuses(`${room.answers[room.round]}`.toUpperCase() as string, guess).map((status, j) => (
-                                            <div key={j} className="flex justify-center ">
-                                                <div className="tooltip" data-tip={status.charAt(0).toLocaleUpperCase() + status.slice(1)}>
-                                                    <FaSquare size={45} className={`text-white 
-                                                        ${status === "correct" && "text-success"}
-                                                        ${status === "present" && "text-warning"}
-                                                        ${status === "absent" && "text-gray-700"}`}
-                                                    />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )))}
-                            </div>
-
-                        </m.div>
-                    </div>)}
-            </AnimatePresence>
-
+            <UserPreview selectedId={selectedId} selectedPlayer={selectedPlayer} room={room} setSelectedId={setSelectedId} width={width} />
             <header>
                 <div className="grid grid-cols-3">
                     <div className="flex justify-start items-center">

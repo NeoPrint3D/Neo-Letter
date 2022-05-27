@@ -1,8 +1,8 @@
 export type CharStatus = "absent" | "present" | "correct";
 
 export const getGuessStatuses = (
-  solution: string,
-  guess: string
+  guess: string,
+  solution: string
 ): CharStatus[] => {
   const splitSolution = solution.split("");
   const splitGuess = guess.split("");
@@ -13,35 +13,24 @@ export const getGuessStatuses = (
 
   // handle all correct cases first
   splitGuess.forEach((letter, i) => {
-    if (letter === splitSolution[i]) {
-      statuses[i] = "correct";
-      solutionCharsTaken[i] = true;
-      return;
-    }
+    if (letter !== splitSolution[i]) return;
+    statuses[i] = "correct";
+    solutionCharsTaken[i] = true;
   });
 
   splitGuess.forEach((letter, i) => {
     if (statuses[i]) return;
-
     if (!splitSolution.includes(letter)) {
-      // handles the absent case
       statuses[i] = "absent";
       return;
     }
-
-    // now we are left with "present"s
-    const indexOfPresentChar = splitSolution.findIndex(
-      (x, index) => x === letter && !solutionCharsTaken[index]
-    );
-
-    if (indexOfPresentChar > -1) {
-      statuses[i] = "present";
-      solutionCharsTaken[indexOfPresentChar] = true;
-      return;
-    } else {
+    const indexOfPresentChar = splitSolution.findIndex((x, i) => x === letter && !solutionCharsTaken[i]);
+    if (!(indexOfPresentChar > -1)) {
       statuses[i] = "absent";
       return;
     }
+    statuses[i] = "present";
+    solutionCharsTaken[indexOfPresentChar] = true;
   });
 
   return statuses;

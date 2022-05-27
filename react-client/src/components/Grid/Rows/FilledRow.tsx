@@ -14,7 +14,7 @@ export default function FilledRow({ guess,  answer }: { guess: string, answer: s
 
 
     useEffect(() => {
-        setStatus(getGuessStatuses(answer, guess))
+        setStatus(getGuessStatuses(guess, answer))
         setIsCorrect(answer === guess)
     }, [guess])
 

@@ -26,4 +26,4 @@ function Grid({ answer }: { answer: string }) {
     );
 }
 
-export default memo(Grid);
+export default Grid

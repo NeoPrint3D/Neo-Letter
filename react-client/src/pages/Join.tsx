@@ -2,7 +2,7 @@ import { arrayUnion, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { m } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
 import { AuthContext } from "../context/AuthContext";
@@ -117,7 +117,7 @@ export default function JoinRoom() {
             </Helmet>
             <div className="flex justify-center items-center min-h-page">
                 {!roomValid && (
-                    <m.div className="bg-primary-dark/30 backdrop-blur-3xl rounded-3xl p-5 shadow-2xl px-20"
+                    <m.div className="flex flex-col items-center bg-primary-dark/30 backdrop-blur-3xl rounded-3xl p-5 shadow-2xl px-20"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{
@@ -143,6 +143,14 @@ export default function JoinRoom() {
                                 </p>
                             </button>
                         </form>
+                        <div className='text-lg my-0.5'>
+                            or
+                        </div>
+                        <Link to="/create">
+                            <p className='link link-secondary text-xl'>
+                                Create Room
+                            </p>
+                        </Link>
                     </m.div>
                 )}
                 {roomValid && (

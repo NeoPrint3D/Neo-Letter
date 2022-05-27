@@ -1,5 +1,6 @@
+import { GoogleAuthProvider } from "firebase/auth";
 import { Link, useLocation } from "react-router-dom";
-import { useScroll, useWindowScroll } from "react-use";
+import GoogleSignIn from "../GoogleSignIn/GoogleSignIn";
 import Logo from "/images/assets/logo.webp";
 
 
@@ -7,6 +8,8 @@ import Logo from "/images/assets/logo.webp";
 export default function Header() {
     const location = useLocation();
     const hideHeader = ['/room'].includes(`/${location.pathname.split("/")[1]}`);
+
+
 
     return !hideHeader ? (
         <header className={` grid grid-cols-2 lg:grid-cols-3 h-20 items-center w-full border-b-white/40 ${location.pathname === "/" && "absolute"} `}>
@@ -24,22 +27,9 @@ export default function Header() {
                 </Link>
 
             </div>
-            {location.pathname !== "/" &&
-                <div className="flex justify-end gap-5 pr-5">
-
-                    <Link to="/join" >
-                        <button className=" text-white transition-all flex items-center py-3 px-5 text-xl font-logo hover:bg-gray-400/25  rounded-xl active:scale-95">
-                            Join
-                        </button>
-                    </Link>
-
-                    <Link to="/create">
-                        <button className="transition-all text-white flex items-center py-3 px-5 text-xl font-logo bg-primary hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
-                            Create
-                        </button>
-                    </Link>
-                </div>
-            }
+            <div className="flex justify-end gap-5 pr-5">
+                {/* <GoogleSignIn /> */}
+            </div>
         </header>
     ) : null;
 }

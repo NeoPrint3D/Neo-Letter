@@ -1,19 +1,21 @@
 import { m } from "framer-motion";
-import { memo, useContext } from "react";
+import { memo, useCallback, useContext } from "react";
+import { useWindowSize } from "react-use";
 import { GuessesContext, KeyboardContext, KeyBoardDispatchContext } from "../../context/GameContext";
 import { CharStatus } from "../Grid/utils/getStatuses";
 
 function Key({ value, status }: { value?: string, status?: CharStatus, socket?: any }) {
+    const { width } = useWindowSize()
     const key = useContext(KeyboardContext);
     const setKey = useContext(KeyBoardDispatchContext)
-
     const guesses = useContext(GuessesContext)
 
-    const handleClick = async () => {
+
+    const handleClick = useCallback(async () => {
         if (key.length < 5 && (guesses === undefined || guesses.length < 6)) {
             setKey(key + value)
         }
-    }
+    }, [key])
 
     return (
         <m.button
@@ -24,7 +26,10 @@ function Key({ value, status }: { value?: string, status?: CharStatus, socket?: 
                 ${status === "correct" && "bg-success"}
                 ${status === "present" && "bg-warning"}
                 ${status === "absent" && "bg-gray-700/60"}` :
-                `bg-[#9294a3] hover:bg-gray-300 active:bg-slate-600 first:px-3.5 last:px-3.5`}`}
+                    `bg-[#9294a3] active:bg-slate-600 first:px-3.5 last:px-3.5
+                    ${width > 600 && "hover:bg-gray-300"}
+                    `}
+                    `}
             onClick={handleClick}
             whileHover={{ scale: 1.025 }}
             whileTap={{ scale: 0.975 }}
@@ -33,4 +38,4 @@ function Key({ value, status }: { value?: string, status?: CharStatus, socket?: 
         </m.button >
     )
 }
-export default Key
+export default memo(Key)

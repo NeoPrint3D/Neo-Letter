@@ -1,7 +1,7 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useContext, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 //import io
 import { firestore } from '../utils/firebase';;
 import { AuthContext } from '../context/AuthContext';
@@ -142,18 +142,31 @@ export default function CreateRoom() {
                                     />
                                 </div>
                             </div>
-                            <div className='flex justify-start items-center gap-3 p-3'>
+                            {/* <div className='flex justify-start items-center gap-3 p-3'>
                                 <p className='text-xl'>Private</p>
                                 <input className='checkbox checkbox-primary' type="checkbox" checked={roomType === "private"} onChange={(e) => setRoomType(e.target.checked ? "private" : "public")} />
+                            </div> */}
+
+                            <div className='flex flex-col items-center mt-7'>
+
+
+                                <button
+                                    onClick={createroom}
+                                    className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
+                                    <p className="text-white">
+                                        Create Party
+                                    </p>
+                                </button>
+                               <div className='text-lg my-0.5'>
+                                   or
+                               </div>
+                                <Link to="/join">
+                                    <p className='link link-secondary text-xl'>
+                                        Join Room
+                                    </p>
+                                </Link>
                             </div>
 
-                            <button
-                                onClick={createroom}
-                                className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
-                                <p className="text-white">
-                                    Create Party
-                                </p>
-                            </button>
                         </div>
                     </m.div>
                 </div>

@@ -26,8 +26,6 @@
     "react-toastify": "^8.2.0",
     "react-use": "^17.3.2",
     "react-web-share": "^1.1.5",
-    "socket.io-client": "^4.4.1",
-    "socket.io-msgpack-parser": "^3.0.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

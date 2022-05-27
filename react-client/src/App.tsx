@@ -9,7 +9,7 @@ import AppToastContainer from './components/Toast/ToastContainer'
 import MobileImage from "/images/assets/App-Mobile.webp"
 import DesktopImage from "/images/assets/App-Desktop.webp"
 import Home from './pages/Home'
-import { domAnimation, LazyMotion } from 'framer-motion'
+import { domAnimation, domMax, LazyMotion } from 'framer-motion'
 import BottomNavbar from './components/BottomNavbar'
 import Footer from './components/Footer';
 const GameRoom = lazy(() => import('./pages/GameRoom'))
@@ -31,7 +31,7 @@ function App() {
       >
         <div className={" min-h-screen bg-primary-dark/70"}>
           <Header />
-          <LazyMotion features={domAnimation}>
+          <LazyMotion features={domMax}>
             <Suspense fallback={<Loader />}>
               <Routes>
                 <Route path="/" element={<Home />} />

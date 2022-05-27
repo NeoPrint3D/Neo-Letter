@@ -9,7 +9,7 @@ interface Room {
 }
 
 interface Player {
-  guessed: any;
+  guessed: boolean;
   name: string;
   uid: string;
   points: number;

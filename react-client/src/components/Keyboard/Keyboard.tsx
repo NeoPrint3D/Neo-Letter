@@ -1,8 +1,8 @@
-import { memo, useContext, useEffect, useState } from "react";
-import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../../context/GameContext";
-import Key from "./Key";
-import { CharStatus, getGuessStatuses } from "../Grid/utils/getStatuses";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { GuessesContext, KeyboardContext, KeyBoardDispatchContext } from "../../context/GameContext";
+import { CharStatus } from "../Grid/utils/getStatuses";
 import { m } from "framer-motion";
+import Key from "./Key";
 
 function KeyBoard({ answer, handleEnter, hasGuessed }: { answer: string, handleEnter: any, hasGuessed: boolean }) {
     const [statuses, setStatuses] = useState<{ [key: string]: CharStatus }>({})
@@ -10,39 +10,35 @@ function KeyBoard({ answer, handleEnter, hasGuessed }: { answer: string, handleE
     const key = useContext(KeyboardContext)
     const setKey = useContext(KeyBoardDispatchContext)
 
-
-
     useEffect(() => {
         handlekeyboardStatuses()
     }, [guesses])
 
-
-
-    function handlekeyboardStatuses() {
+    const handlekeyboardStatuses = useCallback(() => {
         const letterDict: { [key: string]: CharStatus } = {}
         const soloutionLetters = answer.split("")
         guesses.forEach((guess: string) => {
             guess.split("").forEach((letter, j) => {
-                if (letterDict[letter] === undefined) {
-                    if (soloutionLetters.includes(letter)) {
-                        if (guess[j] === answer[j]) {
-                            letterDict[letter] = "correct"
-                        } else {
-                            letterDict[letter] = "present"
-                        }
-                    }
-                    else {
-                        letterDict[letter] = "absent"
-                    }
-                } else {
-                    if (guess[j] === answer[j]) {
-                        letterDict[letter] = "correct"
-                    }
+                if (letterDict[letter] !== undefined && guess[j] === answer[j]) {
+                    letterDict[letter] = "correct"
+                    return
+                }
+                if (!soloutionLetters.includes(letter)) {
+                    letterDict[letter] = "absent"
+                    return
+                }
+                if (letterDict[letter] === undefined && guess[j] !== answer[j]) {
+                    letterDict[letter] = "present"
+                    return
+                }
+                if (guess[j] === answer[j]) {
+                    letterDict[letter] = "correct"
+                    return
                 }
             })
         })
         setStatuses(letterDict)
-    }
+    }, [guesses])
 
     return (
         <div className="flex flex-col mx-2">
@@ -96,5 +92,5 @@ function KeyBoard({ answer, handleEnter, hasGuessed }: { answer: string, handleE
 }
 
 
-export default memo(KeyBoard)
+export default KeyBoard
 

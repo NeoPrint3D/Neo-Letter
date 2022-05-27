@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import MobileImage from "/images/assets/App-Mobile.webp"
 import DesktopImage from "/images/assets/App-Desktop.webp"
-import { AnimatePresence, LayoutGroup, m, motion } from 'framer-motion';
+import { LayoutGroup, m } from 'framer-motion';
 import { useWindowSize } from 'react-use';
 import { toast } from 'react-toastify';
 
@@ -12,14 +12,11 @@ import { toast } from 'react-toastify';
 
 
 function Home() {
-    const id = useContext(AuthContext)
-    const [hasVisited, setHasVisited] = useState(false)
-    const [modal, setModal] = useState(false)
     const { width } = useWindowSize()
 
 
     useEffect(() => {
-        remindToSignUp()
+        // remindToSignUp()
     }, [])
 
     async function remindToSignUp() {
@@ -39,14 +36,14 @@ function Home() {
     return (
         <>
             <Helmet>
-                <title>Neo Letter | Home page</title>
-                <meta name="description" content="The new wordle party game to play with your friends" />
+                <title>Neo Letter</title>
+                <meta name="description" content="The new wordle party game to play with your friends. Created for easy sharing and lots fo fun." />
                 <meta property="og:url" content="https://neo-letter.web.app/" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Neo Letter" />
                 <meta
                     property="og:description"
-                    content="A new wordle party game to play with your friends"
+                    content="The new wordle party game to play with your friends"
                 />
                 <meta property="og:image" content="/images/preview/Home.png" />
             </Helmet>
@@ -63,7 +60,7 @@ function Home() {
                     }}
                 >
                     <div className="hero-content text-center text-neutral-content">
-                        <motion.div className=" max-w-md sm:max-w-xl  rounded-xl p-5 glass-container shadow-2xl"
+                        <m.div className=" max-w-md sm:max-w-xl  rounded-xl p-5 glass-container shadow-2xl"
                             initial={{ rotateX: -90, opacity: 0 }}
                             animate={{ rotateX: 0, opacity: 1 }}
                             transition={{
@@ -76,7 +73,7 @@ function Home() {
                             <div className='flex justify-center'>
                                 <div className=' bg-gray-700 text-5xl sm:text-6xl text-white font-logo px-4 -skew-x-12 rounded-2xl mb-5'>
                                     <div className='flex items-center'>
-                                        <motion.div
+                                        <m.div
                                             className='p-1  skew-x-[-12deg] rounded'
                                             initial={{ scale: 2, zIndex: 100, opacity: 0 }}
                                             animate={{ scale: 1, opacity: 1 }}
@@ -86,8 +83,8 @@ function Home() {
                                                 duration: .5
                                             }}>
                                             The
-                                        </motion.div>
-                                        <motion.button
+                                        </m.div>
+                                        <m.button
                                             className='bg-success skew-x-[-12deg] rounded'
                                             initial={{ scale: 3, zIndex: 100, opacity: 0 }}
                                             animate={{ scale: [1, .75, 1], opacity: 1 }}
@@ -112,10 +109,10 @@ function Home() {
                                                 rotateX: [0, -90, 0],
                                             }}>
                                             Wordle
-                                        </motion.button>
+                                        </m.button>
                                     </div>
                                     <div className='flex items-center '>
-                                        <motion.button className='bg-warning skew-x-[-12deg] rounded'
+                                        <m.button className='bg-warning skew-x-[-12deg] rounded'
                                             initial={{ scale: 4, zIndex: 100, opacity: 0 }}
                                             animate={{ scale: [1, .7, 1], z: 0, opacity: 1 }}
                                             transition={{
@@ -139,8 +136,8 @@ function Home() {
                                                 rotateX: [0, -270, 0],
                                             }}>
                                             Party
-                                        </motion.button>
-                                        <motion.div
+                                        </m.button>
+                                        <m.div
                                             className='p-1 skew-x-[-12deg] rounded'
                                             initial={{ scale: 5, zIndex: 100, opacity: 0 }}
                                             animate={{ scale: [1, .65, 1], z: 0, opacity: 1 }}
@@ -150,7 +147,7 @@ function Home() {
                                                 duration: .5
                                             }}>
                                             Game
-                                        </motion.div>
+                                        </m.div>
                                     </div>
                                 </div>
                             </div>
@@ -172,7 +169,7 @@ function Home() {
                                     </button>
                                 </Link>
                             </div>
-                        </motion.div>
+                        </m.div>
                     </div>
                 </div>
             </LayoutGroup>

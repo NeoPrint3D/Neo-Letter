@@ -1,4 +1,4 @@
-import { m, domAnimation, LazyMotion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { memo } from 'react';
 //status by default is empty
 
@@ -29,4 +29,4 @@ function Cell({ keypress, status = 'empty' }: { keypress?: string; status?: "emp
     );
 }
 
-export default Cell
+export default memo(Cell);
