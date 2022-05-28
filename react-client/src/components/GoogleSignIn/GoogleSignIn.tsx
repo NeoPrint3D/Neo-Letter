@@ -9,9 +9,9 @@ export default function GoogleSignIn() {
     const handleSignIn = async () => {
         const provider = new GoogleAuthProvider()
         const user = (await signInWithPopup(auth, provider)).user
-        const userExists = (await getDoc(doc(firestore, "players", user.uid))).exists()
+        const userExists = (await getDoc(doc(firestore, "users", user.uid))).exists()
         if (userExists) return
-        await setDoc(doc(firestore, "players", user.uid), {
+        await setDoc(doc(firestore, "users", user.uid), {
             uid: user.uid,
             name: user.displayName,
             photoURL: user.photoURL,

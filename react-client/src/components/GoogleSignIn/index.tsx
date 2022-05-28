@@ -1,1 +1,1 @@
-import { default } from './GoogleSignIn';
+export { default } from "./GoogleSignIn"
