@@ -15,9 +15,18 @@ interface Player {
   points: number;
   ready: boolean;
   role: "user" | "creator";
-  socketId: string;
-  prevSocketId: string;
+  signedIn: boolean;
   guesses: string[];
+}
+
+interface UserProfile {
+  name: string;
+  uid: string;
+  profilePic: string;
+  wins: number;
+  losses: number;
+  gamesPlayed: number;
+  points: number;
 }
 
 type RoomStatuses =

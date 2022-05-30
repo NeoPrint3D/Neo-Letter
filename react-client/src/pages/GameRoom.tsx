@@ -8,17 +8,14 @@ import { FiShare } from 'react-icons/fi'
 import Grid from "../components/Grid/Grid";
 import KeyBoard from "../components/Keyboard";
 import { collection, doc, getDoc, increment, onSnapshot, query, updateDoc } from "firebase/firestore";
-import { AuthContext } from "../context/AuthContext";
+import { UidContext } from "../context/AuthContext";
 import RoomStatusHandler from "../components/Handlers/RoomStatusHandler";
 import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../context/GameContext";
 import { useWindowSize } from "react-use";
 import { toast } from "react-toastify";
 import { FaCrown } from 'react-icons/fa'
 import { RiArrowDropLeftLine, RiArrowDropRightLine } from "react-icons/ri";
-import { IoClose } from 'react-icons/io5'
 import { AnimatePresence, m } from "framer-motion";
-import { getGuessStatuses } from "../components/Grid/utils/getStatuses";
-import { FaSquare } from 'react-icons/fa'
 import UserPreview from "../components/UserPreview";
 
 
@@ -33,6 +30,7 @@ export default function GameRoom() {
     const [fireOff, setFireOff] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState<Player>({} as Player);
     const [players, setPlayers] = useState<Player[]>([])
+    const [playerProfiles, setPlayerProfiles] = useState({})
     const [answers, setAnswers] = useState<string[]>([])
     const [round, setRound] = useState(0)
     const [placing, setPlacing] = useState<Player[]>([])
@@ -43,7 +41,7 @@ export default function GameRoom() {
     const [resetWinner, setResetWinner] = useState(false)
     const { id } = useParams()
     const { width } = useWindowSize()
-    const uid = useContext(AuthContext)
+    const uid = useContext(UidContext)
     const key = useContext(KeyboardContext)
     const setKey = useContext(KeyBoardDispatchContext)
     const guesses: string[] = useContext(GuessesContext)

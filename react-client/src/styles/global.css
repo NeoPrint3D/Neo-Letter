@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
+img {
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;

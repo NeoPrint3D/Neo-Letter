@@ -5,8 +5,8 @@ import Loader from "../Loader";
 import { useWindowSize } from "react-use";
 import Confetti from "react-confetti";
 import { m } from "framer-motion";
-import { AuthContext } from "../../context/AuthContext";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { UidContext } from "../../context/AuthContext";
+import { useContext, useMemo } from "react";
 import { doc, updateDoc } from "firebase/firestore";
 import { firestore } from "../../utils/firebase";
 
@@ -24,7 +24,7 @@ interface RoomProps {
 export default function RoomStatusHandler({ children, roomStatus, winner, players }: RoomProps) {
     const { height, width } = useWindowSize()
     const { id } = useParams()
-    const uid = useContext(AuthContext)
+    const uid = useContext(UidContext)
     const playerRef = useMemo(() => doc(firestore, "rooms", `${id}`, "players", uid), [id, uid])
 
 

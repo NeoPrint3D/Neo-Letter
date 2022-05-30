@@ -4,8 +4,9 @@ import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 //import io
 import { firestore } from '../utils/firebase';;
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext, UidContext } from '../context/AuthContext';
 import Loader from '../components/Loader';
+import { v4 } from 'uuid';
 import { AnimatePresence, AnimateSharedLayout, LayoutGroup, m } from 'framer-motion';
 import BottomNavbar from '../components/BottomNavbar';
 
@@ -16,7 +17,9 @@ export default function CreateRoom() {
     const [roomType, setRoomType] = useState("private");
     const [wordCount, setWordCount] = useState<number | string>(10);
     const navigate = useNavigate()
-    const uid = useContext(AuthContext);
+    const user = useContext(AuthContext)
+    const uid = useContext(UidContext);
+    console.log(uid)
 
     async function generateCleanId() {
         const id = Math.floor(Math.random() * 100000).toString().padStart(5, "0");
@@ -56,8 +59,7 @@ export default function CreateRoom() {
             uid,
             points: 0,
             ready: false,
-            socketId: "",
-            prevSocketId: "",
+            signedIn: user?.uid === uid,
             role: "creator",
             guesses: [],
             guessed: false,
@@ -69,7 +71,7 @@ export default function CreateRoom() {
                 started: false,
                 roomType,
                 answers: wordlist,
-                players: [],
+                players: [uid],
                 round: 0
             }),
             setDoc(doc(firestore, "rooms", `${id}`, "players", `${uid}`), playerdata),
@@ -142,14 +144,12 @@ export default function CreateRoom() {
                                     />
                                 </div>
                             </div>
-                            {/* <div className='flex justify-start items-center gap-3 p-3'>
+                            <div className='flex justify-start items-center gap-3 p-3'>
                                 <p className='text-xl'>Private</p>
                                 <input className='checkbox checkbox-primary' type="checkbox" checked={roomType === "private"} onChange={(e) => setRoomType(e.target.checked ? "private" : "public")} />
-                            </div> */}
+                            </div>
 
-                            <div className='flex flex-col items-center mt-7'>
-
-
+                            <div className='flex flex-col items-center'>
                                 <button
                                     onClick={createroom}
                                     className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
@@ -157,9 +157,9 @@ export default function CreateRoom() {
                                         Create Party
                                     </p>
                                 </button>
-                               <div className='text-lg my-0.5'>
-                                   or
-                               </div>
+                                <div className='text-lg my-0.5'>
+                                    or
+                                </div>
                                 <Link to="/join">
                                     <p className='link link-secondary text-xl'>
                                         Join Room

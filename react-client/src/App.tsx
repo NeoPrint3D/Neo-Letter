@@ -30,8 +30,8 @@ function App() {
         }}
       >
         <div className={" min-h-screen bg-primary-dark/70"}>
-          <Header />
           <LazyMotion features={domMax}>
+          <Header />
             <Suspense fallback={<Loader />}>
               <Routes>
                 <Route path="/" element={<Home />} />

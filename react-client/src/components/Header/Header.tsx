@@ -1,18 +1,21 @@
-import { GoogleAuthProvider } from "firebase/auth";
+import { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 import GoogleSignIn from "../GoogleSignIn/GoogleSignIn";
+import UserDropDown from "../UserDropDown";
 import Logo from "/images/assets/logo.webp";
 
 
 
 export default function Header() {
     const location = useLocation();
+    const user = useContext(AuthContext);
     const hideHeader = ['/room'].includes(`/${location.pathname.split("/")[1]}`);
 
 
 
     return !hideHeader ? (
-        <header className={` grid grid-cols-2 lg:grid-cols-3 h-20 items-center w-full border-b-white/40 ${location.pathname === "/" && "absolute"} `}>
+        <header className={` grid grid-cols-2 lg:grid-cols-3 h-20 items-center w-full border-b-white/40 ${location.pathname === "/" && "absolute"}  z-50`}>
             <div className="hidden lg:flex"></div>
             <div className="flex justify-start lg:justify-center ml-5">
                 <Link to="/" >
@@ -28,7 +31,7 @@ export default function Header() {
 
             </div>
             <div className="flex justify-end gap-5 pr-5">
-                {/* <GoogleSignIn /> */}
+                {/* {user?.uid ? <UserDropDown /> : <GoogleSignIn />} */}
             </div>
         </header>
     ) : null;

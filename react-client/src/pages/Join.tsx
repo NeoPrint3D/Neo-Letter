@@ -5,7 +5,7 @@ import { Helmet } from "react-helmet";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext, UidContext } from "../context/AuthContext";
 import { firestore } from "../utils/firebase";
 import Loader from "../components/Loader";
 
@@ -18,7 +18,8 @@ export default function JoinRoom() {
     const [id, setId] = useState("");
     const [roomValid, setValidRoom] = useState(false);
     const navigate = useNavigate()
-    const uid = useContext(AuthContext);
+    const user = useContext(AuthContext)
+    const uid = useContext(UidContext);
     const query = useLocation()
 
 
@@ -59,29 +60,29 @@ export default function JoinRoom() {
             toast.error("Username is too short. Must be three or more charchtr", { theme: "dark" })
             return
         }
-        const docRef = doc(firestore, "rooms", id || roomId, "players", uid)
-        const player = await getDoc(docRef)
+        const playerRef = doc(firestore, "rooms", id || roomId, "players", uid)
+        const player = await getDoc(playerRef)
         setLoading(true)
         if (player.exists()) {
-            await updateDoc(docRef, {
+            await updateDoc(playerRef, {
                 name: username.charAt(0).toUpperCase() + username.slice(1),
             })
             setLoading(false)
             navigate(`/room/${roomId}`);
             return
         }
-        await setDoc(docRef, {
+        await setDoc(playerRef, {
             name: username.charAt(0).toUpperCase() + username.slice(1),
             uid,
             points: 0,
             ready: false,
-            socketId: "",
-            prevSocketId: "",
+            signedIn: user?.uid === uid,
             guesses: [],
             guessed: false,
             role: "user",
             status: ""
         })
+
         setLoading(false)
         navigate(`/room/${roomId}`);
     }
@@ -117,7 +118,7 @@ export default function JoinRoom() {
             </Helmet>
             <div className="flex justify-center items-center min-h-page">
                 {!roomValid && (
-                    <m.div className="flex flex-col items-center bg-primary-dark/30 backdrop-blur-3xl rounded-3xl p-5 shadow-2xl px-20"
+                    <m.div className="flex flex-col gap-5 items-center sm:w-full px-20 sm:max-w-lg bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl p-5 shadow-2xl"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{
@@ -126,7 +127,7 @@ export default function JoinRoom() {
                             damping: 30,
                         }}
                     >
-                        <div className="flex justify-center mb-7 font-logo">
+                        <div className="flex justify-center mb-10 font-logo">
                             <h1 className="text-4xl sm:text-4xl">Join room</h1>
                         </div>
                         <form className="flex flex-col items-center gap-5" onSubmit={handleSubmit}>
@@ -137,6 +138,7 @@ export default function JoinRoom() {
                             <button
                                 type="submit"
                                 disabled={!roomId}
+
                                 className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary disabled:bg-primary/10 hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
                                 <p className="text-white">
                                     Continue
