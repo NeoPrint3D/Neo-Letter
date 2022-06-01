@@ -10,12 +10,12 @@ import MobileImage from "/images/assets/App-Mobile.webp"
 import DesktopImage from "/images/assets/App-Desktop.webp"
 import Home from './pages/Home'
 import { domMax, LazyMotion } from 'framer-motion'
-import BottomNavbar from './components/BottomNavbar'
-import Footer from './components/Footer';
-import SignUpPage from './pages/SignUp';
+import BottomNavbar from './components/BottomNavbar';
 const GameRoom = lazy(() => import('./pages/GameRoom'))
 const CreateRoom = lazy(() => import('./pages/Create'))
 const JoinRoom = lazy(() => import('./pages/Join'))
+const SignUpPage = lazy(() => import('./pages/SignUp'))
+const Footer = lazy(() => import('./components/Footer'))
 
 
 
@@ -32,8 +32,8 @@ function App() {
             backgroundPosition: "center",
           }}>
           <div className={` transition-colors duration-500 ease-in-out min-h-screen ${location.pathname === "/" ? "bg-transparent" : "bg-primary-dark/70"}`}>
-            <Header />
             <Suspense fallback={<Loader />}>
+              <Header />
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/create" element={<CreateRoom />} />
@@ -41,10 +41,10 @@ function App() {
                 <Route path="/room/:id" element={<GameContextProvider><GameRoom /></GameContextProvider>} />
                 <Route path="/signup" element={<SignUpPage />} />
               </Routes>
+              <Footer />
             </Suspense>
           </div>
         </div>
-        <Footer />
       </LazyMotion>
       <AppToastContainer />
     </AuthProvider>
