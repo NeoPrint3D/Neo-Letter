@@ -1,11 +1,11 @@
 import { arrayUnion, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { m } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
-import { AuthContext, UidContext } from "../context/AuthContext";
+import { UserContext, UidContext } from "../context/AuthContext";
 import { firestore } from "../utils/firebase";
 import Loader from "../components/Loader";
 
@@ -18,7 +18,7 @@ export default function JoinRoom() {
     const [id, setId] = useState("");
     const [roomValid, setValidRoom] = useState(false);
     const navigate = useNavigate()
-    const user = useContext(AuthContext)
+    const user = useContext(UserContext)
     const uid = useContext(UidContext);
     const query = useLocation()
 
@@ -71,7 +71,8 @@ export default function JoinRoom() {
             navigate(`/room/${roomId}`);
             return
         }
-        await setDoc(playerRef, {
+
+        const playerData: Player = {
             name: username.charAt(0).toUpperCase() + username.slice(1),
             uid,
             points: 0,
@@ -80,9 +81,10 @@ export default function JoinRoom() {
             guesses: [],
             guessed: false,
             role: "user",
-            status: ""
-        })
+            wins: user?.wins || 0,
+        }
 
+        await setDoc(playerRef, playerData)
         setLoading(false)
         navigate(`/room/${roomId}`);
     }
@@ -118,7 +120,7 @@ export default function JoinRoom() {
             </Helmet>
             <div className="flex justify-center items-center min-h-page">
                 {!roomValid && (
-                    <m.div className="flex flex-col gap-5 items-center sm:w-full px-20 sm:max-w-lg bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl p-5 shadow-2xl"
+                    <m.div className="flex flex-col items-center w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{
@@ -156,7 +158,7 @@ export default function JoinRoom() {
                     </m.div>
                 )}
                 {roomValid && (
-                    <m.div className="px-20 bg-primary-dark/30 backdrop-blur-3xl rounded-3xl p-5 shadow-2xl"
+                    <m.div className="w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{
@@ -173,6 +175,27 @@ export default function JoinRoom() {
                                 value={username}
                                 onChange={(e) => setUserame(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 20))}
                             />
+
+                            <AnimatePresence>
+                                {user?.uid && (
+                                    <m.button
+                                        className="link"
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            setUserame(user?.username)
+                                        }}
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 300,
+                                            damping: 30,
+                                        }}
+                                    >
+                                        Use <a className="font-bold">{user?.username}</a> instead?
+                                    </m.button>
+                                )}
+                            </AnimatePresence>
                             <button
                                 disabled={!username || username.length < 3}
                                 className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary disabled:bg-primary/10 hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">

@@ -1,14 +1,14 @@
 import { signOut } from "firebase/auth"
 import { AnimatePresence, m } from "framer-motion"
 import { useCallback, useContext, useState } from "react"
-import { AuthContext } from "../../context/AuthContext"
+import { UserContext } from "../../context/AuthContext"
 import { auth } from "../../utils/firebase"
 
 export default function UserDropDown() {
 
     const [open, setOpen] = useState(false)
 
-    const user = useContext(AuthContext)
+    const user = useContext(UserContext)
 
     const handleBlur = useCallback((e) => {
         const currentTarget = e.currentTarget
@@ -35,7 +35,7 @@ export default function UserDropDown() {
             onBlur={(e) => handleBlur(e)}
         >
             <button onClick={() => setOpen(!open)}>
-                <img src={user.photoURL} alt="user" className="rounded-full h-12 w-12" referrerPolicy="no-referrer" />
+                <img src={user?.profilePic} alt="user" className="rounded-full h-12 w-12" referrerPolicy="no-referrer" />
             </button>
 
             <AnimatePresence>

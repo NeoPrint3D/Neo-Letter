@@ -1,9 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
+import {  useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { AuthContext } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import MobileImage from "/images/assets/App-Mobile.webp"
-import DesktopImage from "/images/assets/App-Desktop.webp"
 import { LayoutGroup, m } from 'framer-motion';
 import { useWindowSize } from 'react-use';
 import { toast } from 'react-toastify';
@@ -51,19 +48,12 @@ function Home() {
             <LayoutGroup>
 
 
-                <div className="hero min-h-screen"
-                    style={{
-                        backgroundImage: `url(${width > 768 ? DesktopImage : MobileImage})`,
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "center"
-                    }}
-                >
+                <div className="hero min-h-screen">
                     <div className="hero-content text-center text-neutral-content">
-                        <m.div className=" max-w-md sm:max-w-xl  rounded-xl p-5 glass-container shadow-2xl"
+                        <m.div className="sm:max-w-xl main-container px-5"
                             initial={{ rotateX: -90, opacity: 0 }}
                             animate={{ rotateX: 0, opacity: 1 }}
-                            transition={{
+                            transition={{ 
                                 type: "spring",
                                 stiffness: 100,
                                 damping: 20,

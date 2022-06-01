@@ -50,7 +50,7 @@ export default function GameRoom() {
     const playerRef = useMemo(() => doc(firestore, "rooms", `${id}`, "players", uid), [id, uid])
 
 
-    const handlePlayerGuess = useCallback((players: Player[]) => {
+    const handlePlayersGuess = useCallback((players: Player[]) => {
         setGuessFireOff(players.filter(player => player.guessed).map(player => player.uid))
     }, [])
     const handleEveryoneGuessed = useCallback(async (players: Player[]) => {
@@ -91,37 +91,35 @@ export default function GameRoom() {
         await updateDoc(playerRef, { guessed: false, guessedCorrectly: false })
         setHasGuessed(false)
     }, [key, guesses])
-    const handleRoomWinner = useCallback(async (players: Player[]) => {
-        const c = players.filter(p => p.guesses.includes(answers[round]?.toUpperCase()));
-        if (c.length > 0 && !resetWinner) {
-            setResetWinner(true);
-            const updateStack: Promise<void>[] = [];
-            await new Promise(resolve => setTimeout(resolve, 4500));
-
-            if (currentPlayer.uid === c[0].uid) {
-                players.map(p => updateStack.push(updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), {
-                    guesses: [],
-                    points: c[0].uid === p.uid ? increment(1000 - (p.guesses.length - 1) * 100) : p.points
-                })));
-                await Promise.all([...updateStack, updateDoc(roomRef, {
-                    round: round < answers.length ? increment(1) : round
-                })]);
-            }
-
-            setFireOff(true);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            setFireOff(false);
-            setGuesses([]);
-            setKey("");
-            setResetWinner(false);
+    const handleRoomWin = useCallback(async (players: Player[]) => {
+        const winner = players.filter(p => p.guesses.includes(answers[round]?.toUpperCase()))[0]
+        if (!winner) return
+        if (resetWinner) return
+        setResetWinner(true);
+        const updateStack: Promise<void>[] = [];
+        await new Promise(resolve => setTimeout(resolve, 4500));
+        if (currentPlayer.uid === winner.uid) {
+            players.map(p => updateStack.push(updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), {
+                guesses: [],
+                points: winner.uid === p.uid ? increment(100 - (p.guesses.length - 1) * 10) : p.points
+            })));
+            await Promise.all([...updateStack, updateDoc(roomRef, {
+                round: round < answers.length ? increment(1) : round
+            })]);
         }
+        setFireOff(true);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setFireOff(false);
+        setGuesses([]);
+        setKey("");
+        setResetWinner(false);
     }, [answers, players])
 
     useEffect(() => {
         const q = query(collection(firestore, "rooms", `${id}`, "players"))
         const unsub1 = onSnapshot(q, async (playersRes) => {
             const players = playersRes.docs.map((doc) => { return { ...doc.data() } }) as Player[]
-            handlePlayerGuess(players)
+            handlePlayersGuess(players)
             handleEveryoneGuessed(players)
             setPlayers(players)
             setPlacing(players.filter((p) => p.points > 0).length > 0 ? players.sort((a, b) => b.points! - a.points!) : [])
@@ -155,7 +153,17 @@ export default function GameRoom() {
         }
         if (round >= answers.length && answers.length > 0) {
             console.log("finished")
+            const lastRoom = localStorage.getItem("lastRoom")
             setRoomStatus("room_finished")
+            console.log(players.filter(p => p.points > 0 && p.signedIn))
+            if (lastRoom === id) return
+            placing.filter(player => player.points > 0 && player.signedIn).map(player => {
+                updateDoc(doc(firestore, "users", player?.uid), {
+                    points: increment(player.points),
+                    wins: placing[0].uid === player.uid ? increment(1) : increment(0)
+                })
+            })
+            localStorage.setItem("lastRoom", id as string)
             return
         }
         if ((!players.every(p => p.ready) && !room.started) || (players.length <= 1 && players.length > 0)) {
@@ -176,7 +184,7 @@ export default function GameRoom() {
 
 
     useEffect(() => {
-        handleRoomWinner(players)
+        handleRoomWin(players)
     }, [answers, players])
 
 

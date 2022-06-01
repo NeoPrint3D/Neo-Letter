@@ -1,3 +1,4 @@
+
 interface Room {
   id: string;
   answers: string[];
@@ -17,16 +18,19 @@ interface Player {
   role: "user" | "creator";
   signedIn: boolean;
   guesses: string[];
+  wins?: number;
 }
 
 interface UserProfile {
-  name: string;
+  username: string;
   uid: string;
   profilePic: string;
   wins: number;
   losses: number;
   gamesPlayed: number;
   points: number;
+  createdAt: any;
+  updatedAt: any;
 }
 
 type RoomStatuses =

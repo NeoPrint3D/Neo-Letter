@@ -3,6 +3,7 @@ import { AnimatePresence, LayoutGroup, m } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { BiArrowBack, BiLoader } from "react-icons/bi";
 import { BsCheckLg } from "react-icons/bs";
+import { FaCrown } from "react-icons/fa";
 import { FiShare } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { RWebShare } from "react-web-share";
@@ -18,7 +19,7 @@ export default function ReadyLobby({ id, uid, players, }: { id: string, uid: str
   return (
     <LayoutGroup>
       <div className="min-h-screen w-screen flex justify-center items-center">
-        <m.div className="flex flex-col justify-center w-full max-w-xs sm:w-full p-5 sm:p-7 sm:max-w-lg bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl shadow-2xl"
+        <m.div className="flex flex-col justify-center w-full max-w-sm  sm:max-w-xl px-5 main-container"
           layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -65,8 +66,13 @@ export default function ReadyLobby({ id, uid, players, }: { id: string, uid: str
                   damping: 10,
                   delay: i * 0.25
                 }}>
-                <div className="flex justify-start w-full ">
+                <div className="flex justify-start items-center w-full ">
                   <p className="font-logo text-3xl">{player.name}</p>
+                  {player.signedIn && (
+                    <div className="flex  gap-3 ml-3">
+                      <FaCrown aria-label="Crown" size={25} /> <span className="font-logo text-xl">{player.wins}</span>
+                    </div>
+                  )}
                 </div>
                 <AnimatePresence>
                   {player.ready ?

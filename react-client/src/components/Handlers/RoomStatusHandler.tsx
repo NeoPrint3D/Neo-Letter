@@ -117,10 +117,10 @@ export default function RoomStatusHandler({ children, roomStatus, winner, player
                     <meta name="description" content={description} />
                 </Helmet>
                 <div className="flex justify-center items-center min-h-screen">
-                    <div className=" flex flex-col items-center justify-center px-20 p-5  bg-primary-dark/30 p backdrop-blur-3xl  rounded-3xl shadow-2xl">
+                    <div className=" flex flex-col items-center justify-center px-10 max-w-sm main-container">
                         <h1 className="text-4xl  font-logo text-center mb-5">{description}</h1>
                         <Link to="/">
-                            <button className="btn btn-primary mt-5">Return home</button>
+                            <button className="btn btn-primary btn-lg mt-5">Return home</button>
                         </Link>
                     </div>
                 </div>

@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 //import io
 import { firestore } from '../utils/firebase';;
-import { AuthContext, UidContext } from '../context/AuthContext';
+import { UserContext, UidContext } from '../context/AuthContext';
 import Loader from '../components/Loader';
 import { v4 } from 'uuid';
 import { AnimatePresence, AnimateSharedLayout, LayoutGroup, m } from 'framer-motion';
@@ -17,18 +17,13 @@ export default function CreateRoom() {
     const [roomType, setRoomType] = useState("private");
     const [wordCount, setWordCount] = useState<number | string>(10);
     const navigate = useNavigate()
-    const user = useContext(AuthContext)
+    const user = useContext(UserContext)
     const uid = useContext(UidContext);
-    console.log(uid)
 
     async function generateCleanId() {
         const id = Math.floor(Math.random() * 100000).toString().padStart(5, "0");
-        if ((await getDoc(doc(firestore, "rooms", `${id}`))).exists()) {
-            generateCleanId()
-        } else {
-            return id
-        }
-
+        if (!(await getDoc(doc(firestore, "rooms", `${id}`))).exists()) return id
+        generateCleanId()
     }
 
     function roomSelectToNumber(select: string) {
@@ -63,6 +58,7 @@ export default function CreateRoom() {
             role: "creator",
             guesses: [],
             guessed: false,
+            wins: user?.wins || 0,
         }
         await Promise.all([
             setDoc(doc(firestore, "rooms", `${id}`), {
@@ -88,7 +84,7 @@ export default function CreateRoom() {
             <LayoutGroup>
                 <div className="flex justify-center items-center min-h-page">
                     <m.div
-                        className="sm:w-full px-20 sm:max-w-lg bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl p-5 shadow-2xl"
+                        className=" w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{
