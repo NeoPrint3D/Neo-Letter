@@ -78,7 +78,7 @@ export default function SignUpPage() {
             points: 0
         }
         await setDoc(doc(firestore, "users", `${auth.currentUser?.uid}`), userProfile)
-        navigate("/")
+        navigate("/?action=reload")
     }
 
 

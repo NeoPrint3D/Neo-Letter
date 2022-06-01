@@ -7,5 +7,6 @@ interface ImportMetaEnv {
     readonly VITE_FIRE_MSG_ID: string;
     readonly VITE_FIRE_APP_ID: string;
     readonly VITE_FIRE_MESG_ID: string;
-    readonly VITE_PUSHER_API_KEY: string;
+    readonly VITE_RECAPTCHA_KEY: string;
+    
 }

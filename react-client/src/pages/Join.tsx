@@ -20,7 +20,7 @@ export default function JoinRoom() {
     const navigate = useNavigate()
     const user = useContext(UserContext)
     const uid = useContext(UidContext);
-    const query = useLocation()
+    const location = useLocation()
 
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -91,7 +91,7 @@ export default function JoinRoom() {
 
 
     useEffect(() => {
-        const idRef = new URLSearchParams(query.search).get("id")
+        const idRef = new URLSearchParams(location.search).get("id")
         if (idRef) {
             setId(idRef)
             setRoomId(idRef)

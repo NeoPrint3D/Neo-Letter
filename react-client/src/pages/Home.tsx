@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { LayoutGroup, m } from 'framer-motion';
 import { useWindowSize } from 'react-use';
 import { toast } from 'react-toastify';
@@ -12,8 +12,16 @@ import DesktopImage from "/images/assets/App-Desktop.webp"
 
 
 function Home() {
+    const location = useLocation()
     const { width } = useWindowSize()
     const user = useContext(UserContext)
+
+
+    useEffect(() => {
+        const action = new URLSearchParams(location.search).get('action')
+        if (action === "reload") window.location.href = "/"
+    }, [])
+
 
 
     useEffect(() => {
