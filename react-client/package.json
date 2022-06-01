@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "prod": "tsc && vite build && react-snap",
-    "preview": "vite preview",
+    "preview": "vite build && vite  preview", 
     "deploy": "tsc && vite build && react-snap && firebase deploy"
   },
   "reactSnap": {

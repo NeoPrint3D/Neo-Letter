@@ -1,10 +1,12 @@
-import {  useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { LayoutGroup, m } from 'framer-motion';
 import { useWindowSize } from 'react-use';
 import { toast } from 'react-toastify';
 import { UserContext } from '../context/AuthContext';
+import MobileImage from "/images/assets/App-Mobile.webp"
+import DesktopImage from "/images/assets/App-Desktop.webp"
 
 
 
@@ -19,7 +21,7 @@ function Home() {
     }, [user])
 
     async function remindToSignUp() {
-        if (user?.uid || user === undefined ) return
+        if (user?.uid || user === undefined) return
         await new Promise(resolve => setTimeout(resolve, 3000))
         toast.info("Create an account to save your progress", {
             theme: "dark",
@@ -51,12 +53,18 @@ function Home() {
             <LayoutGroup>
 
 
-                <div className="hero min-h-screen">
+                <div className="hero min-h-screen"
+                    style={{
+                        backgroundImage: ` url(${width > 600 ? DesktopImage : MobileImage})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                    }}
+                >
                     <div className="hero-content text-center text-neutral-content">
                         <m.div className="sm:max-w-xl main-container px-5"
                             initial={{ rotateX: -90, opacity: 0 }}
                             animate={{ rotateX: 0, opacity: 1 }}
-                            transition={{ 
+                            transition={{
                                 type: "spring",
                                 stiffness: 100,
                                 damping: 20,
