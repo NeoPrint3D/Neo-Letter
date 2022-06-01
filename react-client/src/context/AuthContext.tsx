@@ -10,7 +10,7 @@ export const UidContext = createContext(undefined as any);
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState({} as UserProfile);
+    const [user, setUser] = useState(undefined as UserProfile | undefined);
     const [uid, setUid] = useState("")
 
 

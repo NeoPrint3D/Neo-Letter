@@ -159,8 +159,10 @@ export default function GameRoom() {
             if (lastRoom === id) return
             placing.filter(player => player.points > 0 && player.signedIn).map(player => {
                 updateDoc(doc(firestore, "users", player?.uid), {
+                    gamesPlayed: increment(1),
                     points: increment(player.points),
-                    wins: placing[0].uid === player.uid ? increment(1) : increment(0)
+                    wins: placing[0].uid === player.uid ? increment(1) : increment(0),
+                    losses: placing[0].uid !== player.uid ? increment(1) : increment(0)
                 })
             })
             localStorage.setItem("lastRoom", id as string)

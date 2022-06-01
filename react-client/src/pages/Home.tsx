@@ -1,22 +1,25 @@
-import {  useEffect } from 'react';
+import {  useContext, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { LayoutGroup, m } from 'framer-motion';
 import { useWindowSize } from 'react-use';
 import { toast } from 'react-toastify';
+import { UserContext } from '../context/AuthContext';
 
 
 
 
 function Home() {
     const { width } = useWindowSize()
+    const user = useContext(UserContext)
 
 
     useEffect(() => {
-        // remindToSignUp()
-    }, [])
+        remindToSignUp()
+    }, [user])
 
     async function remindToSignUp() {
+        if (user?.uid || user === undefined ) return
         await new Promise(resolve => setTimeout(resolve, 3000))
         toast.info("Create an account to save your progress", {
             theme: "dark",

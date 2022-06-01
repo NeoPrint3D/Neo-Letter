@@ -1,8 +1,10 @@
 name: Run Delete Rooms
 
+#write a cro job for every sunday at 3:00am
+
 on:
   schedule:
-    - cron: '0 3 * * *'
+    - cron: "0 3 * * SUN"
 jobs:
   build:
     name: Delete Rooms
