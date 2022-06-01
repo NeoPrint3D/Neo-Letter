@@ -10,6 +10,8 @@ env:
   VITE_FIRE_API_KEY: ${{ secrets.VITE_FIRE_API_KEY }}
   VITE_FIRE_PRJ_ID: ${{ secrets.VITE_FIRE_PRJ_ID }}
   VITE_FIRE_APP_ID: ${{ secrets.VITE_FIRE_APP_ID }}
+  VITE_RECAPTCHA_KEY: ${{ secrets.VITE_RECAPTCHA_KEY }}
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
