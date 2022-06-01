@@ -16,13 +16,10 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-console.log(import.meta.env.VITE_RECAPTCHA_KEY);
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_KEY),
   isTokenAutoRefreshEnabled: true,
 });
-appCheck;
-
 const auth = getAuth(app);
 const firestore = getFirestore(app);
 const analytics = getAnalytics(app);

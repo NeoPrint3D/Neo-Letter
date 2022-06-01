@@ -16,7 +16,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const unsbscribe = onAuthStateChanged(auth, async (auth) => {
-            console.log(auth)
             if (!auth) { setUser({} as UserProfile); return }
             const player = await getDoc(doc(firestore, "users", auth.uid))
             if (!player.exists()) return;
@@ -29,7 +28,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [])
 
     useEffect(() => {
-        console.log(user)
         if (user?.uid) {
             document.cookie = `neo-letter-game-uid=${user.uid}; max-age=31536000`
             setUid(user.uid)

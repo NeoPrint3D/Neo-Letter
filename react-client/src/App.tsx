@@ -27,7 +27,7 @@ function App() {
       <LazyMotion features={domMax}>
         <div id="App"
           style={{
-            backgroundImage: ` url(${width > 600 ? DesktopImage : MobileImage})`,
+            backgroundImage: ` url(${location.pathname !== "/" && `${width > 600 ? DesktopImage : MobileImage}`})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}>
@@ -47,7 +47,7 @@ function App() {
         </div>
       </LazyMotion>
       <AppToastContainer />
-    </AuthProvider>
+    </AuthProvider >
   )
 }
 
