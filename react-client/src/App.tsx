@@ -41,6 +41,7 @@ function App() {
                 <Route path="/signup" element={<SignUpPage />} />
                 <Route path="/profile/:username" element={<Profile />} />
                 <Route path="*" element={<Home />} />
+                
               </Routes>
             </div>
           </BgImage>
