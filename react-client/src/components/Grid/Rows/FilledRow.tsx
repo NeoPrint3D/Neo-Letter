@@ -1,25 +1,20 @@
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { AnimatePresence, m, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { getGuessStatuses, } from "../utils/getStatuses";
 
 
 
-export default function FilledRow({ guess,  answer }: { guess: string, answer: string }) {
+export default function FilledRow({ guess, answer }: { guess: string, answer: string }) {
     const [status, setStatus] = useState<string[]>([]);
     const [isCorrect, setIsCorrect] = useState(false);
-
-
-
     const guessList = guess.split("")
-
-
     useEffect(() => {
         setStatus(getGuessStatuses(guess, answer))
         setIsCorrect(answer === guess)
     }, [guess])
 
     return (
-        <div className="grid grid-cols-5 gap-1" >
+        <div className="grid grid-cols-5 gap-1">
             {guessList.map((letter, index) => (
                 <motion.div
                     initial={{
@@ -30,6 +25,9 @@ export default function FilledRow({ guess,  answer }: { guess: string, answer: s
                         scale: isCorrect ? [1, .9, 1] : 1,
                         rotateY: 0,
                         y: isCorrect ? [0, -40, 40, -40, 0] : 0,
+                    }}
+                    exit={{
+                        opacity: 0,
                     }}
                     transition={{
                         scale: {
@@ -64,9 +62,7 @@ export default function FilledRow({ guess,  answer }: { guess: string, answer: s
                             `}>
                     {letter?.toLocaleUpperCase()}
                 </motion.div>
-
             ))}
         </div>
-
     )
 }

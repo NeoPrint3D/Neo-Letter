@@ -1,14 +1,13 @@
-import ReadyLobby from '../RoomStatuses/ReadyLobby';
-import { Helmet } from "react-helmet";
-import { Link, useParams } from "react-router-dom";
+import RoomLobby from '../RoomStatuses/RoomLobby';
+import { useParams } from "react-router-dom";
 import Loader from "../Loader";
 import { useWindowSize } from "react-use";
-import Confetti from "react-confetti";
-import { m } from "framer-motion";
 import { UidContext } from "../../context/AuthContext";
 import { useContext, useMemo } from "react";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 import { firestore } from "../../utils/firebase";
+import RoomErrorScreen from '../RoomStatuses/RoomErrorScreen';
+import RoomWin from '../RoomStatuses/RoomWin';
 
 interface RoomProps {
     children: any,
@@ -16,16 +15,15 @@ interface RoomProps {
     //define winner with two attributes: winner and winnerPoints
     winner: {
         name: string,
-        points: number
+        points: number,
+        uid: string
     },
-    players: Player[]
+    players: GamePlayer[]
 }
 
 export default function RoomStatusHandler({ children, roomStatus, winner, players }: RoomProps) {
-    const { height, width } = useWindowSize()
     const { id } = useParams()
     const uid = useContext(UidContext)
-    const playerRef = useMemo(() => doc(firestore, "rooms", `${id}`, "players", uid), [id, uid])
 
 
 
@@ -61,45 +59,11 @@ export default function RoomStatusHandler({ children, roomStatus, winner, player
             );
         case "players_not_ready":
             return (
-                <ReadyLobby id={id || ""} uid={uid} players={players} />
+                <RoomLobby id={id || ""} uid={uid} players={players} />
             )
         case "room_finished":
             return (
-                <>
-                    <div className="flex justify-center items-center min-h-screen ">
-                        <m.div
-                            className="w-full max-w-sm sm:max-w-md bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl px-8 pt-6 pb-8 mb-4 shadow-2xl"
-                            initial={{ scale: 0, y: "100%" }}
-                            animate={{ scale: 1, y: 0 }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 100,
-                                damping: 10
-                            }}
-                        >
-                            <div className="flex flex-col items-center justify-center">
-                                {winner && <div className="text-center">
-                                    <h1 className="text-3xl font-bold">{winner.name} won the game!</h1>
-                                    <h2 className="text-2xl font-bold">With {winner.points} points</h2>
-                                </div>}
-                                <div className="text-center">
-                                    <Link to="/">
-                                        <button className="mt-5"                                        >
-                                            <h1 className="text-3xl font-logo text-primary underline">Back to Home</h1>
-                                        </button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </m.div>
-                    </div >
-                    <Confetti
-                        width={width}
-                        height={height}
-                        wind={.001}
-                        gravity={.5}
-                        numberOfPieces={500}
-                    />
-                </>
+                <RoomWin winner={winner} />
             )
         case "exists":
             return children;
@@ -107,24 +71,4 @@ export default function RoomStatusHandler({ children, roomStatus, winner, player
             return <Loader />
 
     }
-
-
-    function RoomErrorScreen({ description, title }: { description: string, title: string }) {
-        return (
-            <>
-                <Helmet>
-                    <title>{title}</title>
-                    <meta name="description" content={description} />
-                </Helmet>
-                <div className="flex justify-center items-center min-h-screen">
-                    <div className=" flex flex-col items-center justify-center px-10 max-w-sm main-container">
-                        <h1 className="text-4xl  font-logo text-center mb-5">{description}</h1>
-                        <Link to="/">
-                            <button className="btn btn-primary btn-lg mt-5">Return home</button>
-                        </Link>
-                    </div>
-                </div>
-            </>
-        )
-    }
-}  
+}

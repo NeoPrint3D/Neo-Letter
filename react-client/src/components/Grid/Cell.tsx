@@ -3,13 +3,16 @@ import { memo } from 'react';
 //status by default is empty
 
 function Cell({ keypress, status = 'empty' }: { keypress?: string; status?: "empty" | "correct" | "incorrect" | "incorrectPosition"; }) {
+    
     return (
-        <div className={`h-[3.25rem] w-[3.25rem] sm:h-14 sm:w-14 rounded flex justify-center items-center
+        <m.div className={`h-[3.25rem] 2xl:h-[4.5rem] 2xl:w-[4.5rem] w-[3.25rem] sm:h-14 sm:w-14 rounded flex justify-center items-center
         ${status === "correct" && "bg-success"}
         ${status === "incorrect" && "bg-gray-500"}
         ${status === "incorrectPosition" && "bg-warning"}
         ${status === "empty" && "border-[.175rem] border-gray-400"}
-        `}>
+        `}
+        
+        >
             <AnimatePresence>
                 {keypress && (
                     <m.p className="text-3xl"
@@ -25,7 +28,7 @@ function Cell({ keypress, status = 'empty' }: { keypress?: string; status?: "emp
                     </m.p>
                 )}
             </AnimatePresence>
-        </div >
+        </m.div >
     );
 }
 

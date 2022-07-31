@@ -22,6 +22,7 @@ function Key({ value, status }: { value?: string, status?: CharStatus, socket?: 
             className={`
                 text-white
                 transition-colors rounded py-4 px-3 
+                2xl:text-3xl
                 ${status ? `duration-1000 delay-1000
                 ${status === "correct" && "bg-success"}
                 ${status === "present" && "bg-warning"}

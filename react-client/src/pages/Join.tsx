@@ -1,5 +1,5 @@
 import { arrayUnion, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { AnimatePresence, m } from "framer-motion";
+import { AnimatePresence, LayoutGroup, m } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useNavigate } from "react-router-dom";
@@ -32,12 +32,12 @@ export default function JoinRoom() {
 
     async function checkValidRoom(roomId: string) {
         const room = await getRoom(roomId)
-        const maxPlayersExceeded = room?.players.length + 1 > room?.maxPlayers
+        const maxPlayersExceeded = room?.players.length + 1 >= room?.maxPlayers
         if (!room) {
             toast.error("Room does not exist", { theme: "dark" })
             return false
         }
-        if (maxPlayersExceeded) {
+        if (maxPlayersExceeded && !(room.players.includes(uid))) {
             toast.error("Room is full", { theme: "dark" })
             return false
         }
@@ -72,7 +72,7 @@ export default function JoinRoom() {
             return
         }
 
-        const playerData: Player = {
+        const playerData: GamePlayer = {
             name: username.charAt(0).toUpperCase() + username.slice(1),
             uid,
             points: 0,
@@ -82,6 +82,8 @@ export default function JoinRoom() {
             guessed: false,
             role: "user",
             wins: user?.wins || 0,
+            gamesPlayed: user?.gamesPlayed || 0,
+            totalPoints: user?.totalPoints || 0,
         }
 
         await setDoc(playerRef, playerData)
@@ -104,7 +106,7 @@ export default function JoinRoom() {
 
 
 
-    return !loading ? (
+    return loading ? <Loader /> :
         <>
             <Helmet>
                 <title>Neo Letter | Join</title>
@@ -118,9 +120,9 @@ export default function JoinRoom() {
                 <meta property="og:image" content="/images/preview/Join.png" />
 
             </Helmet>
-            <div className="flex justify-center items-center min-h-page">
+            <div className="flex justify-center items-center min-h-[calc(100vh-5rem)]">
                 {!roomValid && (
-                    <m.div className="flex flex-col items-center w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5"
+                    <m.div className="flex flex-col items-center w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5 py-10"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{
@@ -151,64 +153,66 @@ export default function JoinRoom() {
                             or
                         </div>
                         <Link to="/create">
-                            <p className='link link-secondary text-xl'>
+                            <p className='link link-secondary text-xl transition-all duration-300'>
                                 Create Room
                             </p>
                         </Link>
                     </m.div>
                 )}
                 {roomValid && (
-                    <m.div className="w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 30,
-                        }}
-                    >
-                        <div className="flex justify-center mb-7 font-logo">
-                            <h1 className="text-4xl">Enter</h1>
-                        </div>
-                        <form className="flex flex-col items-center gap-5" onSubmit={(e) => joinRoom(e)}>
-                            <input className="p-3 shadow-input rounded-xl text-center font-semibold  bg-transparent placeholder:font-semibold focus:outline-none" type="text" placeholder="Username"
-                                value={username}
-                                onChange={(e) => setUserame(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 20))}
-                            />
+                    <LayoutGroup>
+                        <m.div className="w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5 py-10"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            layout
+                            transition={{
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30,
+                            }}
+                        >
+                            <div className="flex justify-center mb-7 font-logo">
+                                <h1 className="text-4xl">Enter</h1>
+                            </div>
+                            <m.form className="flex flex-col items-center gap-5" onSubmit={(e) => joinRoom(e)}>
+                                <input className="p-3 shadow-input rounded-xl text-center font-semibold  bg-transparent placeholder:font-semibold focus:outline-none" type="text" placeholder="Username"
+                                    value={username}
+                                    onChange={(e) => setUserame(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 20))}
+                                />
 
-                            <AnimatePresence>
-                                {user?.uid && (
-                                    <m.button
-                                        className="link"
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            setUserame(user?.username)
-                                        }}
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{
-                                            type: "spring",
-                                            stiffness: 300,
-                                            damping: 30,
-                                        }}
-                                    >
-                                        Use <a className="font-bold">{user?.username}</a> instead?
-                                    </m.button>
-                                )}
-                            </AnimatePresence>
-                            <button
-                                disabled={!username || username.length < 3}
-                                className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary disabled:bg-primary/10 hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
-                                <p className="text-white">
-                                    Join Room
-                                </p>
-                            </button>
-                        </form>
-                    </m.div>
+                                <AnimatePresence>
+                                    {user?.uid && username !== user.username && (
+                                        <m.button
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                setUserame(user?.username)
+                                            }}
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            transition={{
+                                                type: "spring",
+                                                stiffness: 300,
+                                                damping: 30,
+                                            }}
+                                            whileTap={{ scale: 0.9 }}
+                                        >
+                                            <h1 className="link link-secondary transition-all duration-300">
+                                                Use <a className="font-black ">{user?.username}</a> instead?
+                                            </h1>
+                                        </m.button>
+                                    )}
+                                </AnimatePresence>
+                                <button
+                                    disabled={!username || username.length < 3}
+                                    className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary disabled:bg-primary/10 hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
+                                    <p className="text-white">
+                                        Join Room
+                                    </p>
+                                </button>
+                            </m.form>
+                        </m.div>
+                    </LayoutGroup>
                 )}
             </div>
         </>
-    ) : (
-        <Loader />
-    )
 }

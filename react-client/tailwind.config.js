@@ -1,3 +1,4 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./index.html",
@@ -14,11 +15,15 @@ module.exports = {
       fontFamily: {
         logo: ["Crete Round", "serif"],
       },
+      height: {
+        page: "calc(100vh - 5rem)",
+      },
       minHeight: {
         page: "calc(100vh - 5rem)",
       },
-      dropShadow: {
-        '3xl': '0 35px 35px rgba(0, 0, 0, 0.25)',
+      boxShadow: {
+        "input": "rgba(0, 0, 0, 0.04) 0px 1px 1px, rgba(0, 0, 0, 0.04) 0px 2px 2px, rgba(0, 0, 0, 0.04) 0px 4px 4px, rgba(0, 0, 0, 0.04) 0px 8px 8px,rgba(0, 0, 0, 0.04) 0px 16px 16px",
+        "input-inner": " box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px - 18px inset"
       }
 
 

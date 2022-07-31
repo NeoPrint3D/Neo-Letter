@@ -7,7 +7,15 @@ import { toast } from 'react-toastify';
 import { UserContext } from '../context/AuthContext';
 import MobileImage from "/images/assets/App-Mobile.webp"
 import DesktopImage from "/images/assets/App-Desktop.webp"
+import { setDoc, doc, getDoc } from 'firebase/firestore';
+import { firestore } from '../utils/firebase';
 
+
+interface Place {
+    points: number,
+    uid: string
+
+}
 
 
 
@@ -16,17 +24,20 @@ function Home() {
     const { width } = useWindowSize()
     const user = useContext(UserContext)
 
-
-    useEffect(() => {
-        const action = new URLSearchParams(location.search).get('action')
-        if (action === "reload") window.location.href = "/"
-    }, [])
+    useEffect(() => { if (new URLSearchParams(location.search).get('action') === "reload") window.location.href = "/" }, [])
+    useEffect(() => { remindToSignUp() }, [user])
 
 
 
-    useEffect(() => {
-        remindToSignUp()
-    }, [user])
+
+
+
+
+
+
+
+
+
 
     async function remindToSignUp() {
         if (user?.uid || user === undefined) return
@@ -63,13 +74,13 @@ function Home() {
 
                 <div className="hero min-h-screen"
                     style={{
-                        backgroundImage: ` url(${width > 600 ? DesktopImage : MobileImage})`,
+                        backgroundImage: ` url(${width > 1024 ? DesktopImage : MobileImage})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                     }}
                 >
                     <div className="hero-content text-center text-neutral-content">
-                        <m.div className="sm:max-w-xl main-container px-5"
+                        <m.div className="sm:max-w-xl main-container px-5 py-10"
                             initial={{ rotateX: -90, opacity: 0 }}
                             animate={{ rotateX: 0, opacity: 1 }}
                             transition={{

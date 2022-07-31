@@ -2,7 +2,7 @@ import { m } from 'framer-motion';
 
 function Loader() {
   return (
-    <div className="flex justify-center items-center min-h-page">
+    <div className="flex justify-center items-center h-screen z-10 w-screen fixed">
       <m.div
         animate={{
           scale: [1, 1.5, 1],

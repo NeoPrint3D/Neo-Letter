@@ -18,8 +18,12 @@ const PORT = process.env.PORT || 4000;
 
 //add teh middleware for socket.io
 await app.register(middie);
+const allOrginsNumbers = Array.from({ length: 10000}, (_, i) => `http://localhost:${i + 1}`);
+console.log(allOrginsNumbers);
 app.use(cors({
-  origin: ["http://localhost:3000", "https://neo-letter.web.app"],
+  origin: [
+    ...allOrginsNumbers,
+    "https://neo-letter.web.app"],
 }));
 app.use(compression());
 
@@ -50,7 +54,7 @@ app.delete("/api/rooms", async (req, res) => {
   if (ids.length > 0) {
     ids.map(async (id) => {
       console.log(id)
-      
+
       await db.collection("rooms").doc(id).collection("players").get().then(async (snapshot) => {
         snapshot.docs.map(async (doc) => {
           await doc.ref.delete()

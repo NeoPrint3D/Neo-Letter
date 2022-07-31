@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, increment, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { AnimatePresence, m } from "framer-motion";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -15,19 +15,14 @@ interface Message {
 }
 
 export default function SignUpPage() {
+    const navigate = useNavigate()
+    const user = useContext(UserContext)
     const [username, setUsername] = useState("");
     const [isUsernameTaken, setIsUsernameTaken] = useState(true)
     const [message, setMessage] = useState<Message>({
         status: "success",
         text: ""
     })
-    const navigate = useNavigate()
-    const user = useContext(UserContext)
-
-
-
-
-
     useDebounce(
         async () => {
             if (username.length < 3) {
@@ -69,15 +64,21 @@ export default function SignUpPage() {
         const userProfile: UserProfile = {
             username,
             uid: auth.currentUser?.uid,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
+            createdAt: serverTimestamp() as Timestamp,
+            updatedAt: serverTimestamp() as Timestamp,
             profilePic: auth.currentUser?.photoURL || "",
             wins: 0,
-            losses: 0,
             gamesPlayed: 0,
-            points: 0
+            totalPoints: 0,
+            lastRoom: "",
+            email: auth.currentUser?.email || "",
         }
-        await setDoc(doc(firestore, "users", `${auth.currentUser?.uid}`), userProfile)
+        await Promise.all([
+        setDoc(doc(firestore, "users", `${auth.currentUser?.uid}`), userProfile),
+        ])
+
+
+
         navigate("/?action=reload")
     }
 
@@ -86,7 +87,7 @@ export default function SignUpPage() {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <m.div
-                    className="sm:w-full sm:max-w-md main-container px-5"
+                    className="sm:w-full sm:max-w-md main-container px-5 py-10"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{
@@ -110,7 +111,7 @@ export default function SignUpPage() {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <m.div
-                    className="sm:w-full sm:max-w-md main-container px-5"
+                    className="sm:w-full sm:max-w-md main-container px-5 py-10"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{
@@ -132,7 +133,7 @@ export default function SignUpPage() {
 
         return (
             <div className="flex justify-center items-center min-h-screen">
-                <m.div className=" sm:w-full sm:max-w-md main-container px-5"
+                <m.div className=" sm:w-full sm:max-w-md main-container px-5 py-10 "
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{
@@ -175,5 +176,5 @@ export default function SignUpPage() {
         )
     }
 
-    return <Loader />
+    else return <Loader />
 }

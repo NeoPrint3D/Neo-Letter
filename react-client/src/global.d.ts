@@ -1,3 +1,4 @@
+type Timestamp = import('firebase/firestore').Timestamp;
 
 interface Room {
   id: string;
@@ -9,7 +10,7 @@ interface Room {
   round: number;
 }
 
-interface Player {
+interface GamePlayer {
   guessed: boolean;
   name: string;
   uid: string;
@@ -19,6 +20,8 @@ interface Player {
   signedIn: boolean;
   guesses: string[];
   wins?: number;
+  gamesPlayed?: number;
+  totalPoints?: number;
 }
 
 interface UserProfile {
@@ -26,11 +29,12 @@ interface UserProfile {
   uid: string;
   profilePic: string;
   wins: number;
-  losses: number;
   gamesPlayed: number;
-  points: number;
-  createdAt: any;
-  updatedAt: any;
+  totalPoints: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  lastRoom: string;
+  email: string;
 }
 
 type RoomStatuses =

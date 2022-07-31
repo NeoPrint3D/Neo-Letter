@@ -15,9 +15,9 @@ export default function Header() {
 
 
     return !hideHeader ? (
-        <header className={` grid grid-cols-2 lg:grid-cols-3 h-20 items-center w-full border-b-white/40 ${["/", "/signup"].includes(location.pathname) && "absolute"}  z-50`}>
-            <div className="hidden lg:flex"></div>
-            <div className="flex justify-start lg:justify-center ml-5">
+        <header className={` grid grid-cols-2 h-20 items-center w-full border-b-white/40 ${["/", "/signup", "/leaderboard"].includes(location.pathname) && "absolute"}  z-50`}>
+            <div className="hidden"></div>
+            <div className="flex justify-start ml-5 lg:ml-0">
                 <Link to="/" >
                     <img src={Logo}
                         draggable={false}
@@ -30,7 +30,7 @@ export default function Header() {
                 </Link>
 
             </div>
-            <div className="flex justify-end gap-5 pr-5">
+            <div className="flex justify-end w-full gap-5 pr-5">
                 {user?.uid ? <UserDropDown /> : <GoogleSignIn />}
             </div>
         </header>

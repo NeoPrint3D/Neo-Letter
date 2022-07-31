@@ -1,4 +1,4 @@
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { useContext } from "react";
 import { KeyboardContext } from "../../../context/GameContext";
 import Cell from "../Cell";
@@ -15,8 +15,8 @@ export default function CurrentRow() {
 
     return (
         <div className="grid grid-cols-5 gap-1">
-            {displayLetters.map((letters, index) => (
-                <Cell key={index} keypress={letters} />
+            {displayLetters.map((letters, i) => (
+                <Cell key={i} keypress={letters} />
             ))}
         </div>
     )

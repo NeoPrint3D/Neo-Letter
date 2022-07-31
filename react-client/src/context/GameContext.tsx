@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 
 export const KeyboardContext = createContext(undefined as any)
 export const KeyBoardDispatchContext = createContext(undefined as any)
@@ -9,7 +9,7 @@ export const GuessesDispatchContext = createContext(undefined as any)
 export function GameContextProvider({ children }: { children: React.ReactNode }) {
     const [key, setKey] = useState("")
     const [guesses, setGuesses] = useState<string[]>([])
-    
+
 
     //if the key has been pressed add it to the array
 

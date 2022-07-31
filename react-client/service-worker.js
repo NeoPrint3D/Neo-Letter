@@ -11,5 +11,5 @@ setDefaultHandler(new NetworkOnly());
 
 // HTML to serve when the site is offline
 offlineFallback({
-  pageFallback: "/public/offline.html",
+  pageFallback: "/offline.html",
 });

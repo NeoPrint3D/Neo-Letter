@@ -6,10 +6,12 @@ import { GameContextProvider } from './context/GameContext'
 import Loader from './components/Loader'
 import { useWindowSize } from 'react-use'
 import AppToastContainer from './components/Toast/ToastContainer'
-import MobileImage from "/images/assets/App-Mobile.webp"
-import DesktopImage from "/images/assets/App-Desktop.webp"
+
 import Home from './pages/Home'
 import { domMax, LazyMotion } from 'framer-motion'
+import LeaderBoard from './pages/Leaderboard';
+import Profile from './pages/Profile';
+import BgImage from './components/Wrappers/BgImage';
 import BottomNavbar from './components/BottomNavbar';
 const GameRoom = lazy(() => import('./pages/GameRoom'))
 const CreateRoom = lazy(() => import('./pages/Create'))
@@ -20,34 +22,33 @@ const Footer = lazy(() => import('./components/Footer'))
 
 
 function App() {
-  const { width } = useWindowSize()
-  const location = useLocation()
   return (
-    <AuthProvider>
+    <Suspense fallback={<Loader />}>
       <LazyMotion features={domMax}>
-        <div id="App"
-          style={{
-            backgroundImage: ` url(${location.pathname !== "/" && `${width > 600 ? DesktopImage : MobileImage}`})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}>
-          <div className={` transition-colors duration-500 ease-in-out min-h-screen ${location.pathname === "/" ? "bg-transparent" : "bg-primary-dark/70"}`}>
-            <Suspense fallback={<Loader />}>
+        <AuthProvider>
+          <BgImage>
+            <div className="min-h-screen">
               <Header />
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/create" element={<CreateRoom />} />
                 <Route path="/join" element={<JoinRoom />} />
-                <Route path="/room/:id" element={<GameContextProvider><GameRoom /></GameContextProvider>} />
+                <Route path="/room/:id" element={
+                  <GameContextProvider>
+                    <GameRoom />
+                  </GameContextProvider>
+                } />
                 <Route path="/signup" element={<SignUpPage />} />
+                <Route path="/profile/:username" element={<Profile />} />
+                <Route path="*" element={<Home />} />
               </Routes>
-              <Footer />
-            </Suspense>
-          </div>
-        </div>
+            </div>
+          </BgImage>
+          <Footer />
+          <AppToastContainer />
+        </AuthProvider >
       </LazyMotion>
-      <AppToastContainer />
-    </AuthProvider >
+    </Suspense>
   )
 }
 

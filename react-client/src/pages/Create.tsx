@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, increment, setDoc, updateDoc } from 'firebase/firestore';
 import { useContext, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
@@ -6,16 +6,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { firestore } from '../utils/firebase';;
 import { UserContext, UidContext } from '../context/AuthContext';
 import Loader from '../components/Loader';
-import { v4 } from 'uuid';
-import { AnimatePresence, AnimateSharedLayout, LayoutGroup, m } from 'framer-motion';
-import BottomNavbar from '../components/BottomNavbar';
+import { AnimatePresence, LayoutGroup, m } from 'framer-motion';
 
 export default function CreateRoom() {
     const [loading, setLoading] = useState(false)
     const [customMaxPlayers, setCustomMaxPlayers] = useState<number | string>(20)
     const [maxPlayers, setMaxPlayers] = useState("party");
     const [roomType, setRoomType] = useState("private");
-    const [wordCount, setWordCount] = useState<number | string>(10);
+    const [wordCount, setWordCount] = useState<number | string>(5);
     const navigate = useNavigate()
     const user = useContext(UserContext)
     const uid = useContext(UidContext);
@@ -28,14 +26,11 @@ export default function CreateRoom() {
 
     function roomSelectToNumber(select: string) {
         switch (select) {
-            case "versus":
-                return 2
-            case "party":
-                return 5
-            case "mega-party":
-                return 10
-            default:
-                return 1
+            case "solo": return 1;
+            case "versus": return 2
+            case "party": return 5
+            case "mega-party": return 10
+            default: return 1
         }
     }
 
@@ -44,12 +39,12 @@ export default function CreateRoom() {
         setLoading(true)
         const res = await fetch(
             process.env.NODE_ENV === "development"
-                ? `http://localhost:4000/api/words?count=${wordCount || 10}`
-                : `https://neo-letter-fastify.vercel.app/api/words?count=${wordCount || 10}`
+                ? `http://localhost:4000/api/words?count=${wordCount}`
+                : `https://neo-letter-fastify.vercel.app/api/words?count=${wordCount}`
         ).then((res) => res.json())
         const wordlist = res.words
         const id = await generateCleanId()
-        const playerdata: Player = {
+        const gamePlayerData: GamePlayer = {
             name: "",
             uid,
             points: 0,
@@ -59,18 +54,22 @@ export default function CreateRoom() {
             guesses: [],
             guessed: false,
             wins: user?.wins || 0,
+            gamesPlayed: user?.gamesPlayed || 0,
+            totalPoints: user?.totalPoints || 0,
         }
+
+
         await Promise.all([
             setDoc(doc(firestore, "rooms", `${id}`), {
                 id,
-                maxPlayers: customMaxPlayers || roomSelectToNumber(maxPlayers),
+                maxPlayers: maxPlayers === "custom" ? customMaxPlayers : roomSelectToNumber(maxPlayers),
                 started: false,
                 roomType,
                 answers: wordlist,
                 players: [uid],
                 round: 0
             }),
-            setDoc(doc(firestore, "rooms", `${id}`, "players", `${uid}`), playerdata),
+            setDoc(doc(firestore, "rooms", `${id}`, "players", uid), gamePlayerData),
         ])
         setLoading(false)
         navigate(`/join?id=${id}`)
@@ -84,7 +83,7 @@ export default function CreateRoom() {
             <LayoutGroup>
                 <div className="flex justify-center items-center min-h-page">
                     <m.div
-                        className=" w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5"
+                        className=" w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5 py-10"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{
@@ -99,28 +98,26 @@ export default function CreateRoom() {
                         </div>
                         <div className="flex flex-col gap-3 items-center">
                             <select className=" bg-transparent focus:outline-none rounded-xl text-xl  shadow-input p-3 w-52" value={maxPlayers} onChange={(e) => { setMaxPlayers(e.target.value) }}>
+                                <option className="bg-primary-dark text-sm text-bold" value="solo">Solo (Max 1)</option>
                                 <option className='bg-primary-dark text-sm text-bold' value="versus">Versus (Max 2)</option>
                                 <option className='bg-primary-dark text-sm text-bold' value="party">Party (Max 5)</option>
                                 <option className='bg-primary-dark text-sm text-bold' value="mega-party">Mega Party (Max 10)</option>
                                 <option className='bg-primary-dark text-sm text-bold' value="custom">Custom</option>
                             </select>
-                            <AnimatePresence>
-                                {maxPlayers === "custom" && (
-                                    <m.div
-                                        className='flex gap-3 justify-start items-center p-3 shadow-input rounded-xl w-52'
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                    >
-                                        <div className='flex justify-start w-full'>
-                                            <label className='text-xl' >Players</label>
-                                        </div>
-                                        <div className='flex justify-end'>
-                                            <input name='num' type="number" className="text-center text-xl bg-transparent focus:outline-none p-1 shadow-input-inner rounded-xl w-12  " placeholder='20' value={customMaxPlayers} onChange={(e) => setCustomMaxPlayers(parseInt(e.target.value) <= 100 && parseInt(e.target.value) > 0 ? parseInt(e.target.value) : "")} />
-                                        </div>
-                                    </m.div>
-                                )}
-                            </AnimatePresence>
+                            {maxPlayers === "custom" && (
+                                <m.div
+                                    className='flex gap-3 justify-start items-center p-3 shadow-input rounded-xl w-52'
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                >
+                                    <div className='flex justify-start w-full'>
+                                        <label className='text-xl' >Players</label>
+                                    </div>
+                                    <div className='flex justify-end'>
+                                        <input name='num' type="number" className="text-center text-xl bg-transparent focus:outline-none p-1 shadow-input-inner rounded-xl w-12  " placeholder='20' value={customMaxPlayers} onChange={(e) => setCustomMaxPlayers(parseInt(e.target.value) <= 100 && parseInt(e.target.value) > 0 ? parseInt(e.target.value) : "")} />
+                                    </div>
+                                </m.div>
+                            )}
 
 
                             <div className='flex items-center p-3 shadow-input rounded-xl w-52'>
@@ -157,7 +154,7 @@ export default function CreateRoom() {
                                     or
                                 </div>
                                 <Link to="/join">
-                                    <p className='link link-secondary text-xl'>
+                                    <p className='link link-secondary text-xl transition-all duration-300'>
                                         Join Room
                                     </p>
                                 </Link>

@@ -21,5 +21,5 @@ export default function Footer() {
                 </p>
             </div>
         </footer>
-    ) : null
+    ) : <div />
 }
