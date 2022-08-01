@@ -13,6 +13,7 @@ export default function CreateRoom() {
     const [customMaxPlayers, setCustomMaxPlayers] = useState<number | string>(20)
     const [maxPlayers, setMaxPlayers] = useState("party");
     const [roomType, setRoomType] = useState("private");
+    const [allowJoinAfterStart, setAllowJoinAfterStart] = useState(true);
     const [wordCount, setWordCount] = useState<number | string>(5);
     const navigate = useNavigate()
     const user = useContext(UserContext)
@@ -38,7 +39,7 @@ export default function CreateRoom() {
     async function createroom() {
         setLoading(true)
         const res = await fetch(
-            process.env.NODE_ENV === "development"
+            import.meta.env.DEV
                 ? `http://localhost:4000/api/words?count=${wordCount}`
                 : `https://neo-letter-fastify.vercel.app/api/words?count=${wordCount}`
         ).then((res) => res.json())
@@ -67,7 +68,8 @@ export default function CreateRoom() {
                 roomType,
                 answers: wordlist,
                 players: [uid],
-                round: 0
+                round: 0,
+                allowLateJoiners: allowJoinAfterStart
             }),
             setDoc(doc(firestore, "rooms", `${id}`, "players", uid), gamePlayerData),
         ])
@@ -81,7 +83,7 @@ export default function CreateRoom() {
                 <meta name="description" content="Home page" />
             </Helmet>
             <LayoutGroup>
-                <div className="flex justify-center items-center min-h-page">
+                <div className="flex justify-center items-center min-h-page text-white">
                     <m.div
                         className=" w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5 py-10"
                         initial={{ scale: 0 }}
@@ -94,7 +96,7 @@ export default function CreateRoom() {
                         layout
                     >
                         <div className="flex justify-center mb-7 font-logo">
-                            <h1 className="text-4xl">Create Room</h1>
+                            <h1 className="text-4xl ">Create Room</h1>
                         </div>
                         <div className="flex flex-col gap-3 items-center">
                             <select className=" bg-transparent focus:outline-none rounded-xl text-xl  shadow-input p-3 w-52" value={maxPlayers} onChange={(e) => { setMaxPlayers(e.target.value) }}>
@@ -137,16 +139,28 @@ export default function CreateRoom() {
                                     />
                                 </div>
                             </div>
-                            <div className='flex justify-start items-center gap-3 p-3'>
-                                <p className='text-xl'>Private</p>
-                                <input className='checkbox checkbox-primary' type="checkbox" checked={roomType === "private"} onChange={(e) => setRoomType(e.target.checked ? "private" : "public")} />
+
+                            <div className='flex flex-col gap-3 mt-5' >
+                                <div className='flex justify-center gap-3 items-center'>
+                                    <p className='text-xl '>Allow late joiners </p>
+                                    <div className='flex justify-end '>
+                                        <input className='checkbox checkbox-primary' type="checkbox" checked={allowJoinAfterStart} onChange={(e) => setAllowJoinAfterStart(e.target.checked)} />
+                                    </div>
+                                </div>
+
+                                <div className='flex justify-center items-center gap-3'>
+                                    <p className='text-xl '>Private</p>
+                                    <input className='checkbox checkbox-primary' type="checkbox" checked={roomType === "private"} onChange={(e) => setRoomType(e.target.checked ? "private" : "public")} />
+                                </div>
                             </div>
+
+
 
                             <div className='flex flex-col items-center'>
                                 <button
                                     onClick={createroom}
                                     className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
-                                    <p className="text-white">
+                                    <p className="">
                                         Create Party
                                     </p>
                                 </button>
@@ -163,7 +177,7 @@ export default function CreateRoom() {
                         </div>
                     </m.div>
                 </div>
-            </LayoutGroup>
+            </LayoutGroup >
         </>
     ) : (
         <Loader />

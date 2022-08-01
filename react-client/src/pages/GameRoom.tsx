@@ -14,7 +14,7 @@ import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispat
 import { useWindowSize } from "react-use";
 import { toast } from "react-toastify";
 import { FaCrown } from 'react-icons/fa'
-import { AnimatePresence, m,  } from "framer-motion";
+import { AnimatePresence, m, } from "framer-motion";
 import UserPreview from "../components/UserPreview";
 
 
@@ -54,7 +54,8 @@ export default function GameRoom() {
         setGuessFireOff(players.filter(player => player.guessed).map(player => player.uid))
     }, [])
     const handleEveryoneGuessed = useCallback(async (players: GamePlayer[]) => {
-        if (!players.every((p) => p.guesses.length === 6)) return
+        if (players.length === 0) return
+        if (!players.every(player => player.guesses.length === 6)) return
         toast.warning("Everyone has guessed", { theme: "dark" })
         await new Promise((resolve) => setTimeout(resolve, 1750))
         if (currentPlayer.role === "creator") {
@@ -72,8 +73,13 @@ export default function GameRoom() {
     const handleEnter = useCallback(async () => {
         if (key.length !== 5) return
         setHasGuessed(true)
-        const res = await fetch(`${import.meta.env.NODE_ENV === "production" ? `https://neo-letter-fastify.vercel.app/api/valid?word=${key}` : `http://localhost:4000/api/valid?word=${key}`}`).then(res => res.json())
-        if (!res.isValid) {
+        const res = await fetch(import.meta.env.DEV ? `http://localhost:4000/api/valid?word=${key}` : `https://neo-letter-fastify.vercel.app/api/valid?word=${key}`)
+        if (!res.ok) {
+            toast.error("Invalid word", { theme: "dark" })
+            return
+        }
+        const data = await res.json()
+        if (!data.isValid) {
             toast.error("Invalid Guess", { theme: "dark" })
             setHasGuessed(false)
             return
@@ -89,8 +95,7 @@ export default function GameRoom() {
         setHasGuessed(false)
     }, [key, guesses])
     const handleRoomWin = useCallback(async (players: GamePlayer[]) => {
-        if (!winner) return
-        if (resetWinner) return
+        if (!winner || resetWinner) return
         setResetWinner(true);
         await updateDoc(roomRef, { gameStatus: "roundReset" })
         await new Promise(resolve => setTimeout(resolve, 5000));
@@ -167,7 +172,6 @@ export default function GameRoom() {
                 return
             }
             if (room && uid && currentPlayer && players && (room.maxPlayers === 1 || players.length > 1)) {
-                console.log("starting")
                 setRoomStatus("exists")
                 updateDoc(roomRef, { started: true })
                 return
@@ -232,7 +236,7 @@ export default function GameRoom() {
                                     data={{
                                         title: `Join room ${id}`,
                                         text: `${currentPlayer?.name} sent you a request to join room ${id}`,
-                                        url: `${process.env.NODE_ENV === "development" ? `http://localhost:3000/join?id=${id}` : `https://neo-letter.web.app/join?id=${id}`}`,
+                                        url: `${import.meta.env.DEV ? `http://localhost:3005/join?id=${id}` : `https://neo-letter.web.app/join?id=${id}`}`,
                                     }}>
                                     <button className=" transition-all duration-300 flex justify-center  items-center rounded-full p-3 bg-primary text-white active:scale-90">
                                         <FiShare size={25} />

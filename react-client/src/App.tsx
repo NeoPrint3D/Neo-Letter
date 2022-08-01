@@ -13,21 +13,21 @@ import LeaderBoard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import BgImage from './components/Wrappers/BgImage';
 import BottomNavbar from './components/BottomNavbar';
+import Footer from './components/Footer';
 const GameRoom = lazy(() => import('./pages/GameRoom'))
 const CreateRoom = lazy(() => import('./pages/Create'))
 const JoinRoom = lazy(() => import('./pages/Join'))
 const SignUpPage = lazy(() => import('./pages/SignUp'))
-const Footer = lazy(() => import('./components/Footer'))
 
 
 
 function App() {
   return (
-    <Suspense fallback={<Loader />}>
-      <LazyMotion features={domMax}>
-        <AuthProvider>
-          <BgImage>
-            <div className="min-h-screen">
+    <LazyMotion features={domMax}>
+      <AuthProvider>
+        <BgImage>
+          <div className="min-h-screen">
+            <Suspense fallback={<Loader />}>
               <Header />
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -41,15 +41,15 @@ function App() {
                 <Route path="/signup" element={<SignUpPage />} />
                 <Route path="/profile/:username" element={<Profile />} />
                 <Route path="*" element={<Home />} />
-                
+
               </Routes>
-            </div>
-          </BgImage>
-          <Footer />
-          <AppToastContainer />
-        </AuthProvider >
-      </LazyMotion>
-    </Suspense>
+            </Suspense>
+          </div>
+        </BgImage>
+        <Footer />
+        <AppToastContainer />
+      </AuthProvider >
+    </LazyMotion>
   )
 }
 

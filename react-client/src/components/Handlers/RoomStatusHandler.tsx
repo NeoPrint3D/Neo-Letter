@@ -1,11 +1,8 @@
 import RoomLobby from '../RoomStatuses/RoomLobby';
 import { useParams } from "react-router-dom";
 import Loader from "../Loader";
-import { useWindowSize } from "react-use";
 import { UidContext } from "../../context/AuthContext";
-import { useContext, useMemo } from "react";
-import { doc } from "firebase/firestore";
-import { firestore } from "../../utils/firebase";
+import { useContext } from "react";
 import RoomErrorScreen from '../RoomStatuses/RoomErrorScreen';
 import RoomWin from '../RoomStatuses/RoomWin';
 
@@ -24,9 +21,6 @@ interface RoomProps {
 export default function RoomStatusHandler({ children, roomStatus, winner, players }: RoomProps) {
     const { id } = useParams()
     const uid = useContext(UidContext)
-
-
-
 
     switch (roomStatus) {
         case "room_not_found":

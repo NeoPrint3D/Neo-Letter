@@ -6,7 +6,7 @@
     "dev": "vite dev --port 3005",
     "build": "tsc && vite build",
     "prod": "tsc && vite build && react-snap",
-    "preview": "vite build && vite  preview", 
+    "preview": "vite build && vite  preview --port 3100",
     "deploy": "tsc && vite build && react-snap && firebase deploy"
   },
   "reactSnap": {
@@ -25,7 +25,9 @@
     "react-toastify": "^8.2.0",
     "react-use": "^17.3.2",
     "react-web-share": "^1.1.5",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "workbox-build": "^6.5.4",
+    "workbox-window": "^6.5.4"
   },
   "devDependencies": {
     "@types/react": "^17.0.33",

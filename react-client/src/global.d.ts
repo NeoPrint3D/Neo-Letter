@@ -7,6 +7,7 @@ interface Room {
   players: string[];
   roomType: "public" | "private";
   started: boolean;
+  allowPlayersAfterStart: boolean;
   round: number;
 }
 

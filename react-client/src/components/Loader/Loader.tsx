@@ -1,8 +1,10 @@
 import { m } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 function Loader() {
+  const location = useLocation();
   return (
-    <div className="flex justify-center items-center h-screen z-10 w-screen fixed">
+    <div className={`flex justify-center items-center z-50 w-screen fixed ${location.pathname.includes("game") ? "h-screen" : "h-page"}`}>
       <m.div
         animate={{
           scale: [1, 1.5, 1],

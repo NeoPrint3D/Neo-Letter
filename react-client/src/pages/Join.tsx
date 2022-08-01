@@ -31,13 +31,17 @@ export default function JoinRoom() {
     }
 
     async function checkValidRoom(roomId: string) {
-        const room = await getRoom(roomId)
-        const maxPlayersExceeded = room?.players.length + 1 >= room?.maxPlayers
+        const room = await getRoom(roomId) as Room
         if (!room) {
             toast.error("Room does not exist", { theme: "dark" })
             return false
         }
-        if (maxPlayersExceeded && !(room.players.includes(uid))) {
+
+        if (room.started && !room.allowPlayersAfterStart) {
+            toast.error("Room already started", { theme: "dark" })
+            return false
+        }
+        if (room.players.length + 1 >= room.maxPlayers && !(room.players.includes(uid))) {
             toast.error("Room is full", { theme: "dark" })
             return false
         }
