@@ -47,7 +47,7 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
                   data={{
                     title: `Join room ${id}`,
                     text: `${currentPlayer?.name} sent you a request to join room ${id}`,
-                    url: `${process.env.NODE_ENV === "development" ? `http://localhost:3000/join?id=${id}` : `https://neo-letter.web.app/join?id=${id}`}`,
+                    url: `${import.meta.env.DEV ? `http://localhost:3000/join?id=${id}` : `https://neo-letter.web.app/join?id=${id}`}`,
                   }}>
                   <button className=" transition-all duration-300 flex justify-center  items-center rounded-full p-3 bg-primary text-white active:scale-90">
                     <FiShare size={25} />
