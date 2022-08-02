@@ -66,7 +66,7 @@ function Home() {
                     property="og:description"
                     content="The new wordle party game to play with your friends"
                 />
-                <meta property="og:image" content="/images/preview/Home.png" />
+                <meta property="og:image" content="/images/previews/Home.png" />
             </Helmet>
 
             <LayoutGroup>

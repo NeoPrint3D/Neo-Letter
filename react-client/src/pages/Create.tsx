@@ -85,7 +85,7 @@ export default function CreateRoom() {
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Create Room | Neo Letter" />
                 <meta property="og:description" content="Create a room to play with your friends!" />
-                <meta property="og:image" content="/images/preview/create.png" />
+                <meta property="og:image" content="/images/previews/Create.png" />
 
 
 

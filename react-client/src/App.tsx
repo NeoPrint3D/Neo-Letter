@@ -1,10 +1,9 @@
 import { Suspense, lazy } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Header from './components/Header'
 import { AuthProvider } from "./context/AuthContext";
 import { GameContextProvider } from './context/GameContext'
 import Loader from './components/Loader'
-import { useWindowSize } from 'react-use'
 import AppToastContainer from './components/Toast/ToastContainer'
 
 import Home from './pages/Home'
@@ -14,6 +13,7 @@ import Profile from './pages/Profile';
 import BgImage from './components/Wrappers/BgImage';
 import BottomNavbar from './components/BottomNavbar';
 import Footer from './components/Footer';
+import NotFound from './pages/NotFound';
 const GameRoom = lazy(() => import('./pages/GameRoom'))
 const CreateRoom = lazy(() => import('./pages/Create'))
 const JoinRoom = lazy(() => import('./pages/Join'))
@@ -40,8 +40,8 @@ function App() {
                 } />
                 <Route path="/signup" element={<SignUpPage />} />
                 <Route path="/profile/:username" element={<Profile />} />
-                <Route path="*" element={<Home />} />
-
+                <Route path="/404" element={<NotFound />} />
+                <Route path="*" element={<Navigate to="/404" />} />
               </Routes>
             </Suspense>
           </div>

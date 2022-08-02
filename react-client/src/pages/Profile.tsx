@@ -6,7 +6,6 @@ import { CgGames } from "react-icons/cg"
 import { FaCrown } from "react-icons/fa"
 import { useParams } from "react-router-dom"
 import Loader from "../components/Loader"
-import Seo from "../components/Seo"
 import { firestore } from "../utils/firebase"
 
 export default function Profile() {

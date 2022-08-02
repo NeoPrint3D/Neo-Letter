@@ -121,7 +121,7 @@ export default function JoinRoom() {
                     property="og:description"
                     content="Your friend has invited you to join a room. Join now!"
                 />
-                <meta property="og:image" content="/images/preview/Join.png" />
+                <meta property="og:image" content="/images/previews/Join.png" />
 
             </Helmet>
             <div className="flex justify-center items-center min-h-[calc(100vh-5rem)]">
