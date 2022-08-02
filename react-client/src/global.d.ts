@@ -1,4 +1,4 @@
-type Timestamp = import('firebase/firestore').Timestamp;
+type Timestamp = import("firebase/firestore").Timestamp;
 
 interface Room {
   id: string;

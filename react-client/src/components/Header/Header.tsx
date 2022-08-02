@@ -14,7 +14,7 @@ export default function Header() {
 
 
 
-    return !hideHeader ? (
+    return hideHeader ? <div /> :
         <header className={` grid grid-cols-2 h-20 items-center w-full border-b-white/40 ${["/", "/signup", "/leaderboard"].includes(location.pathname) && "absolute"}  z-50`}>
             <div className="hidden"></div>
             <div className="flex justify-start ml-5 lg:ml-0">
@@ -34,5 +34,4 @@ export default function Header() {
                 {user?.uid ? <UserDropDown /> : <GoogleSignIn />}
             </div>
         </header>
-    ) : null;
 }

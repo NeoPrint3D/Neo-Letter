@@ -80,7 +80,15 @@ export default function CreateRoom() {
         <>
             <Helmet>
                 <title>Neo Letter | Create Room</title>
-                <meta name="description" content="Home page" />
+                <meta name="description" content="Create a room to play with your friends!" />
+                <meta property="og:url" content="https://neo-letter.web.app/create" />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="Create Room | Neo Letter" />
+                <meta property="og:description" content="Create a room to play with your friends!" />
+                <meta property="og:image" content="/images/preview/create.png" />
+
+
+
             </Helmet>
             <LayoutGroup>
                 <div className="flex justify-center items-center min-h-page text-white">

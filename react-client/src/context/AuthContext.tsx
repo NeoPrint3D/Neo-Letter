@@ -1,21 +1,24 @@
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { v4 } from "uuid";
 import { auth, firestore } from "../utils/firebase";
 
 
 export const UserContext = createContext(undefined as unknown as UserProfile);
 export const UidContext = createContext(undefined as unknown as string);
+const AuthContext = createContext(undefined as unknown as User);
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState(undefined as unknown as UserProfile);
     const [uid, setUid] = useState("")
+    const [authRef, setAuthRef] = useState(undefined as unknown as User);
 
 
     useEffect(() => {
         const unsbscribe = onAuthStateChanged(auth, async (auth) => {
+            setAuthRef(auth as User);
             if (!auth) { setUser({} as UserProfile); return }
             const player = await getDoc(doc(firestore, "users", auth.uid))
             if (!player.exists()) return;
@@ -47,11 +50,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
     return (
-        <UserContext.Provider value={user}>
-            <UidContext.Provider value={uid}>
-                {children}
-            </UidContext.Provider>
-        </UserContext.Provider>
+        <AuthContext.Provider value={authRef}>
+            <UserContext.Provider value={user}>
+                <UidContext.Provider value={uid}>
+                    {children}
+                </UidContext.Provider>
+            </UserContext.Provider>
+        </AuthContext.Provider>
     )
 }
+
+export function useAuth() { return useContext(AuthContext); }
 
