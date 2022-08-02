@@ -12,6 +12,8 @@ export default function SignUpPage() {
                 <meta property="og:title" content="Sign Up | Neo Letter" />
                 <meta property="og:description" content="Sign up for the Neo Letter game"/>
                 <meta property="og:image" content="/images/previews/SignUp.png" />
+
+                
             </Helmet>
             <AuthStatusHandler />
         </div>

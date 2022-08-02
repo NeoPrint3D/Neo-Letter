@@ -117,12 +117,15 @@ export default function JoinRoom() {
                 <meta property="og:url" content="https://neo-letter.web.app/join" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Join Room" />
-                <meta
-                    property="og:description"
-                    content="Your friend has invited you to join a room. Join now!"
-                />
+                <meta property="og:description" content="Your friend has invited you to join a room. Join now!" />
                 <meta property="og:image" content="/images/previews/Join.png" />
 
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta property="twitter:domain" content="neo-letter.web.app" />
+                <meta property="twitter:url" content="https://neo-letter.web.app/join" />
+                <meta name="twitter:title" content="Join Room" />
+                <meta name="twitter:description" content="Your friend has invited you to join a room. Join now!" />
+                <meta name="twitter:image" content="https://neo-letter.web.app/images/previews/Join.png" />
             </Helmet>
             <div className="flex justify-center items-center min-h-[calc(100vh-5rem)]">
                 {!roomValid && (

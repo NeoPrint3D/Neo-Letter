@@ -87,8 +87,12 @@ export default function CreateRoom() {
                 <meta property="og:description" content="Create a room to play with your friends!" />
                 <meta property="og:image" content="/images/previews/Create.png" />
 
-
-
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta property="twitter:domain" content="neo-letter.web.app" />
+                <meta property="twitter:url" content="https://neo-letter.web.app/create" />
+                <meta name="twitter:title" content="Create Room | Neo Letter" />
+                <meta name="twitter:description" content="Create a room to play with your friends!" />
+                <meta name="twitter:image" content="https://neo-letter.web.app/images/previews/Create.png" />
             </Helmet>
             <LayoutGroup>
                 <div className="flex justify-center items-center min-h-page text-white">

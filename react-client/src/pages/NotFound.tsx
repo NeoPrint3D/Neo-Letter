@@ -7,11 +7,19 @@ export default function NotFound() {
             <Helmet>
                 <title>Not Found</title>
                 <meta name="description" content="Page not found. Want to go back to the homepage?" />
-                <meta property="og:url" content="https://neo-letter.web.app/notfound" />
+                <meta property="og:url" content="https://neo-letter.web.app/404" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Not found | Neo Letter" />
                 <meta property="og:description" content="Page not found. Want to go back to the homepage?" />
-                <meta property="og:image" content="/images/previews/SignUp.png" />
+                <meta property="og:image" content="/images/previews/NotFound.png" />
+
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta property="twitter:domain" content="neo-letter.web.app" />
+                <meta property="twitter:url" content="https://neo-letter.web.app/404" />
+                <meta name="twitter:title" content="Not found | Neo Letter" />
+                <meta name="twitter:description" content="Page not found. Want to go back to the homepage?" />
+                <meta name="twitter:image" content="https://neo-letter.web.app/images/previews/NotFound.png" />
+
             </Helmet>
             <div className="flex flex-col items-center justify-center h-page">
                 <h1 className="text-5xl font-logo text-center">Are you lost?</h1>

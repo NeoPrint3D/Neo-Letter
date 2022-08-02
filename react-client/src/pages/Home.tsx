@@ -59,14 +59,19 @@ function Home() {
             <Helmet>
                 <title>Neo Letter</title>
                 <meta name="description" content="The new wordle party game to play with your friends. Created for easy sharing and lots fo fun." />
+
                 <meta property="og:url" content="https://neo-letter.web.app/" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="Neo Letter" />
-                <meta
-                    property="og:description"
-                    content="The new wordle party game to play with your friends"
-                />
+                <meta property="og:description" content="The new wordle party game to play with your friends" />
                 <meta property="og:image" content="/images/previews/Home.png" />
+
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta property="twitter:domain" content="neo-letter.web.app" />
+                <meta property="twitter:url" content="https://neo-letter.web.app/" />
+                <meta name="twitter:title" content="Neo Letter" />
+                <meta name="twitter:description" content="The new wordle party game to play with your friends" />
+                <meta name="twitter:image" content="https://neo-letter.web.app/images/previews/Home.png" />
             </Helmet>
 
             <LayoutGroup>
