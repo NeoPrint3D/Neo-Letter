@@ -14,11 +14,11 @@ export default function AppToastContainer() {
             }}
             autoClose={1000}
             toastStyle={{
-                width: "100%",
                 textAlign: "center",
-                fontSize: "1.5rem",
+                fontSize: "1rem",
                 fontFamily: "Crete Round , serif",
-                backgroundColor: '#023047',
+                backgroundColor: 'rgba(2, 48, 71, 0.3)',
+                backdropFilter: "blur(20px)",
                 color: '#fff',
             }}
         />

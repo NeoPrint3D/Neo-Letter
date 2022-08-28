@@ -1,27 +1,21 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import Logo from "/images/assets/logo.webp";
-import { firestore } from "../utils/firebase";
-import { Helmet } from "react-helmet";
-import { RWebShare } from "react-web-share";
-import { FiShare } from 'react-icons/fi'
-import Grid from "../components/Grid/Grid";
-import KeyBoard from "../components/Keyboard";
 import { collection, doc, getDoc, increment, onSnapshot, query, updateDoc } from "firebase/firestore";
-import { UidContext } from "../context/AuthContext";
-import RoomStatusHandler from "../components/Handlers/RoomStatusHandler";
-import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../context/GameContext";
-import { useWindowSize } from "react-use";
+import { AnimatePresence, m } from "framer-motion";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { Helmet } from "react-helmet";
+import { FaCrown } from 'react-icons/fa';
+import { FiShare } from 'react-icons/fi';
+import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaCrown } from 'react-icons/fa'
-import { AnimatePresence, m, } from "framer-motion";
+import { useIdle, useWindowSize } from "react-use";
+import { RWebShare } from "react-web-share";
+import Grid from "../components/Grid/Grid";
+import RoomStatusHandler from "../components/Handlers/RoomStatusHandler";
+import KeyBoard from "../components/Keyboard";
 import UserPreview from "../components/UserPreview";
-
-
-
-
-
-
+import { UidContext } from "../context/AuthContext";
+import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../context/GameContext";
+import { firestore } from "../utils/firebase";
+import Logo from "/images/assets/logo.webp";
 
 export default function GameRoom() {
     const [roomStatus, setRoomStatus] = useState<RoomStatuses>();
@@ -100,12 +94,12 @@ export default function GameRoom() {
         await updateDoc(roomRef, { gameStatus: "roundReset" })
         await new Promise(resolve => setTimeout(resolve, 5000));
         if (currentPlayer.uid === winner.uid) {
-            const updateStack: Promise<void>[] = [];
-            players.map(p => updateStack.push(updateDoc(playerRef, {
+            const playerStack: Promise<void>[] = [];
+            players.map(p => playerStack.push(updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), {
                 guesses: [],
                 points: winner.uid === p.uid ? increment(100 - (p.guesses.length - 1) * 10) : increment(0),
             })));
-            await Promise.all([...updateStack, updateDoc(roomRef, {
+            await Promise.all([...playerStack, updateDoc(roomRef, {
                 round: round < answers.length ? increment(1) : increment(0),
             })]);
         }
@@ -117,8 +111,18 @@ export default function GameRoom() {
         setResetWinner(false);
     }, [answers, players])
 
+    // const handleIdle = useCallback(async (room: Room) => {
+    //     const roomInfo = localStorage.getItem("roomInfo")
+    //     if (!roomInfo) return
+    //     if (roomInfo.split("|")[0] !== id && !(roomInfo.split("|")[1] === room.round)) return
+    // })
+
+
     useEffect(() => {
         const q = query(collection(firestore, "rooms", `${id}`, "players"))
+
+
+
         const unsub1 = onSnapshot(q, async (playersRes) => {
             const players = playersRes.docs.map((doc) => { return { ...doc.data() } }) as GamePlayer[]
             handlePlayersGuess(players)
@@ -150,7 +154,7 @@ export default function GameRoom() {
                 setRoomStatus("room_full")
                 return
             }
-            if (!players.map(p => p.uid).includes(uid) && players.length > 0) {
+            if (players.map(p => p.uid).includes(uid) === false && players.length > 0) {
                 setRoomStatus("user_not_found")
                 return
             }
@@ -161,7 +165,7 @@ export default function GameRoom() {
                 if (lastRoom === id) return
                 await updateDoc(doc(firestore, "users", uid), {
                     lastRoom: id,
-                    wins: placing[0]?.uid === currentPlayer.uid ? increment(1) : increment(0),
+                    wins: placing[0]?.uid === currentPlayer.uid && room.maxPlayers !== 1 ? increment(1) : increment(0),
                     gamesPlayed: increment(1),
                     totalPoints: increment(currentPlayer.points)
                 })
@@ -186,6 +190,8 @@ export default function GameRoom() {
     useEffect(() => {
         handleRoomWin(players)
     }, [answers, players])
+
+
     return (
         <RoomStatusHandler
             winner={{

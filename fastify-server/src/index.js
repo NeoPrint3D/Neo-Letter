@@ -15,11 +15,11 @@ const validList = require("./static/validGuesses.json");
 
 const app = fastifyServer()
 const PORT = process.env.PORT || 4000;
+console.log(process.env.NODE_ENV)
 
 //add teh middleware for socket.io
 await app.register(middie);
-const allOrginsNumbers = Array.from({ length: 10000}, (_, i) => `http://localhost:${i + 1}`);
-console.log(allOrginsNumbers);
+const allOrginsNumbers = process.env.NODE_ENV.trim() === "production" ? [] : Array.from({ length: 10000 }, (_, i) => `http://localhost:${i + 1}`);
 app.use(cors({
   origin: [
     ...allOrginsNumbers,

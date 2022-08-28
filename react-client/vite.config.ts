@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import removeConsole from "vite-plugin-remove-console";
 
 //@ts-ignore
 import manifest from "./manifest.json";
@@ -16,5 +17,6 @@ export default defineConfig({
       filename: "service-worker.js",
       manifest,
     }),
+    removeConsole(),
   ],
 });

@@ -8,7 +8,7 @@ import { FiShare } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { RWebShare } from "react-web-share";
 import { firestore } from "../../utils/firebase";
-import {CgGames} from "react-icons/cg";
+import { CgGames } from "react-icons/cg";
 export default function RoomLobby({ id, uid, players, }: { id: string, uid: string, players: GamePlayer[] }) {
   const [ready, setReady] = useState(false);
   const currentPlayer = useMemo(() => players.find(p => p.uid === uid), [players, uid]);
@@ -75,9 +75,9 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
                   {player.signedIn && (
                     <>
                       <div className="flex items-center gap-1 ml-3">
-                        <FaCrown className="text-yellow-500"   aria-label="Games won" size={25} /> <span className="font-semibold text-xl">{player.wins}</span>
+                        <FaCrown className="text-yellow-500" aria-label="Games won" size={25} /> <span className="font-semibold text-xl">{player.wins}</span>
                       </div><div className="flex items-center gap-1 ml-3">
-                        <CgGames className="text-blue-500"  aria-label="Games played" size={25} /> <span className="font-semibold text-xl">{player.gamesPlayed}</span>
+                        <CgGames className="text-blue-500" aria-label="Games played" size={25} /> <span className="font-semibold text-xl">{player.gamesPlayed}</span>
                       </div>
                     </>
                   )}

@@ -8,10 +8,8 @@ import AppToastContainer from './components/Toast/ToastContainer'
 
 import Home from './pages/Home'
 import { domMax, LazyMotion } from 'framer-motion'
-import LeaderBoard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import BgImage from './components/Wrappers/BgImage';
-import BottomNavbar from './components/BottomNavbar';
 import Footer from './components/Footer';
 import NotFound from './pages/NotFound';
 const GameRoom = lazy(() => import('./pages/GameRoom'))

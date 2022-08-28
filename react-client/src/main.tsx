@@ -12,9 +12,6 @@ const elements = (
   </BrowserRouter>
 )
 
+if (rootElement?.hasChildNodes()) hydrate(elements, rootElement);
+else render(elements, rootElement);
 
-if (rootElement?.hasChildNodes()) {
-  hydrate(elements, rootElement);
-} else {
-  render(elements, rootElement);
-}
