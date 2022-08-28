@@ -32,7 +32,7 @@ export default function NotFound() {
           content="https://neo-letter.web.app/images/previews/NotFound.png"
         />
       </Helmet>
-      <div className="flex flex-col items-center justify-center h-page">
+      <div className="flex flex-col items-center justify-center h-screen">
         <h1 className="text-5xl font-logo text-center">Are you lost?</h1>
         <Link to="/">
           <button className="mt-5">

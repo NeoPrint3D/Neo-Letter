@@ -83,7 +83,7 @@ export default function Profile() {
         <meta property="og:type" content="website" />
       </Helmet>
       <article>
-        <div className="h-page flex justify-center items-center">
+        <div className="h-screen flex justify-center items-center">
           <m.div
             className={` flex flex-col  main-container max-w-sm sm:max-w-xl w-full pb-16`}
             initial={{ scale: 0 }}

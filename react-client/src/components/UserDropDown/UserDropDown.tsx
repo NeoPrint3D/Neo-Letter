@@ -38,8 +38,10 @@ export default function UserDropDown() {
             tabIndex={0}
             onBlur={(e) => handleBlur(e)}
         >
-            <button onClick={() => setOpen(!open)} className=" border-[2px] border-white/[50%] rounded-full">
-                <img src={user?.profilePic} alt="user" className="rounded-full h-12 w-12" referrerPolicy="no-referrer" />
+            <button onClick={() => setOpen(!open)} >
+                <div className=" flex justify-center items-center  border-4 border-primary/20 hover:border-white/70 duration-500 transition-colors h-16 w-16  rounded-full" >
+                    <img src={user?.profilePic} alt="user" className="rounded-full h-14 w-14 " referrerPolicy="no-referrer" />
+                </div>
             </button>
 
             <AnimatePresence>

@@ -12,8 +12,8 @@ export default function GoogleSignIn() {
         const provider = new GoogleAuthProvider()
         const user = (await signInWithPopup(auth, provider)).user
         const userExists = (await getDoc(doc(firestore, "users", user.uid))).exists()
-        if (userExists) return
-        navigate("/signup")
+        if (userExists) { navigate("/"); return }
+        else navigate("/signup")
     }
 
 

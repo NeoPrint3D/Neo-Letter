@@ -24,7 +24,7 @@ function App() {
     <LazyMotion features={domMax}>
       <AuthProvider>
         <BgImage>
-          <div className="min-h-screen">
+          <div className="min-h-screen text-white">
             <Suspense fallback={<Loader />}>
               <Header />
               <Routes>

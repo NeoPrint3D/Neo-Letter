@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutGroup, m } from "framer-motion";
 import { useWindowSize } from "react-use";
 import { toast } from "react-toastify";
@@ -17,12 +17,14 @@ interface Place {
 
 function Home() {
   const location = useLocation();
+  const navigate = useNavigate()
   const { width } = useWindowSize();
   const user = useContext(UserContext);
 
   useEffect(() => {
-    if (new URLSearchParams(location.search).get("action") === "reload")
-      window.location.href = "/";
+    if (new URLSearchParams(location.search).get("action") === "reload") {
+      window.location.href = "/"
+    }
   }, []);
   useEffect(() => {
     remindToSignUp();
@@ -79,9 +81,8 @@ function Home() {
         <div
           className="hero min-h-screen"
           style={{
-            backgroundImage: ` url(${
-              width > 1024 ? DesktopImage : MobileImage
-            })`,
+            backgroundImage: ` url(${width > 1024 ? DesktopImage : MobileImage
+              })`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}

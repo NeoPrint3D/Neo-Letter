@@ -153,18 +153,13 @@ export default function AuthStatusHandler() {
                             //make sure that it is a number or a letter or a space
                             onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\b\w/g, l => l.toUpperCase()))}
                         />
-
-
                         <AnimatePresence>
                             {message.text.length > 0 &&
-                                <m.div className={` shadow-input  rounded-3xl  p-2 bg-primary-dark/60 font-bold text-center text-${message.status}`}>
+                                <m.div className={` shadow-input  rounded-3xl  p-2 bg-primary-dark/60 font-bold text-lg text-center ${message.status === "error" && "text-error shadow-error shadow-md bg-red-400"} ${message.status === "success" && "text-green-700 shadow-success shadow-md bg-green-400"}`}>
                                     {message.text}
                                 </m.div>
                             }
                         </AnimatePresence>
-
-
-
                         <button
                             disabled={!username || username.length < 3 || isUsernameTaken}
                             className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary disabled:bg-primary/10 hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
