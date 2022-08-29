@@ -64,6 +64,10 @@ export default function CreateRoom() {
 
 
   async function createroom() {
+    if (moreOptions && customWords.length === 0) {
+      toast.error("there are no custom words", { theme: "dark" })
+      return
+    }
     setLoading(true)
     const res = await fetch(
       import.meta.env.DEV
@@ -107,7 +111,6 @@ export default function CreateRoom() {
 
   useEffect(() => {
     console.log(customWords)
-
   }, [customWords])
 
 
@@ -189,7 +192,7 @@ export default function CreateRoom() {
             </m.div>
           ) : (
             <m.div
-              className=" w-full max-w-[23.5rem] sm:max-w-xl  main-container px-2 py-5"
+              className=" w-full max-w-xs sm:max-w-xl  main-container px-2 py-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}

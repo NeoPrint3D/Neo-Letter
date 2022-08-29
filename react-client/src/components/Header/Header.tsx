@@ -14,9 +14,7 @@ export default function Header() {
     <div />
   ) : (
     <header
-      className={` grid grid-cols-2 h-20 items-center left-0 right-0  fixed border-b-white/40 ${["/", "/signup", "/leaderboard"].includes(location.pathname) &&
-        "absolute"
-        }  z-50`}
+      className={` grid grid-cols-2 items-center left-0 right-0  fixed border-b-white/40 ${["/", "/signup", "/leaderboard"].includes(location.pathname) && "absolute"}  z-50`}
     >
       <div className="hidden"></div>
       <div className="flex justify-start ml-5 lg:ml-0">

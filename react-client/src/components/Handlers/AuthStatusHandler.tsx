@@ -21,12 +21,14 @@ export default function AuthStatusHandler() {
     const user = useContext(UserContext)
     const [username, setUsername] = useState("");
     const [isUsernameTaken, setIsUsernameTaken] = useState(true)
+    const [isProfane, setIsProfane] = useState(false)
     const [message, setMessage] = useState<Message>({
         status: "success",
         text: ""
     })
     useDebounce(
         async () => {
+
             if (username.length < 3) {
                 setMessage({
                     status: "error",
@@ -34,7 +36,19 @@ export default function AuthStatusHandler() {
                 })
                 return;
             }
-
+            const res = await fetch(
+                import.meta.env.DEV
+                    ? `http://localhost:4000/api/profane?username=${username}`
+                    : `https://neo-letter-fastify.vercel.app/api/profane?username=${username}`).then((res) => res.json())
+            const isProfane = res.isProfane
+            setIsProfane(res.isProfane)
+            if (isProfane) {
+                setMessage({
+                    status: "error",
+                    text: "Username must be clean"
+                })
+                return;
+            }
             const nameTaken = (await getDocs(query(collection(firestore, "users"), where("username", "==", username)))).docs[0]
             if (nameTaken) {
                 setIsUsernameTaken(true);
@@ -161,7 +175,7 @@ export default function AuthStatusHandler() {
                             }
                         </AnimatePresence>
                         <button
-                            disabled={!username || username.length < 3 || isUsernameTaken}
+                            disabled={!username || username.length < 3 || isUsernameTaken || isProfane}
                             className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary disabled:bg-primary/10 hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
                             <p className="text-white">
                                 Create Account
