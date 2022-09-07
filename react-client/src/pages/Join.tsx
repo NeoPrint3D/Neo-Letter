@@ -6,9 +6,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
 import { UserContext, UidContext } from "../context/AuthContext";
-import { firestore } from "../utils/firebase";
+import { analytics, firestore } from "../utils/firebase";
 import Loader from "../components/Loader";
+import { logEvent } from "firebase/analytics";
 
+
+interface Message {
+  text: string
+  status: "success" | "error"
+}
 export default function JoinRoom() {
   const [loading, setLoading] = useState(false);
   const [username, setUserame] = useState("");
@@ -58,6 +64,24 @@ export default function JoinRoom() {
       });
       return;
     }
+
+
+    const res = await fetch(
+      import.meta.env.DEV
+        ? `http://localhost:4000/api/profane?username=${username}`
+        : `https://neo-letter-fastify.vercel.app/api/profane?username=${username}`).then((res) => res.json())
+    const isProfane = res.isProfane
+    if (isProfane) {
+      toast.error("Inapproopriate name", { theme: "dark" });
+      logEvent(analytics, "profane_words", {
+        word: username,
+        uid,
+        date: new Date().getTime()
+      })
+      return
+    }
+
+
     const playerRef = doc(firestore, "rooms", id || roomId, "players", uid);
     const player = await getDoc(playerRef);
     setLoading(true);
@@ -209,7 +233,6 @@ export default function JoinRoom() {
                     )
                   }
                 />
-
                 <AnimatePresence>
                   {user?.uid && username !== user.username && (
                     <m.button
@@ -217,6 +240,7 @@ export default function JoinRoom() {
                         e.preventDefault();
                         setUserame(user?.username);
                       }}
+                      type="button"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{

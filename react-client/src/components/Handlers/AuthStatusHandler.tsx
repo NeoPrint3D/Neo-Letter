@@ -1,10 +1,11 @@
+import { logEvent } from "firebase/analytics";
 import { collection, doc, getDoc, getDocs, increment, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { AnimatePresence, m } from "framer-motion";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDebounce } from "react-use";
-import { UserContext } from "../../context/AuthContext";
-import { auth, firestore } from "../../utils/firebase";
+import { UidContext, UserContext } from "../../context/AuthContext";
+import { analytics, auth, firestore } from "../../utils/firebase";
 import GoogleSignIn from "../GoogleSignIn";
 
 
@@ -22,6 +23,7 @@ export default function AuthStatusHandler() {
     const [username, setUsername] = useState("");
     const [isUsernameTaken, setIsUsernameTaken] = useState(true)
     const [isProfane, setIsProfane] = useState(false)
+    const uid = useContext(UidContext)
     const [message, setMessage] = useState<Message>({
         status: "success",
         text: ""
@@ -46,6 +48,11 @@ export default function AuthStatusHandler() {
                 setMessage({
                     status: "error",
                     text: "Username must be clean"
+                })
+                logEvent(analytics, "profane_words", {
+                    word: username,
+                    uid,
+                    date: new Date().getTime()
                 })
                 return;
             }
@@ -146,7 +153,6 @@ export default function AuthStatusHandler() {
     }
 
     if (!user?.uid && auth.currentUser) {
-
         return (
             <div className="flex justify-center items-center min-h-screen">
                 <m.div className=" sm:w-full sm:max-w-md main-container px-5 py-10 "

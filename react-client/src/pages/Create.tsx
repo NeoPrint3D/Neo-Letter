@@ -4,7 +4,7 @@ import { FormEvent, useContext, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 //import io
-import { firestore } from '../utils/firebase';;
+import { analytics, firestore } from '../utils/firebase';;
 import { UserContext, UidContext } from '../context/AuthContext';
 import Loader from '../components/Loader';
 import { AnimatePresence, LayoutGroup, m } from 'framer-motion';
@@ -13,6 +13,7 @@ import { BiCustomize } from 'react-icons/bi';
 import { toast } from 'react-toastify';
 import Tooltip from '../components/Tooltip';
 import { v4 } from 'uuid';
+import { logEvent } from 'firebase/analytics';
 
 interface CustomWord {
   id: number,
@@ -104,6 +105,7 @@ export default function CreateRoom() {
       }),
       setDoc(doc(firestore, "rooms", `${id}`, "players", uid), gamePlayerData),
     ])
+    logEvent(analytics, "room_created", { uid: uid, date: new Date().getTime() })
     setLoading(false)
     navigate(`/join?id=${id}`)
   }
@@ -137,7 +139,7 @@ export default function CreateRoom() {
         <AnimatePresence>
           {switchUi ? (
             <m.div
-              className="flex   w-full max-w-[23.5rem] sm:max-w-xl  main-container px-2 py-5"
+              className="flex   w-full max-w-sm sm:max-w-xl  main-container px-2 py-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
@@ -161,13 +163,13 @@ export default function CreateRoom() {
                   <h2 className='text-2xl text-white/90'>{customWords.length}</h2>
                 </div>
                 <form className='flex gap-5' onSubmit={(e) => addWords(e)}>
-                  <input placeholder='great' type="text" value={customWord} className='border-[4px] border-primary/60 transition-colors focus:border-primary rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/30' onChange={(e) => setCustomWord(e.target.value)} />
+                  <input placeholder='great' type="text" value={customWord} className='border-[3px] transition-colors  focus:border-primary rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/50 ' onChange={(e) => setCustomWord(e.target.value)} />
                   <button type='submit'>
                     <IoIosAddCircleOutline className='btn btn-primary btn-circle' size={35} />
                   </button>
                 </form>
 
-                <m.div className='grid grid-cols-4 w-[90%] gap-3 mt-5 overflow-y-scroll scroll-lobby shadow-input h-36   rounded-xl p-3 '>
+                <m.div className='grid grid-cols-4 w-[90%] border-[3px] border-primary/50 gap-3 mt-5 overflow-y-scroll scroll-lobby shadow-input h-36   rounded-xl  p-3 '>
                   <AnimatePresence>
                     {customWords.map(({ word, id }, index) => (
                       <div
@@ -192,7 +194,7 @@ export default function CreateRoom() {
             </m.div>
           ) : (
             <m.div
-              className=" w-full max-w-xs sm:max-w-xl  main-container px-2 py-5"
+              className=" w-full max-w-sm sm:max-w-xl  main-container px-2 py-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
