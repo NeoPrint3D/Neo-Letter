@@ -68,12 +68,8 @@ export default function GameRoom() {
         if (key.length !== 5) return
         setHasGuessed(true)
         const res = await fetch(import.meta.env.DEV ? `http://localhost:4000/api/valid?word=${key}` : `https://neo-letter-fastify.vercel.app/api/valid?word=${key}`)
-        if (!res.ok) {
-            toast.error("Invalid word", { theme: "dark" })
-            return
-        }
         const data = await res.json()
-        if (!data.isValid) {
+        if (!data.isValid && !room.customWords) {
             toast.error("Invalid Guess", { theme: "dark" })
             setHasGuessed(false)
             return
@@ -308,33 +304,36 @@ export default function GameRoom() {
 
                         </div>
                     </div>
-                    <m.div
-                        className={`flex  gap-3 justify-center text-xl font-logo my-2
+                    <div className="flex flex-col items-center">
+                        <m.div
+                            className={`flex  gap-3 justify-center text-xl font-logo mt-2
                     ${placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid ? "text-yellow-300" : "text-gray-200"}
                     `}
-                        layout
-                    >
-                        {placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid && (
-                            <m.div
-                                initial={{ y: -100 }}
-                                animate={{ y: 0 }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 100,
-                                    damping: 10
-                                }}
-                            >
-                                <FaCrown className="text-yellow-400" aria-label="Crown" size={25} />
-                            </m.div>
-                        )}
-                        <h1>
-                            {currentPlayer?.name} : {currentPlayer?.points}
-                        </h1>
-                    </m.div>
+                            layout
+                        >
+                            {placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid && (
+                                <m.div
+                                    initial={{ y: -100 }}
+                                    animate={{ y: 0 }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 100,
+                                        damping: 10
+                                    }}
+                                >
+                                    <FaCrown className="text-yellow-400" aria-label="Crown" size={25} />
+                                </m.div>
+                            )}
+                            <h1 className="text-2xl">
+                                {currentPlayer?.name} : {currentPlayer?.points}
+                            </h1>
+                        </m.div>
+                        <h1 className={`font-logo font-bold text-2xl animate-pulse ${room.customWords ? "text-primary" : "text-success"}`}>{room.customWords ? "Custom" : "Regular"}</h1>
+                    </div>
                 </header >
 
 
-                <div className="flex  flex-col  xl:mt-10 items-center h-full ">
+                <div className="flex  flex-col mt-2 items-center h-full ">
                     <div className=" flex justify-center mb-5 2xl:mb-10">
                         <AnimatePresence>
                             <m.div
@@ -348,7 +347,7 @@ export default function GameRoom() {
                             </m.div>
                         </AnimatePresence>
                     </div>
-                    <div className={` flex justify-center mb-3 sm:mb-0 ${width < 400 && "scale-[93.5%]"}`}>
+                    <div className={` flex justify-center mb-5 ${width < 400 && "scale-[93.5%]"}`}>
                         <KeyBoard handleEnter={() => handleEnter()} hasGuessed={hasGuessed} answer={`${answers[round]}`.toUpperCase()} />
                     </div>
                 </div>

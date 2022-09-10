@@ -28,52 +28,46 @@ export default function AuthStatusHandler() {
         status: "success",
         text: ""
     })
-    useDebounce(
-        async () => {
 
-            if (username.length < 3) {
-                setMessage({
-                    status: "error",
-                    text: "Username must be at least 3 characters"
-                })
-                return;
-            }
-            const res = await fetch(
-                import.meta.env.DEV
-                    ? `http://localhost:4000/api/profane?username=${username}`
-                    : `https://neo-letter-fastify.vercel.app/api/profane?username=${username}`).then((res) => res.json())
-            const isProfane = res.isProfane
-            setIsProfane(res.isProfane)
-            if (isProfane) {
-                setMessage({
-                    status: "error",
-                    text: "Username must be clean"
-                })
-                logEvent(analytics, "profane_words", {
-                    word: username,
-                    uid,
-                    date: new Date().getTime()
-                })
-                return;
-            }
-            const nameTaken = (await getDocs(query(collection(firestore, "users"), where("username", "==", username)))).docs[0]
-            if (nameTaken) {
-                setIsUsernameTaken(true);
-                setMessage({
-                    status: "error",
-                    text: "Username is taken"
-                })
-                return;
-            }
-            setIsUsernameTaken(false);
+    async function usernameCheck(username: string) {
+        if (username.length < 3) {
             setMessage({
-                status: "success",
-                text: "Username is available"
+                status: "error",
+                text: "Username must be at least 3 characters"
             })
-        },
-        1000,
-        [username]
-    );
+            return;
+        }
+        const resIsProfane = await fetch(`https://www.purgomalum.com/service/containsprofanity?text=${username}`).then((res) => res.json())
+        setIsProfane(resIsProfane)
+        if (resIsProfane) {
+            setMessage({
+                status: "error",
+                text: "Username must be clean"
+            })
+            logEvent(analytics, "profane_words", {
+                word: username,
+                uid,
+                date: new Date().getTime()
+            })
+            return;
+        }
+        const nameTaken = (await getDocs(query(collection(firestore, "users"), where("username", "==", username)))).docs[0]
+        if (nameTaken) {
+            setIsUsernameTaken(true);
+            setMessage({
+                status: "error",
+                text: "Username is taken"
+            })
+            return;
+        }
+        setIsUsernameTaken(false);
+        setMessage({
+            status: "success",
+            text: "Username is available"
+        })
+    }
+
+
 
 
     async function createAccount(e: React.FormEvent<HTMLFormElement>) {
@@ -171,7 +165,7 @@ export default function AuthStatusHandler() {
                         <input className="p-3 shadow-input rounded-xl text-center font-semibold  bg-transparent placeholder:font-semibold focus:outline-none" type="text" placeholder="Username"
                             value={username}
                             //make sure that it is a number or a letter or a space
-                            onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\b\w/g, l => l.toUpperCase()))}
+                            onChange={(e) => { setUsername(e.target.value.replace(" ", "_").replace(/[^a-zA-Z0-9/_/]/g, "").slice(0, 15)); usernameCheck(e.target.value) }}
                         />
                         <AnimatePresence>
                             {message.text.length > 0 &&

@@ -9,8 +9,6 @@ import { db } from "./utils/firebase.js"
 const require = createRequire(import.meta.url);
 const wordList = require("./static/words.json");
 const validList = require("./static/validGuesses.json");
-const profanityList = require("./static/profanityList.json")
-
 
 
 const app = fastifyServer()
@@ -48,13 +46,6 @@ app.get("/api/valid", async (req, res) => {
   res.status(200).send({ isValid: valid })
 });
 
-app.get("/api/profane", async (req, res) => {
-  if (profanityList.words.includes(`${req.query.username}`.toLowerCase())) {
-    res.status(400).send({ isProfane: true })
-    return
-  }
-  res.status(200).send({ isProfane: false })
-})
 
 
 app.delete("/api/rooms", async (req, res) => {

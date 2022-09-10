@@ -14,7 +14,7 @@ export default function Footer() {
                     A NeoPrint3D Company. Creating awesome web experiences since 2020.
                 </p>
                 <p>Copyright © {new Date().getFullYear()} <a className='font-bold'>NeoPrint3D</a></p>
-                <a className="flex items-center gap-5 text-2xl my-5 font-black link link-accent" href="https://github.com/NeoPrint3D/Neo-Letter">Star the Project <BsStars size={35} /></a>
+                <a className="flex items-center gap-5 text-2xl my-3 font-black link link-accent" href="https://github.com/NeoPrint3D/Neo-Letter">Star the Project <BsStars size={35} /></a>
                 <p className='font-semibold'>
                     Made with ❤ by Drew Ronsman
                 </p>

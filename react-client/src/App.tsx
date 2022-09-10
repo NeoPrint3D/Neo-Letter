@@ -29,7 +29,6 @@ function App() {
             <Header />
             <Routes>
               <Route path="/" element={<Home />} />
-
               <Route element={<BgImage />}>
                 <Route path="/create" element={<CreateRoom />} />
                 <Route path="/join" element={<JoinRoom />} />

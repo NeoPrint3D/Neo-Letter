@@ -28,7 +28,7 @@ img {
 }
 
 .main-container {
-  @apply bg-primary-dark/[30%] backdrop-blur-[30px]  rounded-3xl shadow-2xl border-[1.5px] border-white/[20%];
+  @apply bg-primary-dark/[15%] backdrop-blur-[50px]  rounded-3xl shadow-2xl border-[1.5px] border-white/[15%];
 }
 
 .scroll-lobby::-webkit-scrollbar {

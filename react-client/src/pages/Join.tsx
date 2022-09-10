@@ -11,10 +11,6 @@ import Loader from "../components/Loader";
 import { logEvent } from "firebase/analytics";
 
 
-interface Message {
-  text: string
-  status: "success" | "error"
-}
 export default function JoinRoom() {
   const [loading, setLoading] = useState(false);
   const [username, setUserame] = useState("");
@@ -38,7 +34,7 @@ export default function JoinRoom() {
       return false;
     }
 
-    if (room.started && !room.allowPlayersAfterStart) {
+    if (room.started && !room.allowLateJoiners) {
       toast.error("Room already started", { theme: "dark" });
       return false;
     }
@@ -56,7 +52,6 @@ export default function JoinRoom() {
   }
 
   async function joinRoom(e: React.FormEvent<HTMLFormElement>) {
-    console.log(id);
     e.preventDefault();
     if (!(username.length >= 3)) {
       toast.error("Username is too short. Must be three or more charaters", {
@@ -66,13 +61,9 @@ export default function JoinRoom() {
     }
 
 
-    const res = await fetch(
-      import.meta.env.DEV
-        ? `http://localhost:4000/api/profane?username=${username}`
-        : `https://neo-letter-fastify.vercel.app/api/profane?username=${username}`).then((res) => res.json())
-    const isProfane = res.isProfane
+    const isProfane = await fetch(`https://www.purgomalum.com/service/containsprofanity?text=${username}`).then((res) => res.json())
     if (isProfane) {
-      toast.error("Inapproopriate name", { theme: "dark" });
+      toast.error("Inappropriate name", { theme: "dark" });
       logEvent(analytics, "profane_words", {
         word: username,
         uid,

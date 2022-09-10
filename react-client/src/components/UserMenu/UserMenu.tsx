@@ -34,12 +34,12 @@ export default function UserDropDown() {
 
 
     return (
-        <div className="flex flex-col items-end  absolute top-0 right-0 mt-2 mr-2 z-[1000000]"
+        <div className="flex flex-col items-end  absolute top-0 right-0 mt-2 mr-2 z-50"
             tabIndex={0}
             onBlur={(e) => handleBlur(e)}
         >
             <button onClick={() => setOpen(!open)} >
-                <div className=" flex justify-center items-center  border-4 border-primary/20 hover:border-white/70 duration-500 transition-colors h-16 w-16  rounded-full" >
+                <div className=" flex justify-center items-center  border-4 border-transparent hover:border-white/70 duration-500 transition-colors h-16 w-16  rounded-full" >
                     <img src={user?.profilePic} alt="user" className="rounded-full h-14 w-14 " referrerPolicy="no-referrer" />
                 </div>
             </button>

@@ -7,8 +7,9 @@ interface Room {
   players: string[];
   roomType: "public" | "private";
   started: boolean;
-  allowPlayersAfterStart: boolean;
+  allowLateJoiners: boolean;
   round: number;
+  customWords: boolean;
 }
 
 interface GamePlayer {

@@ -30,7 +30,6 @@ export default function CreateRoom() {
   const [customWord, setCustomWord] = useState("")
   const [moreOptions, setMoreOptions] = useState(false)
   const [switchUi, setSwitchUI] = useState(false)
-  const [selectedId, setSelectedId] = useState(0)
   const navigate = useNavigate()
   const user = useContext(UserContext)
   const uid = useContext(UidContext);
@@ -96,10 +95,11 @@ export default function CreateRoom() {
         maxPlayers: maxPlayers === "custom" ? customMaxPlayers : roomSelectToNumber(maxPlayers),
         started: false,
         roomType,
-        answers: customWords.map((item) => item.word) || wordlist,
+        answers: customWords.length !== 0 ? customWords.map((item) => item.word) : wordlist,
         players: [uid],
         round: 0,
-        allowLateJoiners: allowJoinAfterStart
+        allowLateJoiners: allowJoinAfterStart,
+        customWords: customWords.length !== 0
       }),
       setDoc(doc(firestore, "rooms", `${id}`, "players", uid), gamePlayerData),
     ])
@@ -159,13 +159,13 @@ export default function CreateRoom() {
                   <h2 className='text-2xl text-white/90'>{customWords.length}</h2>
                 </div>
                 <form className='flex gap-5' onSubmit={(e) => addWords(e)}>
-                  <input placeholder='words' type="text" value={customWord} className='border-[3px] transition-colors  focus:border-primary rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/50 ' onChange={(e) => setCustomWord(e.target.value.slice(0, 5))} />
+                  <input placeholder='words' type="text" value={customWord} className='border-[3px] transition-colors border-white/20  focus:border-primary rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/50 ' onChange={(e) => setCustomWord(e.target.value.replace(/[^a-z]/gi, '').slice(0, 5))} />
                   <button type='submit'>
                     <IoIosAddCircleOutline className='btn btn-primary btn-circle' size={35} />
                   </button>
                 </form>
 
-                <m.div className='grid grid-cols-4 w-[92.5%] border-[3px] border-primary/50 gap-3 mt-5 overflow-y-scroll scroll-lobby shadow-input h-36   rounded-xl  p-3 '>
+                <m.div className='grid grid-cols-4 w-[92.5%] border-[5px] border-white/20 gap-3 mt-5 overflow-y-scroll scroll-lobby shadow-input h-36   rounded-xl  p-3 '>
                   <AnimatePresence>
                     {customWords.map(({ word, id }, index) => (
                       <div
@@ -239,7 +239,7 @@ export default function CreateRoom() {
                     <div className='flex justify-end'>
                       <input type="number"
                         placeholder='10'
-                        className="text-center text-xl bg-transparent focus:outline-none p-1 shadow-sm shadow-primary rounded-xl w-12  "
+                        className="text-center text-xl bg-transparent focus:outline-none p-1 shadow-sm border-[3px] border-white/20 rounded-xl w-12  "
                         value={wordCount}
                         onChange={(e) => {
                           setWordCount(parseInt(e.target.value) > 0 ? parseInt(e.target.value) : "");

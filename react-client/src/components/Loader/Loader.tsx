@@ -1,10 +1,14 @@
 import { m } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 
 function Loader() {
-  const location = useLocation();
   return (
-    <div className={`flex justify-center items-center z-50 w-screen fixed ${location.pathname.includes("game") ? "h-screen" : "h-page"}`}>
+    <m.div
+
+      className={`flex justify-center items-center bg-primary-dark/70 w-screen fixed $ h-screen`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+
+    >
       <m.div
         animate={{
           scale: [1, 1.5, 1],
@@ -20,7 +24,7 @@ function Loader() {
         className="w-24 h-24 "
       >
       </m.div>
-    </div>
+    </m.div>
   );
 }
 

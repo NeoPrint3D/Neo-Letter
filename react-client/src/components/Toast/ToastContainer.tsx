@@ -17,8 +17,8 @@ export default function AppToastContainer() {
                 textAlign: "center",
                 fontSize: "1.25rem",
                 fontFamily: "Crete Round , serif",
-                backgroundColor: 'rgba(2, 48, 71, 0.4)',
-                backdropFilter: "blur(20px)",
+                backgroundColor: 'rgba(2, 48, 71, 0.1)',
+                backdropFilter: "blur(10px)",
                 color: '#fff',
             }}
         />

@@ -107,7 +107,7 @@ export default function Profile() {
                   delay: 0.5,
                 }}
               >
-                <div className=" rounded-3xl  border-2 border-white/[10%] w-20  ">
+                <div className=" rounded-3xl  border-[3px] border-white/[10%] w-20  ">
                   <figure>
                     <img
                       src={user.profilePic}
