@@ -1,8 +1,9 @@
 import { useWindowSize } from "react-use"
 import MobileImage from "/images/assets/App-Mobile.webp"
 import DesktopImage from "/images/assets/App-Desktop.webp"
+import { Outlet } from "react-router-dom"
 
-export default function BgImage({ children }: { children: React.ReactNode }) {
+export default function BgImage() {
     const { width } = useWindowSize()
     return (
         <div
@@ -16,7 +17,7 @@ export default function BgImage({ children }: { children: React.ReactNode }) {
         >
             <div className="bg-primary-dark/70">
 
-                {children}
+                <Outlet />
             </div>
         </div>
     )

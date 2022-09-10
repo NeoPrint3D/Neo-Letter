@@ -24,12 +24,13 @@ function App() {
   return (
     <LazyMotion features={domMax}>
       <AuthProvider>
-        <BgImage>
-          <div className="min-h-screen text-white">
-            <Suspense fallback={<Loader />}>
-              <Header />
-              <Routes>
-                <Route path="/" element={<Home />} />
+        <div className="min-h-screen text-white">
+          <Suspense fallback={<Loader />}>
+            <Header />
+            <Routes>
+              <Route path="/" element={<Home />} />
+
+              <Route element={<BgImage />}>
                 <Route path="/create" element={<CreateRoom />} />
                 <Route path="/join" element={<JoinRoom />} />
                 <Route path="/room/:id" element={
@@ -41,10 +42,10 @@ function App() {
                 <Route path="/profile/:username" element={<Profile />} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" />} />
-              </Routes>
-            </Suspense>
-          </div>
-        </BgImage>
+              </Route>
+            </Routes>
+          </Suspense>
+        </div>
         <Footer />
         <AppToastContainer />
       </AuthProvider >
