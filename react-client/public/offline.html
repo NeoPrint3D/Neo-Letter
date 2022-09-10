@@ -4,84 +4,73 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Offline</title>
+    <title>Neo Letter | Offline</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="./favicon.ico" />
+    <meta name="theme-color" content="#023047" />
 
     <style>
       body {
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1.5rem;
-        min-height: 100vh;
-        background-image: linear-gradient(
-          to bottom,
-          hsl(264, 86%, 42%),
-          hsl(264, 86%, 42%) 60%,
-          hsl(264, 86%, 20%)
-        );
+        overflow: hidden;
+        height: screen;
+        width: screen;
+        background-color: #023047;
         color: white;
         font-family: sans-serif;
       }
-
-      p {
-        margin: 0;
-        padding: 0;
+      main {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        height: calc(100vh - 2rem);
       }
-
-      .offline {
-        font-weight: normal;
-        font-size: 2rem;
+      header {
+        display: flex;
+        justify-content: center;
+        height: 2rem;
       }
-
-      .directions {
-        font-weight: lighter;
-        font-size: 1.5rem;
+      .bounce {
+        color: #ef233c;
+        font-weight: 800;
+        animation-name: bounce;
+        animation-duration: 4s;
+        animation-iteration-count: infinite;
       }
-
-      .dino {
-        position: absolute;
-        font-size: 4rem;
-        bottom: 0;
-        right: -4rem;
-        animation: dino 10s infinite 2s;
-      }
-
-      @keyframes dino {
+      @keyframes bounce {
         0% {
-          transform: translateX(4rem);
+          transform: scale(1, 1) translateY(0);
         }
-
-        40% {
-          transform: translateX(-50vw);
+        10% {
+          transform: scale(1.1, 0.9) translateY(0);
         }
-        45% {
-          transform: translateX(-50vw) scaleX(-1);
+        30% {
+          transform: scale(0.9, 1.1) translateY(-100px);
         }
-        55% {
-          transform: translateX(-50vw) scaleX(-1);
+        50% {
+          transform: scale(1, 1) translateY(0);
         }
-        60% {
-          transform: translateX(-50vw) scaleX(1);
-        }
-        65% {
-          transform: translateX(-50vw) scaleX(1);
-        }
-
-        80% {
-          transform: translateX(calc(-100vw - 4rem));
-        }
-
         100% {
-          transform: translateX(calc(-100vw - 4rem));
+          transform: scale(1, 1) translateY(0);
         }
       }
     </style>
   </head>
   <body>
-    <p class="offline">You're currently offline</p>
-    <p class="directions">Please go online to continue using this app</p>
-    <p class="dino">🦖</p>
+    <header>
+      <a href="https://neo-letter.web.app">
+        <img
+          src="./images/assets/logo.webp"
+          draggable="false"
+          alt="logo"
+          height="125"
+          width="202"
+        />
+      </a>
+    </header>
+    <main>
+      <h1>You are offline please connect to the internet to play</h1>
+    </main>
   </body>
 </html>

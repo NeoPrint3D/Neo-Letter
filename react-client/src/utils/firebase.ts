@@ -21,4 +21,4 @@ const firestore = getFirestore(app);
 const analytics = getAnalytics(app);
 const performance = getPerformance(app);
 
-export { analytics, firestore, auth };
+export { analytics, firestore, auth, performance };

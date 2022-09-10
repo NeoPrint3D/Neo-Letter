@@ -1,12 +1,10 @@
-import { AnimatePresence, m } from "framer-motion";
-import { memo, useContext, useMemo } from "react";
-import { useWindowSize } from "react-use";
+import { useContext, useMemo } from "react";
 import { GuessesContext } from "../../context/GameContext";
 import CurrentRow from "./Rows/CurrentRow";
 import { EmptyRow } from "./Rows/EmptyRow";
 import FilledRow from "./Rows/FilledRow";
 
-function Grid({ answer }: { answer: string}) {
+function Grid({ answer }: { answer: string }) {
     const guesses = useContext(GuessesContext)
     const empties = useMemo(() => guesses?.length < 5 ? Array.from(Array(5 - guesses.length)) : [], [guesses])
     return (

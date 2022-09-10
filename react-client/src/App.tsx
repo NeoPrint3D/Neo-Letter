@@ -5,17 +5,18 @@ import { AuthProvider } from "./context/AuthContext";
 import { GameContextProvider } from './context/GameContext'
 import Loader from './components/Loader'
 import AppToastContainer from './components/Toast/ToastContainer'
-
 import Home from './pages/Home'
-import { domMax, LazyMotion } from 'framer-motion'
-import Profile from './pages/Profile';
-import BgImage from './components/Wrappers/BgImage';
 import Footer from './components/Footer';
-import NotFound from './pages/NotFound';
+import BgImage from './components/Wrappers/BgImage';
+
+import { domMax, LazyMotion } from 'framer-motion'
+
 const GameRoom = lazy(() => import('./pages/GameRoom'))
 const CreateRoom = lazy(() => import('./pages/Create'))
 const JoinRoom = lazy(() => import('./pages/Join'))
 const SignUpPage = lazy(() => import('./pages/SignUp'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+const Profile = lazy(() => import('./pages/Profile'))
 
 
 

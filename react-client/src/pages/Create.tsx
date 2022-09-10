@@ -1,19 +1,17 @@
 
-import { doc, getDoc, increment, setDoc, updateDoc } from 'firebase/firestore';
-import { FormEvent, useContext, useEffect, useState } from 'react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { FormEvent, useContext, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
-//import io
 import { analytics, firestore } from '../utils/firebase';;
 import { UserContext, UidContext } from '../context/AuthContext';
 import Loader from '../components/Loader';
-import { AnimatePresence, LayoutGroup, m } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { IoIosAddCircleOutline, IoIosArrowBack } from 'react-icons/io';
 import { BiCustomize } from 'react-icons/bi';
 import { toast } from 'react-toastify';
-import Tooltip from '../components/Tooltip';
-import { v4 } from 'uuid';
 import { logEvent } from 'firebase/analytics';
+import Tooltip from '../components/Tooltip';
 
 interface CustomWord {
   id: number,

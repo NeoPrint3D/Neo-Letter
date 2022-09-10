@@ -1,4 +1,3 @@
-import { LayoutGroup, m, Variants } from "framer-motion"
 import { Dispatch, useContext, useEffect, useState } from "react"
 import { AiFillHome, AiFillTrophy } from "react-icons/ai"
 import { BsPersonFill } from "react-icons/bs"

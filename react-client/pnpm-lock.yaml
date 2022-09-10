@@ -7,7 +7,6 @@ specifiers:
   '@types/uuid': ^8.3.4
   '@vitejs/plugin-react': ^1.0.7
   autoprefixer: ^10.4.4
-  crypto-js: ^4.1.1
   daisyui: ^2.14.2
   firebase: ^9.6.10
   framer-motion: ^6.3.2
@@ -32,7 +31,6 @@ specifiers:
   workbox-window: ^6.5.4
 
 dependencies:
-  crypto-js: 4.1.1
   firebase: 9.9.1
   framer-motion: 6.5.1_sfoxds7t5ydpegc3knd667wn6m
   react: 17.0.2
@@ -2525,10 +2523,6 @@ packages:
 
   /core-util-is/1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
-
-  /crypto-js/4.1.1:
-    resolution: {integrity: sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==}
-    dev: false
 
   /crypto-random-string/2.0.0:
     resolution: {integrity: sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==}

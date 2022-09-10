@@ -1,5 +1,5 @@
 import { logEvent } from "firebase/analytics";
-import { collection, doc, getDoc, getDocs, increment, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, where } from "firebase/firestore";
 import { AnimatePresence, m } from "framer-motion";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";

@@ -6,7 +6,7 @@ import { FaCrown } from 'react-icons/fa';
 import { FiShare } from 'react-icons/fi';
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useIdle, useWindowSize } from "react-use";
+import { useWindowSize } from "react-use";
 import { RWebShare } from "react-web-share";
 import Grid from "../components/Grid/Grid";
 import RoomStatusHandler from "../components/Handlers/RoomStatusHandler";

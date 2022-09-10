@@ -13,7 +13,6 @@
     "source": "dist"
   },
   "dependencies": {
-    "crypto-js": "^4.1.1",
     "firebase": "^9.6.10",
     "framer-motion": "^6.3.2",
     "react": "^17.0.2",

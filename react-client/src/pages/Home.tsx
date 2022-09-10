@@ -1,23 +1,14 @@
 import { useContext, useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { LayoutGroup, m } from "framer-motion";
 import { useWindowSize } from "react-use";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/AuthContext";
 import MobileImage from "/images/assets/App-Mobile.webp";
 import DesktopImage from "/images/assets/App-Desktop.webp";
-import { setDoc, doc, getDoc } from "firebase/firestore";
-import { firestore } from "../utils/firebase";
-
-interface Place {
-  points: number;
-  uid: string;
-}
-
 function Home() {
   const location = useLocation();
-  const navigate = useNavigate()
   const { width } = useWindowSize();
   const user = useContext(UserContext);
 
