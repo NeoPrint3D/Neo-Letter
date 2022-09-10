@@ -78,7 +78,7 @@ function Home() {
             backgroundPosition: "center",
           }}
         >
-          <div className="hero-content text-center text-neutral-content">
+          <div className="hero-content text-center text-neutral-content ">
             <m.div
               className="sm:max-w-xl main-container px-5 py-10"
               initial={{ rotateX: -90, opacity: 0 }}
@@ -175,12 +175,12 @@ function Home() {
                   </div>
                 </div>
               </div>
-              <p className="mb-5 text-base">
-                <a className="font-black text-xl">Neo Letter</a> is the new
+              <p className="mb-5 text-white font-semibold text-lg">
+                <a className="font-black text-primary text-2xl">Neo Letter</a> is the new
                 wordle party game to play with your friends. You can create,
                 limit, and choose who can play with you. With{" "}
-                <a className="font-black text-xl">Mobile</a> first,{" "}
-                <a className="font-black text-xl">Everyone</a> can play.
+                <a className="font-black text-primary text-2xl">Mobile</a> first,{" "}
+                <a className="font-black text-primary text-2xl">Everyone</a> can play.
               </p>
               <div className="flex justify-center gap-5 sm:gap-10">
                 <Link to="/join">
