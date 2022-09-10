@@ -66,7 +66,7 @@ export default function CreateRoom() {
 
   async function createroom() {
     if (moreOptions && customWords.length === 0) {
-      toast.error("there are no custom words", { theme: "dark" })
+      toast.error("Please enter at least one word.", { theme: "dark" })
       return
     }
     setLoading(true)
@@ -111,9 +111,7 @@ export default function CreateRoom() {
   }
 
 
-  useEffect(() => {
-    console.log(customWords)
-  }, [customWords])
+
 
 
   return !loading ? (
@@ -163,13 +161,13 @@ export default function CreateRoom() {
                   <h2 className='text-2xl text-white/90'>{customWords.length}</h2>
                 </div>
                 <form className='flex gap-5' onSubmit={(e) => addWords(e)}>
-                  <input placeholder='great' type="text" value={customWord} className='border-[3px] transition-colors  focus:border-primary rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/50 ' onChange={(e) => setCustomWord(e.target.value)} />
+                  <input placeholder='words' type="text" value={customWord} className='border-[3px] transition-colors  focus:border-primary rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/50 ' onChange={(e) => setCustomWord(e.target.value.slice(0, 5))} />
                   <button type='submit'>
                     <IoIosAddCircleOutline className='btn btn-primary btn-circle' size={35} />
                   </button>
                 </form>
 
-                <m.div className='grid grid-cols-4 w-[90%] border-[3px] border-primary/50 gap-3 mt-5 overflow-y-scroll scroll-lobby shadow-input h-36   rounded-xl  p-3 '>
+                <m.div className='grid grid-cols-4 w-[92.5%] border-[3px] border-primary/50 gap-3 mt-5 overflow-y-scroll scroll-lobby shadow-input h-36   rounded-xl  p-3 '>
                   <AnimatePresence>
                     {customWords.map(({ word, id }, index) => (
                       <div
@@ -182,7 +180,7 @@ export default function CreateRoom() {
                             animate={{ scale: 1 }}
                             exit={{ scale: 0, opacity: 0 }}
                             onClick={() => setCustomWords([...customWords.filter((item) => item.id !== id)])}
-                            className='bg-primary-dark hover:bg-primary-dark/70 transition-colors py-2 px-3 rounded-xl'>
+                            className='bg-primary-dark hover:bg-primary-dark/70 transition-colors py-2 px-2 rounded-xl'>
                             <h1 className='text-lg font-semibold'>{index + 1}: {word.toUpperCase()}</h1>
                           </m.button>
                         </Tooltip>
