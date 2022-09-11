@@ -10,7 +10,8 @@
     "deploy": "tsc && vite build && react-snap && firebase deploy"
   },
   "reactSnap": {
-    "source": "dist"
+    "source": "dist",
+    "skipThirdPartyRequests": true
   },
   "dependencies": {
     "firebase": "^9.6.10",
