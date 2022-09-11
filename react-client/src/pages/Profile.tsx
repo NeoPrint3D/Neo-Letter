@@ -1,4 +1,4 @@
-import { getDocs, collection, where, limit, query, deleteDoc, doc } from "firebase/firestore";
+import { getDocs, collection, where, limit, query, deleteDoc, doc, onSnapshot } from "firebase/firestore";
 import { m } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
@@ -34,19 +34,19 @@ export default function Profile() {
         where("username", "==", username),
         limit(1)
       );
-      const users = await getDocs(q);
-      console.log(users)
-      setUserExists(users.docs.length > 0);
-      if (users.docs.length > 0) setUser(users.docs[0].data() as UserProfile);
+      onSnapshot(q, (users) => {
+        setUserExists(users.docs.length > 0);
+        if (users.docs.length > 0) setUser(users.docs[0].data() as UserProfile);
+      })
     };
     main();
   }, [username]);
 
-
+  const formatter = new Intl.NumberFormat("en", { notation: "compact", minimumFractionDigits: 0, maximumFractionDigits: 2 })
   const statContainers = [
     {
       title: "Games Played",
-      value: user?.gamesPlayed,
+      value: formatter.format(user?.gamesPlayed),
       icon: (
         <CgGames
           className="text-blue-500"
@@ -57,14 +57,14 @@ export default function Profile() {
     },
     {
       title: "Wins",
-      value: user?.wins,
+      value: formatter.format(user?.wins),
       icon: (
         <FaCrown className="text-yellow-500" aria-label="Games Won" size={35} />
       ),
     },
     {
       title: "Total Points",
-      value: Intl.NumberFormat("en", { notation: "compact" }).format(user?.totalPoints),
+      value: formatter.format(user?.totalPoints),
       icon: <h1 className=" font-logo text-green-500">Points</h1>,
     },
   ];
