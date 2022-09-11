@@ -1,6 +1,6 @@
 
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { FormEvent, useContext, useState } from 'react';
+import { FormEvent, useContext, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 import { analytics, firestore } from '../utils/firebase';;
@@ -21,14 +21,15 @@ interface CustomWord {
 
 export default function CreateRoom() {
   const [loading, setLoading] = useState(false)
-  const [customMaxPlayers, setCustomMaxPlayers] = useState<number | string>(20)
+  const [customMaxPlayers, setCustomMaxPlayers] = useState(20)
   const [maxPlayers, setMaxPlayers] = useState("party");
-  const [roomType, setRoomType] = useState("private");
+  const [isPrivate, setIsPrivate] = useState(true);
   const [allowJoinAfterStart, setAllowJoinAfterStart] = useState(true);
-  const [wordCount, setWordCount] = useState<number | string>(5);
+  const [allowCustomWords, setAllowCustomWords] = useState(false)
+  const [allowChat, setAllowChat] = useState(true)
+  const [rounds, setRounds] = useState(5);
   const [customWords, setCustomWords] = useState<CustomWord[]>([])
   const [customWord, setCustomWord] = useState("")
-  const [moreOptions, setMoreOptions] = useState(false)
   const [switchUi, setSwitchUI] = useState(false)
   const navigate = useNavigate()
   const user = useContext(UserContext)
@@ -55,26 +56,25 @@ export default function CreateRoom() {
     if (customWord.length === 5) {
       setCustomWords([...customWords, { word: customWord, id: Math.floor(Math.random() * 10000) }])
     } else if (customWord.length > 0) {
-      toast.warning("word must be 5 letters", { theme: "dark" })
+      toast.warning("Word must be 5 letters.", { theme: "dark" })
     }
     setCustomWord("")
   }
 
 
   async function createroom() {
-    if (moreOptions && customWords.length === 0) {
-      toast.error("Please enter at least one word.", { theme: "dark" })
-      return
-    }
+    if (allowCustomWords && customWords.length === 0) { toast.error("Please enter at least one word.", { theme: "dark" }); return }
+    if (!rounds) { toast.error("Please increase round number.", { theme: "dark" }); return }
+    if (!customMaxPlayers) { toast.error("Please increase max users.", { theme: "dark" }); return }
     setLoading(true)
     const res = await fetch(
       import.meta.env.DEV
-        ? `http://localhost:4000/api/words?count=${wordCount}`
-        : `https://neo-letter-fastify.vercel.app/api/words?count=${wordCount}`
+        ? `http://localhost:4000/api/words?count=${rounds}`
+        : `https://neo-letter-fastify.vercel.app/api/words?count=${rounds}`
     ).then((res) => res.json())
     const wordlist = res.words
     const id = await generateCleanId()
-    const gamePlayerData: GamePlayer = {
+    const playerInfo: GamePlayer = {
       name: "",
       uid,
       points: 0,
@@ -87,27 +87,60 @@ export default function CreateRoom() {
       gamesPlayed: user?.gamesPlayed || 0,
       totalPoints: user?.totalPoints || 0,
     }
-
+    const roomInfo: Room = {
+      id: id as string,
+      maxPlayers: maxPlayers === "custom" ? customMaxPlayers as number : roomSelectToNumber(maxPlayers),
+      started: false,
+      roomType: isPrivate ? "private" : "public",
+      answers: customWords.length !== 0 ? customWords.map((item) => item.word) : wordlist,
+      players: [uid],
+      round: 0,
+      allowLateJoiners: allowJoinAfterStart,
+      customWords: customWords.length !== 0,
+      allowChat: allowChat
+    }
 
     await Promise.all([
-      setDoc(doc(firestore, "rooms", `${id}`), {
-        id,
-        maxPlayers: maxPlayers === "custom" ? customMaxPlayers : roomSelectToNumber(maxPlayers),
-        started: false,
-        roomType,
-        answers: customWords.length !== 0 ? customWords.map((item) => item.word) : wordlist,
-        players: [uid],
-        round: 0,
-        allowLateJoiners: allowJoinAfterStart,
-        customWords: customWords.length !== 0
-      }),
-      setDoc(doc(firestore, "rooms", `${id}`, "players", uid), gamePlayerData),
+      setDoc(doc(firestore, "rooms", `${id}`), roomInfo),
+      setDoc(doc(firestore, "rooms", `${id}`, "players", uid), playerInfo),
     ])
     logEvent(analytics, "room_created", { uid: uid, date: new Date().getTime() })
     setLoading(false)
     navigate(`/join?id=${id}`)
   }
 
+
+
+  const options = [
+    {
+      name: "Late Starts",
+      value: allowJoinAfterStart,
+      func: (e: any) => setAllowJoinAfterStart(e.target.checked)
+    },
+    {
+      name: "Cust. Words",
+      value: allowCustomWords,
+      func: (e: any) => {
+        if (e.target.checked === false) setCustomWords([]); setCustomWord("")
+        setAllowCustomWords(e.target.checked)
+      }
+    },
+    {
+      name: "Private",
+      value: isPrivate,
+      func: (e: any) => setIsPrivate(e.target.checked)
+    },
+    {
+      name: "Chattting",
+      value: allowChat,
+      func: (e: any) => setAllowChat(e.target.checked),
+      tooltip: "Coming Soon!!!"
+    }
+  ]
+
+  useEffect(() => {
+    console.log(customMaxPlayers, rounds)
+  }, [customMaxPlayers, rounds])
 
 
 
@@ -153,13 +186,13 @@ export default function CreateRoom() {
                 </button>
               </div>
               <div className='flex flex-col items-center w-full'>
-                <h1 className="text-5xl font-logo mb-2">Custom Words</h1>
-                <div className='flex gap-5 justify-center items-center mb-3 '>
-                  <h1 className='text-3xl  fonts-semibold text-white/80'>Rounds:</h1>
-                  <h2 className='text-2xl text-white/90'>{customWords.length}</h2>
+                <h1 className="text-4xl sm:text-5xl font-logo mb-2">Custom Words</h1>
+                <div className='flex gap-5 justify-center items-center mb-3  text-xl sm:text-3xl  fonts-semibold text-white/80' >
+                  <h1>Rounds:</h1>
+                  <h2>{customWords.length}</h2>
                 </div>
                 <form className='flex gap-5' onSubmit={(e) => addWords(e)}>
-                  <input placeholder='words' type="text" value={customWord} className='border-[3px] transition-colors border-white/20  focus:border-primary rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/50 ' onChange={(e) => setCustomWord(e.target.value.replace(/[^a-z]/gi, '').slice(0, 5))} />
+                  <input placeholder='words' type="text" value={customWord} className='border-[3px] transition-colors border-white/20 duration-300  focus:border-primary rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/50 ' onChange={(e) => setCustomWord(e.target.value.replace(/[^a-z]/gi, '').slice(0, 5))} />
                   <button type='submit'>
                     <IoIosAddCircleOutline className='btn btn-primary btn-circle' size={35} />
                   </button>
@@ -212,7 +245,7 @@ export default function CreateRoom() {
                   <option className='bg-primary-dark text-sm text-bold' value="versus">Versus (Max 2)</option>
                   <option className='bg-primary-dark text-sm text-bold' value="party">Party (Max 5)</option>
                   <option className='bg-primary-dark text-sm text-bold' value="mega-party">Mega Party (Max 10)</option>
-                  <option className='bg-primary-dark text-sm text-bold' value="custom">Custom</option>
+                  <option className='bg-primary-dark text-sm text-bold' value="custom">Custom Amount</option>
                 </select>
                 {maxPlayers === "custom" && (
                   <m.div
@@ -224,12 +257,12 @@ export default function CreateRoom() {
                       <label className='text-xl'>Players</label>
                     </div>
                     <div className='flex justify-end'>
-                      <input name='num' type="number" className="text-center text-xl bg-transparent focus:outline-none p-1 shadow-input-inner rounded-xl w-12  " placeholder='20' value={customMaxPlayers} onChange={(e) => setCustomMaxPlayers(parseInt(e.target.value) <= 100 && parseInt(e.target.value) > 0 ? parseInt(e.target.value) : "")} />
+                      <input type="number" className="text-center text-xl bg-transparent border-[3px] transition-colors border-white/20  focus:border-primary  focus:outline-none p-1 shadow-input-inner rounded-xl w-12  " placeholder='20' value={customMaxPlayers} onChange={(e) => setCustomMaxPlayers(parseInt(e.target.value.replace(/^[a-zA-Z]+$/, "").slice(0, 3)))} />
                     </div>
                   </m.div>
                 )}
 
-                {!moreOptions ?
+                {!allowCustomWords ?
                   <div className='flex items-center p-3 shadow-input rounded-xl w-52'>
                     <div className='flex justify-start w-full'>
                       <label className='text-center text-xl'>
@@ -239,39 +272,20 @@ export default function CreateRoom() {
                     <div className='flex justify-end'>
                       <input type="number"
                         placeholder='10'
-                        className="text-center text-xl bg-transparent focus:outline-none p-1 shadow-sm border-[3px] border-white/20 rounded-xl w-12  "
-                        value={wordCount}
+                        className="text-center text-xl bg-transparent focus:outline-none p-1 shadow-sm border-[3px] transition-colors border-white/20 duration-300 focus:border-primary  rounded-xl w-12  "
+                        value={rounds}
                         onChange={(e) => {
-                          setWordCount(parseInt(e.target.value) > 0 ? parseInt(e.target.value) : "");
+                          setRounds(parseInt(e.target.value.replace(/^[a-zA-Z]+$/, "").slice(0, 3)));
                         }} />
                     </div>
                   </div> :
-                  <button onClick={() => setSwitchUI(true)} className='gap-3  shadow-input text-xl flex p-3 rounded-3xl outline-dashed outline-primary/40 hover:bg-primary transition-colors'>
+                  <button onClick={() => setSwitchUI(true)} className='gap-3  shadow-input text-xl my-1.5 flex p-3 rounded-3xl outline-dashed outline-primary/40 hover:bg-primary transition-colors'>
                     <BiCustomize size={25} /> Choose Custom Words
                   </button>
                 }
 
-                <div className='flex flex-col gap-3 mt-5'>
-                  <div className='flex justify-center gap-3 items-center'>
-                    <p className='text-xl '>Allow late joiners </p>
-                    <div className='flex justify-end '>
-                      <input className='checkbox checkbox-primary' type="checkbox" checked={allowJoinAfterStart} onChange={(e) => setAllowJoinAfterStart(e.target.checked)} />
-                    </div>
-                  </div>
-                  <div className='flex justify-center gap-3 items-center'>
-                    <p className='text-xl '>Custom Words</p>
-                    <div className='flex justify-end '>
-                      <input className='checkbox checkbox-primary' type="checkbox" checked={moreOptions} onChange={(e) => {
-                        if (e.target.checked === false) setCustomWords([]); setCustomWord("")
-                        setMoreOptions(e.target.checked)
-                      }} />
-                    </div>
-                  </div>
-
-                  <div className='flex justify-center items-center gap-3'>
-                    <p className='text-xl '>Private</p>
-                    <input className='checkbox checkbox-primary' type="checkbox" checked={roomType === "private"} onChange={(e) => setRoomType(e.target.checked ? "private" : "public")} />
-                  </div>
+                <div className='grid grid-cols-3 text-center gap-3 my-5 font-semibold text-sm'>
+                  {options.map((props, i) => <Options key={i} {...props} />)}
                 </div>
 
 
@@ -288,7 +302,7 @@ export default function CreateRoom() {
                     or
                   </div>
                   <Link to="/join">
-                    <p className='link link-secondary text-xl transition-all duration-300'>
+                    <p className='link text-xl transition-all duration-300'>
                       Join Room
                     </p>
                   </Link>
@@ -305,4 +319,16 @@ export default function CreateRoom() {
     <Loader />
   )
 
+}
+
+
+function Options({ name, value, func, tooltip }: { name: string, value: boolean, func: any, tooltip?: string }) {
+  return (
+    <div className={`flex justify-center gap-1.5 items-center ${tooltip && "tooltip tooltip-bottom tooltip-secondary"}`} data-tip={tooltip || ""}>
+      <p>{name}</p>
+      <div className='flex justify-end '>
+        <input className='checkbox checkbox-primary' type="checkbox" checked={value} onChange={func} />
+      </div>
+    </div>
+  )
 }

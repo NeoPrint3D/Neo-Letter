@@ -1,5 +1,8 @@
 type Timestamp = import("firebase/firestore").Timestamp;
 
+interface Prefences {
+  showReminder: boolean;
+}
 interface Room {
   id: string;
   answers: string[];
@@ -8,6 +11,7 @@ interface Room {
   roomType: "public" | "private";
   started: boolean;
   allowLateJoiners: boolean;
+  allowChat: boolean;
   round: number;
   customWords: boolean;
 }

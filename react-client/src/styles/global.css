@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.Toastify__close-button > svg {
+  color: transparent;
+}
+
 body {
   min-height: -webkit-fill-available;
 }

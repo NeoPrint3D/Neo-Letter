@@ -1,9 +1,10 @@
 import { logEvent } from "firebase/analytics";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, where } from "firebase/firestore";
 import { AnimatePresence, m } from "framer-motion";
 import { useContext, useState } from "react";
+import { BsGoogle } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import { useDebounce } from "react-use";
 import { UidContext, UserContext } from "../../context/AuthContext";
 import { analytics, auth, firestore } from "../../utils/firebase";
 import GoogleSignIn from "../GoogleSignIn";
@@ -28,6 +29,14 @@ export default function AuthStatusHandler() {
         status: "success",
         text: ""
     })
+
+    const handleSignUp = async () => {
+        const provider = new GoogleAuthProvider()
+        const user = (await signInWithPopup(auth, provider)).user
+        const userExists = (await getDoc(doc(firestore, "users", user.uid))).exists()
+        if (userExists) { navigate("/"); return }
+        else navigate("/signup")
+    }
 
     async function usernameCheck(username: string) {
         if (username.length < 3) {
@@ -93,18 +102,15 @@ export default function AuthStatusHandler() {
         await Promise.all([
             setDoc(doc(firestore, "users", `${auth.currentUser?.uid}`), userProfile),
         ])
-
-
-
         navigate("/?action=reload")
     }
 
 
-    if (auth.currentUser === null) {
+    if (auth.currentUser === null && user !== undefined) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <m.div
-                    className="sm:w-full sm:max-w-md main-container px-5 py-10"
+                    className="max-w-sm sm:w-full sm:max-w-md main-container px-5 py-5"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{
@@ -115,20 +121,23 @@ export default function AuthStatusHandler() {
                 >
 
 
-                    <h1 className=" text-4xl text-center font-logo"> Please sign in to create an account</h1>
-                    <div className="flex justify-center mt-10">
-                        <GoogleSignIn />
+                    <h1 className=" text-4xl text-center font-logo">Create Account</h1>
+                    <div className="flex justify-center mt-7">
+                        <button onClick={handleSignUp} className="flex gap-3 items-center btn btn-primary  text-white text-xl">
+                            <span>Sign Up</span>
+                            <BsGoogle />
+                        </button>
                     </div>
                 </m.div>
             </div>
         )
     }
 
-    if (user?.uid) {
+    if (user?.username && user !== undefined) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <m.div
-                    className="sm:w-full sm:max-w-md main-container px-5 py-10"
+                    className="max-w-sm sm:w-full sm:max-w-md main-container px-5 py-10"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{

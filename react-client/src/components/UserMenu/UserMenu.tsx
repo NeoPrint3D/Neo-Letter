@@ -1,11 +1,12 @@
 import { signOut } from "firebase/auth"
 import { AnimatePresence, m } from "framer-motion"
 import { useCallback, useContext, useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { UserContext } from "../../context/AuthContext"
 import { auth } from "../../utils/firebase"
 
 export default function UserDropDown() {
+    const navigate = useNavigate()
 
     const [open, setOpen] = useState(false)
 
@@ -20,10 +21,12 @@ export default function UserDropDown() {
         })
     }, [])
 
-    const handleSignOut = () => {
+    const handleSignOut = async () => {
         if (!window.confirm("Are you sure you want to sign out?")) return
-        signOut(auth)
+        await signOut(auth)
         document.cookie = "neo-letter-game-uid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.location.href = "/"
+
     }
 
     useEffect(() => {

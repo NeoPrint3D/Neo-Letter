@@ -187,7 +187,7 @@ export default function JoinRoom() {
             </form>
             <div className="text-lg my-0.5">or</div>
             <Link to="/create">
-              <p className="link link-secondary text-xl transition-all duration-300">
+              <p className="link text-xl transition-all duration-300">
                 Create Room
               </p>
             </Link>

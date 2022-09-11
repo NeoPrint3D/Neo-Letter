@@ -50,7 +50,7 @@ export default function GameRoom() {
     const handleEveryoneGuessed = useCallback(async (players: GamePlayer[]) => {
         if (players.length === 0) return
         if (!players.every(player => player.guesses.length === 6)) return
-        toast.warning("Everyone has guessed", { theme: "dark" })
+        toast.warning("Everyone has guessed.", { theme: "dark" })
         await new Promise((resolve) => setTimeout(resolve, 1750))
         if (currentPlayer.role === "creator") {
             await Promise.all([
@@ -70,7 +70,7 @@ export default function GameRoom() {
         const res = await fetch(import.meta.env.DEV ? `http://localhost:4000/api/valid?word=${key}` : `https://neo-letter-fastify.vercel.app/api/valid?word=${key}`)
         const data = await res.json()
         if (!data.isValid && !room.customWords) {
-            toast.error("Invalid Guess", { theme: "dark" })
+            toast.error("Invalid Guess.", { theme: "dark" })
             setHasGuessed(false)
             return
         }

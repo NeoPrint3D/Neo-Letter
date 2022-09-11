@@ -2,44 +2,49 @@ import { useContext, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useLocation } from "react-router-dom";
 import { LayoutGroup, m } from "framer-motion";
-import { useWindowSize } from "react-use";
+import { useCookie, useWindowSize } from "react-use";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/AuthContext";
 import MobileImage from "/images/assets/App-Mobile.webp";
 import DesktopImage from "/images/assets/App-Desktop.webp";
+
 function Home() {
   const location = useLocation();
   const { width } = useWindowSize();
-  const user = useContext(UserContext);
+  const user = useContext(UserContext)
+  const [preference, updateCookie] = useCookie("preferences")
 
   useEffect(() => {
+    if (!preference) {
+      const preferenceValues = {
+        showReminder: true
+      }
+      updateCookie(JSON.stringify(preferenceValues), { expires: 15 * 60 * 1000 })
+    }
+
     if (new URLSearchParams(location.search).get("action") === "reload") {
       window.location.href = "/"
     }
   }, []);
+
   useEffect(() => {
-    remindToSignUp();
+    if (JSON.parse(preference as string)?.showReminder) remindToSignUp();
   }, [user]);
 
   async function remindToSignUp() {
-    if (user?.uid || user === undefined) return;
+    if (user === undefined) return;
+    if (user?.username?.length > 0) return;
     await new Promise((resolve) => setTimeout(resolve, 3000));
-    toast.info("Create an account to save your progress", {
-      theme: "dark",
+    toast.info(({ closeToast }) => <Link to="/signup" >Create Account?</Link>, {
       autoClose: false,
-      style: {
-        backgroundColor: " rgb(2 48 71 / 0.8)",
-        color: "white",
-        borderRadius: "0.5rem",
-        padding: ".5rem",
-      },
     });
+    updateCookie(JSON.stringify({ ...JSON.parse(preference as string), showReminder: false }))
   }
 
   return (
     <>
       <Helmet>
-        <title>Neo Letter</title>
+        <title>Neo Letter: The Multiplayer Wordle</title>
         <meta
           name="description"
           content="The new wordle party game to play with your friends. Created for easy sharing and lots fo fun."
@@ -176,11 +181,11 @@ function Home() {
                 </div>
               </div>
               <p className="mb-5 text-white font-semibold text-lg">
-                <a className="font-black text-primary text-2xl">Neo Letter</a> is the new
+                <span className="font-black  text-2xl">Neo Letter</span> is the new
                 wordle party game to play with your friends. You can create,
                 limit, and choose who can play with you. With{" "}
-                <a className="font-black text-primary text-2xl">Mobile</a> first,{" "}
-                <a className="font-black text-primary text-2xl">Everyone</a> can play.
+                <span className="font-black text-success text-2xl">Mobile</span> first,{" "}
+                <span className="font-black text-warning text-2xl">Everyone</span> can play.
               </p>
               <div className="flex justify-center gap-5 sm:gap-10">
                 <Link to="/join">

@@ -2,7 +2,7 @@ import { getDocs, collection, where, limit, query, deleteDoc, doc, onSnapshot } 
 import { m } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
-import { AiFillDelete, AiOutlineDelete } from "react-icons/ai";
+import { AiFillDelete } from "react-icons/ai";
 import { CgGames } from "react-icons/cg";
 import { FaCrown } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
@@ -190,7 +190,7 @@ function Stat({
       >
         <h1 className=" text-2xl text-white font-medium col-span-4">{title}</h1>
         <div className="flex justify-end w-full gap-3 items-center col-span-3">
-          <h1 className="text-4xl text-white font-medium">{stat}</h1>
+          <h1 className="text-2xl sm:text-4xl text-white font-medium">{stat}</h1>
           {icon}
         </div>
       </m.div>
