@@ -192,7 +192,7 @@ export default function CreateRoom() {
                   <h2>{customWords.length}</h2>
                 </div>
                 <form className='flex gap-5' onSubmit={(e) => addWords(e)}>
-                  <input placeholder='words' type="text" value={customWord} className='border-[3px] transition-colors border-white/20 duration-300  focus:border-primary rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/50 ' onChange={(e) => setCustomWord(e.target.value.replace(/[^a-z]/gi, '').slice(0, 5))} />
+                  <input placeholder='words' type="text" value={customWord} className='input-focus rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/50 ' onChange={(e) => setCustomWord(e.target.value.replace(/[^a-z]/gi, '').slice(0, 5))} />
                   <button type='submit'>
                     <IoIosAddCircleOutline className='btn btn-primary btn-circle' size={35} />
                   </button>
@@ -257,7 +257,7 @@ export default function CreateRoom() {
                       <label className='text-xl'>Players</label>
                     </div>
                     <div className='flex justify-end'>
-                      <input type="number" className="text-center text-xl bg-transparent border-[3px] transition-colors border-white/20  focus:border-primary  focus:outline-none p-1 shadow-input-inner rounded-xl w-12  " placeholder='20' value={customMaxPlayers} onChange={(e) => setCustomMaxPlayers(parseInt(e.target.value.replace(/^[a-zA-Z]+$/, "").slice(0, 3)))} />
+                      <input type="number" className="text-center text-xl bg-transparent input-focus  focus:outline-none p-1 shadow-input-inner rounded-xl w-12  " placeholder='20' value={customMaxPlayers} onChange={(e) => setCustomMaxPlayers(parseInt(e.target.value.replace(/^[a-zA-Z]+$/, "").slice(0, 3)))} />
                     </div>
                   </m.div>
                 )}
@@ -272,7 +272,7 @@ export default function CreateRoom() {
                     <div className='flex justify-end'>
                       <input type="number"
                         placeholder='10'
-                        className="text-center text-xl bg-transparent focus:outline-none p-1 shadow-sm border-[3px] transition-colors border-white/20 duration-300 focus:border-primary  rounded-xl w-12  "
+                        className="text-center text-xl bg-transparent focus:outline-none p-1 shadow-sm input-focus rounded-xl w-12  "
                         value={rounds}
                         onChange={(e) => {
                           setRounds(parseInt(e.target.value.replace(/^[a-zA-Z]+$/, "").slice(0, 3)));
@@ -284,7 +284,7 @@ export default function CreateRoom() {
                   </button>
                 }
 
-                <div className='grid grid-cols-3 text-center gap-3 my-5 font-semibold text-sm'>
+                <div className='grid grid-cols-3 text-center gap-x-1 gap-y-3 my-5 font-semibold text-sm'>
                   {options.map((props, i) => <Options key={i} {...props} />)}
                 </div>
 
