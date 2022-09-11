@@ -203,7 +203,7 @@ export default function GameRoom() {
             </Helmet>
             <UserPreview selectedId={selectedId} height={height} selectedPlayer={selectedPlayer} room={room} setSelectedId={setSelectedId} width={width} />
 
-            <div className="2xl:h-screen 2xl:overflow-hidden ">
+            <div className="min-h-screen">
                 <header>
                     <div className="grid grid-cols-3">
                         <div className="flex justify-start items-center">

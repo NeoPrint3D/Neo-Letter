@@ -1,17 +1,30 @@
-import { getDocs, collection, where, limit, query } from "firebase/firestore";
+import { getDocs, collection, where, limit, query, deleteDoc, doc } from "firebase/firestore";
 import { m } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
+import { AiFillDelete, AiOutlineDelete } from "react-icons/ai";
 import { CgGames } from "react-icons/cg";
 import { FaCrown } from "react-icons/fa";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Loader from "../components/Loader";
 import { firestore } from "../utils/firebase";
 
 export default function Profile() {
   const [user, setUser] = useState(undefined as unknown as UserProfile);
   const [userExists, setUserExists] = useState(undefined as unknown as boolean);
+  const navigate = useNavigate()
   const { username } = useParams();
+
+
+  async function deleteProfile() {
+    if (window.confirm("Are you sure you want to delete your profile")) {
+      await deleteDoc(doc(firestore, "users", user.uid))
+      alert("Profile deleted")
+      navigate("/?action=reload")
+    }
+  }
+
+
 
   useEffect(() => {
     const main = async () => {
@@ -21,28 +34,19 @@ export default function Profile() {
         where("username", "==", username),
         limit(1)
       );
-      const user = await getDocs(q);
-      setUserExists(user.docs.length > 0);
-      setUser(user.docs[0].data() as UserProfile);
+      const users = await getDocs(q);
+      console.log(users)
+      setUserExists(users.docs.length > 0);
+      if (users.docs.length > 0) setUser(users.docs[0].data() as UserProfile);
     };
     main();
   }, [username]);
 
-  if (userExists === undefined) return <Loader />;
-  if (!userExists) return <div>User not found</div>;
-  if (!user) return <div />;
-
-  function formatNotation(n: number) {
-    if (n < 1000) return n.toString();
-    if (n < 1000000) return (n / 1000).toFixed(1) + "k";
-    if (n < 1000000000) return (n / 1000000).toFixed(1) + "m";
-    return (n / 1000000000).toFixed(1) + "b";
-  }
 
   const statContainers = [
     {
       title: "Games Played",
-      value: user.gamesPlayed,
+      value: user?.gamesPlayed,
       icon: (
         <CgGames
           className="text-blue-500"
@@ -53,17 +57,22 @@ export default function Profile() {
     },
     {
       title: "Wins",
-      value: user.wins,
+      value: user?.wins,
       icon: (
         <FaCrown className="text-yellow-500" aria-label="Games Won" size={35} />
       ),
     },
     {
       title: "Total Points",
-      value: formatNotation(user.totalPoints),
+      value: Intl.NumberFormat("en", { notation: "compact" }).format(user?.totalPoints),
       icon: <h1 className=" font-logo text-green-500">Points</h1>,
     },
   ];
+
+  if (userExists === undefined) return <Loader />;
+  if (!userExists) return <div className="h-screen flex justify-center items-center text-5xl font-logo">User not found</div>;
+  if (!user) return <div />;
+
 
   return (
     <>
@@ -94,6 +103,13 @@ export default function Profile() {
               damping: 30,
             }}
           >
+            <div className="flex w-full justify-end p-2 absolute">
+              <div className="tooltip tooltip-bottom tooltip-error" data-tip="Delete Profile">
+                <button onClick={deleteProfile} className="p-2 rounded-full text-red-500/60 hover:text-red-500 hover:bg-white/10 hover:scale-105 active:scale-95 duration-300">
+                  <AiFillDelete size={30} />
+                </button>
+              </div>
+            </div>
             <div className="flex justify-center absolute w-full -translate-y-[2.75rem] ">
               <m.div
                 className={`avatar avatar-sm `}
