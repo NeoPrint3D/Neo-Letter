@@ -5,7 +5,7 @@ export default function SignUpPage() {
   return (
     <div>
       <Helmet>
-        <title> Sign Up </title>
+        <title>Sign Up</title>
         <meta name="description" content="Sign up for the Neo Letter game" />
         <meta property="og:url" content="https://neo-letter.web.app/signup" />
         <meta property="og:type" content="website" />

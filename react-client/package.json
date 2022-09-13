@@ -1,7 +1,7 @@
 {
   "name": "neo_letter",
   "private": false,
-  "version": "0.0.0",
+  "version": "1.0.1",
   "scripts": {
     "dev": "vite dev --port 3050",
     "build": "tsc && vite build",
@@ -10,8 +10,7 @@
     "deploy": "tsc && vite build && react-snap && firebase deploy"
   },
   "reactSnap": {
-    "source": "dist",
-    "skipThirdPartyRequests": true
+    "source": "dist"
   },
   "dependencies": {
     "firebase": "^9.6.10",

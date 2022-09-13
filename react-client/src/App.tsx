@@ -30,6 +30,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route element={<BgImage />}>
+                <Route path="/signup" element={<SignUpPage />} />
                 <Route path="/create" element={<CreateRoom />} />
                 <Route path="/join" element={<JoinRoom />} />
                 <Route path="/room/:id" element={
@@ -37,7 +38,6 @@ function App() {
                     <GameRoom />
                   </GameContextProvider>
                 } />
-                <Route path="/signup" element={<SignUpPage />} />
                 <Route path="/profile/:username" element={<Profile />} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" />} />

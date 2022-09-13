@@ -83,6 +83,8 @@ function Home() {
             backgroundPosition: "center",
           }}
         >
+
+          <a className="hidden" href="/signup">test</a>
           <div className="hero-content text-center text-neutral-content ">
             <m.div
               className="sm:max-w-xl main-container px-5 py-10"
