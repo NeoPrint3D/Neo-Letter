@@ -11,7 +11,7 @@ interface TooltipProps {
 }
 
 
-export default function Tooltip({ children, tip: text, direction, }: TooltipProps) {
+export default function Tooltip({ children, tip, direction, }: TooltipProps) {
     const ref = useRef<HTMLDivElement>(null);
     const { height, width } = useWindowSize()
     const [childHeight, setChildHeight] = useState(0);
@@ -37,10 +37,9 @@ export default function Tooltip({ children, tip: text, direction, }: TooltipProp
         if (y > height / 2) { setCalculatedDirection("top") }
     }, [])
 
-    return (
+    return tip ? (
         <>
             <div
-                className="flex"
                 ref={ref}
                 onMouseEnter={() => setHover(true)}
                 onMouseLeave={() => setHover(false)}
@@ -81,10 +80,10 @@ export default function Tooltip({ children, tip: text, direction, }: TooltipProp
                             }
                         }}
                     >
-                        {text}
+                        {tip}
                     </m.div>
                 )}
             </AnimatePresence>
         </>
-    )
+    ) : <>{children}</>
 }

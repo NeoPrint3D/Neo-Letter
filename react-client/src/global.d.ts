@@ -8,6 +8,7 @@ interface Room {
   answers: string[];
   maxPlayers: number;
   players: string[];
+  usernames: string[];
   roomType: "public" | "private";
   started: boolean;
   allowLateJoiners: boolean;

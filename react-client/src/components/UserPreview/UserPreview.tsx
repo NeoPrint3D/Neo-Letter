@@ -17,7 +17,7 @@ function UserPreview({ selectedId, selectedPlayer, room, setSelectedId, width, h
                     />
                     <div className="flex fixed  justify-center items-center top-0  h-screen w-screen z-20 ">
                         <m.div
-                            className={`grid grid-rows-6 bg-gray-500/30 backdrop-blur-xl  z-10 p-4 rounded-3xl w-[75%] lg:w-[40%] ${width > 600 ? "h-[75%]" : "h-[50%]"} shadow-2xl `}
+                            className={`grid grid-rows-6 bg-gray-500/30 backdrop-blur-xl  z-10 p-4 rounded-3xl w-full max-w-sm lg:w-[60%] lg:max-w-none ${width > 600 ? "h-[75%]" : "h-[50%]"} shadow-2xl `}
                             initial={{ scale: 0, y: -height / 2 }}
                             animate={{ scale: 1, y: 0 }}
                             exit={{ scale: 0, opacity: 0 }}

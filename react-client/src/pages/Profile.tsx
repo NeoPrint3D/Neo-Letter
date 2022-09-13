@@ -103,9 +103,9 @@ export default function Profile() {
               damping: 30,
             }}
           >
-            <div className="flex w-full justify-end p-2 absolute">
-              <div className="tooltip tooltip-bottom tooltip-error" data-tip="Delete Profile">
-                <button onClick={deleteProfile} className="p-2 rounded-full text-red-500/60 hover:text-red-500 hover:bg-white/10 hover:scale-105 active:scale-95 duration-300">
+            <div className="flex w-full justify-end  absolute overflow-x-hidden">
+              <div className="tooltip tooltip-bottom p-3 tooltip-error" data-tip="Delete Profile">
+                <button onClick={deleteProfile} className=" rounded-full p-2 text-red-500/60 hover:text-red-500 hover:bg-white/10 hover:scale-105 active:scale-95 duration-300">
                   <AiFillDelete size={30} />
                 </button>
               </div>

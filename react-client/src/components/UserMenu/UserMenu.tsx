@@ -43,7 +43,7 @@ export default function UserDropDown() {
         >
             <button onClick={() => setOpen(!open)} >
                 <div className=" flex justify-center items-center  border-4 border-transparent hover:border-white/70 duration-500 transition-colors h-16 w-16  rounded-full" >
-                    <img src={user?.profilePic} alt="user" className="rounded-full h-14 w-14 " referrerPolicy="no-referrer" />
+                    <img src={user?.profilePic} alt="user" className={`rounded-full h-14 w-14 ${location.pathname.includes("profile") && "hidden"}`} referrerPolicy="no-referrer" />
                 </div>
             </button>
 

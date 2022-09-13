@@ -15,6 +15,7 @@ export default function JoinRoom() {
   const [loading, setLoading] = useState(false);
   const [username, setUserame] = useState("");
   const [roomId, setRoomId] = useState("");
+  const [room, setRoom] = useState<Room>({} as Room)
   const [id, setId] = useState("");
   const [roomValid, setValidRoom] = useState(false);
   const navigate = useNavigate();
@@ -28,7 +29,12 @@ export default function JoinRoom() {
   }
 
   async function checkValidRoom(roomId: string) {
-    const room = (await getRoom(roomId)) as Room;
+    const room = await getRoom(roomId) as Room;
+    setRoom(room)
+    if (room.players.includes(uid)) {
+      navigate(`/room/${roomId}`);
+      return;
+    }
     if (!room) {
       toast.error("Room does not exist", { theme: "dark" });
       return false;
@@ -53,6 +59,7 @@ export default function JoinRoom() {
 
   async function joinRoom(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     if (!(username.length >= 3)) {
       toast.error("Username is too short. Must be three or more charaters", {
         theme: "dark",
@@ -71,22 +78,34 @@ export default function JoinRoom() {
       })
       return
     }
-
+    console.log(room.usernames)
+    if (room.usernames.includes(username)) {
+      toast.warning("Usernames already taken.", { theme: "dark" })
+      return
+    }
 
     const playerRef = doc(firestore, "rooms", id || roomId, "players", uid);
-    const player = await getDoc(playerRef);
-    setLoading(true);
+    const player = await getDoc(playerRef)
     if (player.exists()) {
-      await updateDoc(playerRef, {
-        name: username.charAt(0).toUpperCase() + username.slice(1),
-      });
       setLoading(false);
+      await Promise.all([
+        updateDoc(playerRef, {
+          name: username
+        }),
+        updateDoc(doc(firestore, "rooms", id || roomId), {
+          usernames: arrayUnion(username)
+        })
+
+      ])
       navigate(`/room/${roomId}`);
       return;
     }
 
+    setLoading(true);
+
+
     const playerData: GamePlayer = {
-      name: username.charAt(0).toUpperCase() + username.slice(1),
+      name: username,
       uid,
       points: 0,
       ready: false,
@@ -103,6 +122,7 @@ export default function JoinRoom() {
       setDoc(playerRef, playerData),
       updateDoc(doc(firestore, "rooms", id || roomId), {
         players: arrayUnion(uid),
+        usernames: arrayUnion(username)
       }),
     ]);
     setLoading(false);
@@ -220,7 +240,7 @@ export default function JoinRoom() {
                   value={username}
                   onChange={(e) =>
                     setUserame(
-                      e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 20)
+                      e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 15)
                     )
                   }
                 />
@@ -241,7 +261,7 @@ export default function JoinRoom() {
                       }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <h1 className="link link-secondary transition-all duration-300">
+                      <h1 className="link transition-all duration-300">
                         Use <a className="font-black ">{user?.username}</a>{" "}
                         instead?
                       </h1>

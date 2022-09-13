@@ -263,6 +263,7 @@ export default function GameRoom() {
                                         setSelectedId(player.uid)
                                         setSelectedPlayer(player)
                                     }}
+                                    className="w-fit"
                                 >
                                     <div>
                                         {selectedId !== player.uid &&
