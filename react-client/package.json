@@ -6,7 +6,7 @@
     "dev": "vite dev --port 3050",
     "build": "tsc && vite build",
     "prod": "tsc && vite build && react-snap",
-    "preview": "vite build && vite  preview --port 3100",
+    "preview": "vite build && vite && react-snap && preview --port 3100",
     "deploy": "tsc && vite build && react-snap && firebase deploy"
   },
   "reactSnap": {
