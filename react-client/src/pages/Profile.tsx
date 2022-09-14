@@ -1,18 +1,29 @@
-import { getDocs, collection, where, limit, query, deleteDoc, doc, onSnapshot, getFirestore } from "firebase/firestore";
-import { LazyMotion, m } from "framer-motion";
+import { collection, where, limit, query, deleteDoc, doc, onSnapshot, getFirestore } from "firebase/firestore";
+import { m } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { AiFillDelete } from "react-icons/ai";
 import { CgGames } from "react-icons/cg";
 import { FaCrown } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+import { useFirestore } from "../context/FirestoreContext";
 import Loader from "../components/Loader";
 import { app } from "../utils/firebase";
 
 
 
 export default function Profile() {
-  const firestore = useMemo(() => getFirestore(app), [])
+  const firestore = useMemo(
+    () => {
+      const [firestoreRef, setFirestoreRef] = useFirestore()
+      if (!firestoreRef) {
+        const newFirestore = getFirestore()
+        setFirestoreRef(newFirestore)
+        return newFirestore
+      }
+      return firestoreRef
+    }, [],
+  )
   const [user, setUser] = useState(undefined as unknown as UserProfile);
   const [userExists, setUserExists] = useState(undefined as unknown as boolean);
   const navigate = useNavigate()

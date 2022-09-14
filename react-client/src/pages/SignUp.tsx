@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
 import { UserContext, UidContext } from "../context/AuthContext";
+import { useFirestore } from "../context/FirestoreContext";
 import { analytics, app, auth } from "../utils/firebase";
 
 
@@ -19,7 +20,17 @@ interface Message {
 
 
 export default function SignUpPage() {
-  const firestore = useMemo(() => getFirestore(app), [])
+  const [firestoreRef, setFirestoreRef] = useFirestore()
+  const firestore = useMemo(
+    () => {
+      if (!firestoreRef) {
+        const newFirestore = getFirestore()
+        setFirestoreRef(newFirestore)
+        return newFirestore
+      }
+      return firestoreRef
+    }, [],
+  )
   const navigate = useNavigate()
   const user = useContext(UserContext)
   const [username, setUsername] = useState("");

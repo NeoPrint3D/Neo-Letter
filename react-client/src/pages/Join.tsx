@@ -6,16 +6,27 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
 import { UserContext, UidContext } from "../context/AuthContext";
-import { analytics, app } from "../utils/firebase";
+import { analytics } from "../utils/firebase";
 import Loader from "../components/Loader";
 import { logEvent } from "firebase/analytics";
 import { v4 } from "uuid";
+import { useFirestore } from "../context/FirestoreContext";
 
 
 
 
 export default function JoinRoom() {
-  const firestore = useMemo(() => getFirestore(app), [])
+  const [firestoreRef, setFirestoreRef] = useFirestore()
+  const firestore = useMemo(
+    () => {
+      if (!firestoreRef) {
+        const newFirestore = getFirestore()
+        setFirestoreRef(newFirestore)
+        return newFirestore
+      }
+      return firestoreRef
+    }, [],
+  )
   const [loading, setLoading] = useState(false);
   const [username, setUserame] = useState("");
   const [roomId, setRoomId] = useState("");

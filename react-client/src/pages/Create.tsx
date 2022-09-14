@@ -1,6 +1,6 @@
 
 import { doc, getDoc, setDoc, getFirestore } from 'firebase/firestore/lite';
-import { FormEvent, useContext, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
 import { analytics, app } from '../utils/firebase';;
@@ -12,6 +12,7 @@ import { BiCustomize } from 'react-icons/bi';
 import { toast } from 'react-toastify';
 import { logEvent } from 'firebase/analytics';
 import Tooltip from '../components/Tooltip';
+import { useFirestore } from '../context/FirestoreContext';
 
 
 interface CustomWord {
@@ -22,7 +23,18 @@ interface CustomWord {
 
 
 export default function CreateRoom() {
-  const firestore = useMemo(() => getFirestore(app), [])
+  const [firestoreRef, setFirestoreRef] = useFirestore()
+  const firestore = useMemo(
+    () => {
+      if (!firestoreRef) {
+        const newFirestore = getFirestore()
+        setFirestoreRef(newFirestore)
+        return newFirestore
+      }
+      return firestoreRef
+    }, [],
+  )
+
   const [loading, setLoading] = useState(false)
   const [customMaxPlayers, setCustomMaxPlayers] = useState(20)
   const [maxPlayers, setMaxPlayers] = useState("party");

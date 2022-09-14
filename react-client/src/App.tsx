@@ -8,8 +8,8 @@ import AppToastContainer from './components/Toast/ToastContainer'
 import Home from './pages/Home'
 import Footer from './components/Footer';
 import BackgroundLayout from './components/Layouts/BackgroundLayout';
-import { domAnimation, LazyMotion } from 'framer-motion';
 import AnimationLayout from './components/Layouts/AnimationLayout';
+import FirestoreProvider from './context/FirestoreContext';
 
 
 const GameRoom = lazy(() => import('./pages/GameRoom'))
@@ -28,25 +28,27 @@ function App() {
       <div className="min-h-screen text-white">
         <Suspense fallback={<Loader />}>
           <AuthProvider>
-            <Header />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route element={<BackgroundLayout />}>
-                <Route path="/room/:id" element={
-                  <GameContextProvider>
-                    <GameRoom />
-                  </GameContextProvider>
-                } />
-                <Route path="/create" element={<CreateRoom />} />
-                <Route element={<AnimationLayout />}>
-                  <Route path="/signup" element={<SignUpPage />} />
-                  <Route path="/join" element={<JoinRoom />} />
-                  <Route path="/profile/:username" element={<Profile />} />
-                  <Route path="/404" element={<NotFound />} />
-                  <Route path="*" element={<Navigate to="/404" />} />
+            <FirestoreProvider>
+              <Header />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route element={<BackgroundLayout />}>
+                  <Route path="/room/:id" element={
+                    <GameContextProvider>
+                      <GameRoom />
+                    </GameContextProvider>
+                  } />
+                  <Route path="/create" element={<CreateRoom />} />
+                  <Route element={<AnimationLayout />}>
+                    <Route path="/signup" element={<SignUpPage />} />
+                    <Route path="/join" element={<JoinRoom />} />
+                    <Route path="/profile/:username" element={<Profile />} />
+                    <Route path="/404" element={<NotFound />} />
+                    <Route path="*" element={<Navigate to="/404" />} />
+                  </Route>
                 </Route>
-              </Route>
-            </Routes>
+              </Routes>
+            </FirestoreProvider>
           </AuthProvider >
         </Suspense>
         <AppToastContainer />
