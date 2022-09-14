@@ -1,20 +1,22 @@
-import { getDocs, collection, where, limit, query, deleteDoc, doc, onSnapshot, getFirestore } from "firebase/firestore";
-import { LazyMotion, m } from "framer-motion";
+import { collection, where, limit, query, deleteDoc, doc, onSnapshot, getFirestore } from "firebase/firestore";
+import { m } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { AiFillDelete } from "react-icons/ai";
 import { CgGames } from "react-icons/cg";
 import { FaCrown } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+
 import Loader from "../components/Loader";
-import { app } from "../utils/firebase";
 
 
 
 export default function Profile() {
-  const firestore = useMemo(() => getFirestore(app), [])
+  const firestore = useMemo(() => getFirestore(), [])
+
   const [user, setUser] = useState(undefined as unknown as UserProfile);
   const [userExists, setUserExists] = useState(undefined as unknown as boolean);
+  const [show, setShow] = useState(false)
   const navigate = useNavigate()
   const { username } = useParams();
 
@@ -99,7 +101,7 @@ export default function Profile() {
       <article>
         <div className="h-screen flex justify-center items-center">
           <m.div
-            className={` flex flex-col  main-container max-w-sm sm:max-w-xl w-full pb-16`}
+            className={` flex flex-col  main-container max-w-sm sm:max-w-xl w-full pb-2`}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{
@@ -108,13 +110,6 @@ export default function Profile() {
               damping: 30,
             }}
           >
-            <div className="flex w-full justify-end  absolute overflow-x-hidden">
-              <div className="tooltip tooltip-bottom p-3 tooltip-error" data-tip="Delete Profile">
-                <button onClick={deleteProfile} className=" rounded-full p-2 text-red-500/60 hover:text-red-500 hover:bg-white/10 hover:scale-105 active:scale-95 duration-300">
-                  <AiFillDelete size={30} />
-                </button>
-              </div>
-            </div>
             <div className="flex justify-center absolute w-full -translate-y-[2.75rem] ">
               <m.div
                 className={`avatar avatar-sm `}
@@ -154,6 +149,11 @@ export default function Profile() {
                   icon={stat.icon}
                 />
               ))}
+              <div className="tooltip tooltip-bottom tooltip-error" data-tip="Delete Profile">
+                <button onClick={deleteProfile} className=" btn btn-ghost">
+                  <AiFillDelete className="text-red-500" size={30} />
+                </button>
+              </div>
             </div>
           </m.div>
         </div>

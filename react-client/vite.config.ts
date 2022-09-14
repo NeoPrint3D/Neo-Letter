@@ -17,6 +17,6 @@ export default defineConfig({
       filename: "service-worker.js",
       manifest,
     }),
-    // removeConsole(),
+    removeConsole(),
   ],
 });

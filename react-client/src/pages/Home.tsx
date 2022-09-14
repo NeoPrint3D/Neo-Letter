@@ -1,9 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useLocation } from "react-router-dom";
 import { domAnimation, LayoutGroup, LazyMotion, m } from "framer-motion";
 import { useCookie, useWindowSize } from "react-use";
-import { toast } from "react-toastify";
 import { UserContext } from "../context/AuthContext";
 import MobileImage from "/images/assets/App-Mobile.webp";
 import DesktopImage from "/images/assets/App-Desktop.webp";
@@ -13,8 +12,8 @@ import DesktopImage from "/images/assets/App-Desktop.webp";
 function Home() {
   const location = useLocation();
   const { width } = useWindowSize();
-  const user = useContext(UserContext)
   const [preference, updateCookie] = useCookie("preferences")
+  const user = useContext(UserContext)
 
   useEffect(() => {
     if (!preference) {
@@ -37,8 +36,10 @@ function Home() {
     if (user === undefined) return;
     if (user?.username?.length > 0) return;
     await new Promise((resolve) => setTimeout(resolve, 3000));
+    const { toast } = await import("react-toastify")
     toast.info(({ closeToast }) => <Link to="/signup" >Create Account?</Link>, {
       autoClose: false,
+      toastId: "CreateAccount"
     });
     updateCookie(JSON.stringify({ ...JSON.parse(preference as string), showReminder: false }))
   }

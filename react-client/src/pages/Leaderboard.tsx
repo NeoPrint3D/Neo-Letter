@@ -1,15 +1,15 @@
 import { collection, getFirestore, limit, orderBy, query, where } from "firebase/firestore";
 import { m } from "framer-motion";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
 import { UserContext } from "../context/AuthContext";
 import { app } from "../utils/firebase";
 
 
 
-const firestore = getFirestore(app)
 
 export default function LeaderBoard() {
+  const firestore = useMemo(() => getFirestore(app), [])
   const user = useContext(UserContext);
   const { width } = useWindowSize();
   const [userPlace, setUserPlace] = useState(20);

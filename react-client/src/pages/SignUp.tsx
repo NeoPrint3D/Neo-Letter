@@ -1,5 +1,5 @@
 import { logEvent } from "firebase/analytics";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { collection, doc, getDoc, getDocs, getFirestore, query, serverTimestamp, setDoc, where } from "firebase/firestore/lite";
 import { AnimatePresence, domAnimation, domMax, LazyMotion, m } from "framer-motion";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
 import { UserContext, UidContext } from "../context/AuthContext";
-import { analytics, app, auth } from "../utils/firebase";
+import { analytics, app, firestore } from "../utils/firebase";
 
 
 interface Message {
@@ -19,7 +19,7 @@ interface Message {
 
 
 export default function SignUpPage() {
-  const firestore = useMemo(() => getFirestore(app), [])
+  const auth = useMemo(() => getAuth(app), [])
   const navigate = useNavigate()
   const user = useContext(UserContext)
   const [username, setUsername] = useState("");
@@ -79,6 +79,7 @@ export default function SignUpPage() {
 
 
   useEffect(() => {
+    toast.dismiss("CreateAccount")
     const main = async () => {
       if (new URLSearchParams(location.search).get("action") === "signout") {
         await signOut(auth)
@@ -87,8 +88,6 @@ export default function SignUpPage() {
       }
     }
     main()
-
-
   }, [])
 
 
@@ -97,7 +96,6 @@ export default function SignUpPage() {
 
   async function createAccount(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log(auth)
     if (isUsernameTaken || username.length < 3 || !auth.currentUser) return;
     const userRef = await getDoc(doc(firestore, "users", `${auth.currentUser?.uid}`))
     if (userRef.exists()) {
@@ -147,9 +145,7 @@ export default function SignUpPage() {
                 damping: 30,
               }}
             >
-
-
-              <h1 className=" text-4xl text-center font-logo">Create Account</h1>
+              <h1 className=" text-5xl text-center font-logo">Create Account</h1>
               <div className="flex justify-center mt-7">
                 <button onClick={handleSignUp} className="flex gap-3 items-center btn btn-primary  text-white text-xl">
                   <span>Sign Up / Sign In</span>

@@ -7,16 +7,14 @@ export default function BackgroundLayout() {
     const { width } = useWindowSize()
     return (
         <div
-            className="min-h-screen "
             style={{
-                backgroundImage: ` url(${width > 1024 ? DesktopImage : MobileImage})`,
+                backgroundImage: ` url(${width > 640 ? DesktopImage : MobileImage})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
             }}
         >
             <div className="bg-primary-dark/70">
-
                 <Outlet />
             </div>
         </div>

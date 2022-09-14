@@ -1,4 +1,4 @@
-import { arrayRemove, deleteDoc, doc, getFirestore, updateDoc } from "firebase/firestore/lite";
+import { arrayRemove, deleteDoc, doc, updateDoc } from "firebase/firestore/lite";
 import { AnimatePresence, LayoutGroup, m } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { BiArrowBack, BiLoader } from "react-icons/bi";
@@ -9,11 +9,10 @@ import { Link } from "react-router-dom";
 import { RWebShare } from "react-web-share";
 import { CgGames } from "react-icons/cg";
 import { AiFillDelete } from "react-icons/ai";
-import { app } from "../../utils/firebase";
+import { app, firestore } from "../../utils/firebase";
 
 
 
-const firestore = getFirestore(app)
 
 
 export default function RoomLobby({ id, uid, players, }: { id: string, uid: string, players: GamePlayer[] }) {
@@ -157,7 +156,7 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
             )}
           </div>
           <div className="flex justify-center mt-5">
-            <button className=" transition-transform duration-500 btn btn-success hover:scale-105 w-40  sm:w-80" onClick={() => setReady(!ready)}>
+            <button className="   btn btn-success w-40  sm:w-80" onClick={() => setReady(!ready)}>
               Ready
             </button>
           </div>

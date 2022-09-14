@@ -193,7 +193,7 @@ export default function JoinRoom() {
               onSubmit={handleSubmit}
             >
               <input
-                className="p-2 shadow-input  text-center rounded-xl font-semibold bg-transparent placeholder:font-semibold focus:outline-none"
+                className="p-2 shadow-input input-focus text-center rounded-xl font-semibold bg-transparent placeholder:font-semibold focus:outline-none"
                 type="text"
                 placeholder="Room ID"
                 value={roomId}
@@ -238,7 +238,7 @@ export default function JoinRoom() {
                 onSubmit={(e) => joinRoom(e)}
               >
                 <input
-                  className="p-3 shadow-input rounded-xl text-center font-semibold  bg-transparent placeholder:font-semibold focus:outline-none"
+                  className="p-3 shadow-input input-focus rounded-xl text-center font-semibold  bg-transparent placeholder:font-semibold focus:outline-none"
                   type="text"
                   placeholder="Username"
                   value={username}
