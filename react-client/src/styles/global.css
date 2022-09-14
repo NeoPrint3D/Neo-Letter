@@ -28,7 +28,7 @@ img {
 }
 
 .input-focus {
-  @apply border-[3px] transition-colors border-white/20  focus:border-primary;
+  @apply border-[3px] transition-colors duration-500 border-white/20  focus:border-white;
 }
 .tooltip-calc:nth-child(-n + 1) {
   @apply bg-red-400;

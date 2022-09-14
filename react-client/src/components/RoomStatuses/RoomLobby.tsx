@@ -157,7 +157,7 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
             )}
           </div>
           <div className="flex justify-center mt-5">
-            <button className=" transition-transform duration-500 btn btn-success hover:scale-105 w-40  sm:w-80" onClick={() => setReady(!ready)}>
+            <button className="   btn btn-success w-40  sm:w-80" onClick={() => setReady(!ready)}>
               Ready
             </button>
           </div>
