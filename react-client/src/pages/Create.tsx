@@ -1,17 +1,18 @@
 
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { FormEvent, useContext, useEffect, useState } from 'react';
+import { doc, getDoc, setDoc, getFirestore } from 'firebase/firestore/lite';
+import { FormEvent, useContext, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
-import { analytics, firestore } from '../utils/firebase';;
+import { analytics, app } from '../utils/firebase';;
 import { UserContext, UidContext } from '../context/AuthContext';
 import Loader from '../components/Loader';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, domMax, LazyMotion, m } from 'framer-motion';
 import { IoIosAddCircleOutline, IoIosArrowBack } from 'react-icons/io';
 import { BiCustomize } from 'react-icons/bi';
 import { toast } from 'react-toastify';
 import { logEvent } from 'firebase/analytics';
 import Tooltip from '../components/Tooltip';
+
 
 interface CustomWord {
   id: number,
@@ -19,7 +20,9 @@ interface CustomWord {
 }
 
 
+
 export default function CreateRoom() {
+  const firestore = useMemo(() => getFirestore(app), [])
   const [loading, setLoading] = useState(false)
   const [customMaxPlayers, setCustomMaxPlayers] = useState(20)
   const [maxPlayers, setMaxPlayers] = useState("party");
@@ -147,7 +150,7 @@ export default function CreateRoom() {
 
 
   return !loading ? (
-    <>
+    <LazyMotion features={domMax}>
       <Helmet>
         <title>Neo Letter | Create Room</title>
         <meta name="description" content="Create a room to play with your friends!" />
@@ -315,7 +318,7 @@ export default function CreateRoom() {
           }
         </AnimatePresence >
       </div >
-    </>
+    </LazyMotion>
   ) : (
     <Loader />
   )

@@ -49,7 +49,7 @@ export default function Tooltip({ children, tip, direction, }: TooltipProps) {
             <AnimatePresence>
                 {hover && (
                     <m.div
-                        className="flex justify-center items-center  font-head bg-primary/90 backdrop-blur-xl text-white rounded-lg shadow-md shadow-primary p-2"
+                        className="flex justify-center items-center z-[100000]  font-head bg-primary/90 backdrop-blur-xl text-white rounded-lg shadow-md shadow-primary p-2"
                         style={{
                             position: "absolute",
                             translateY: `${["top", "bottom"].includes(calculatedDirection) ? `${direction === "top" ? `-${childHeight * .95}px` : `${childHeight * .95}px`}` : "0px"}`,

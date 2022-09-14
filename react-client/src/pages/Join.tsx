@@ -1,17 +1,21 @@
-import { arrayUnion, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { AnimatePresence, LayoutGroup, m } from "framer-motion";
-import { useContext, useEffect, useState } from "react";
+import { arrayUnion, doc, getDoc, setDoc, updateDoc, getFirestore } from "firebase/firestore/lite";
+import { AnimatePresence, domAnimation, LayoutGroup, LazyMotion, m } from "framer-motion";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
 import { UserContext, UidContext } from "../context/AuthContext";
-import { analytics, firestore } from "../utils/firebase";
+import { analytics, app } from "../utils/firebase";
 import Loader from "../components/Loader";
 import { logEvent } from "firebase/analytics";
+import { v4 } from "uuid";
+
+
 
 
 export default function JoinRoom() {
+  const firestore = useMemo(() => getFirestore(app), [])
   const [loading, setLoading] = useState(false);
   const [username, setUserame] = useState("");
   const [roomId, setRoomId] = useState("");
@@ -29,25 +33,25 @@ export default function JoinRoom() {
   }
 
   async function checkValidRoom(roomId: string) {
-    const room = await getRoom(roomId) as Room;
-    setRoom(room)
-    if (room.players.includes(uid)) {
+    const roomRef = await getRoom(roomId) as Room;
+    setRoom(roomRef)
+    if (!roomRef) {
+      toast.error("Room does not exist", { theme: "dark" });
+      return;
+    }
+    if (roomRef.players.includes(uid)) {
       navigate(`/room/${roomId}`);
       return;
     }
-    if (!room) {
-      toast.error("Room does not exist", { theme: "dark" });
-      return false;
-    }
 
-    if (room.started && !room.allowLateJoiners) {
+    if (roomRef.started && !roomRef.allowLateJoiners) {
       toast.error("Room already started", { theme: "dark" });
-      return false;
+      return;
     }
 
-    if (room.players.length >= room.maxPlayers && !room.players.includes(uid)) {
+    if (roomRef.players.length >= roomRef.maxPlayers && !roomRef.players.includes(uid)) {
       toast.error("Room is full", { theme: "dark" });
-      return false;
+      return;
     }
     setValidRoom(true);
   }
@@ -106,7 +110,7 @@ export default function JoinRoom() {
 
     const playerData: GamePlayer = {
       name: username,
-      uid,
+      uid: uid || v4(),
       points: 0,
       ready: false,
       signedIn: user?.uid === uid,
@@ -141,7 +145,7 @@ export default function JoinRoom() {
   return loading ? (
     <Loader />
   ) : (
-    <>
+    <LazyMotion features={domAnimation}>
       <Helmet>
         <title>Neo Letter | Join</title>
         <meta property="og:url" content="https://neo-letter.web.app/join" />
@@ -279,6 +283,6 @@ export default function JoinRoom() {
           </LayoutGroup>
         )}
       </div>
-    </>
+    </LazyMotion>
   );
 }

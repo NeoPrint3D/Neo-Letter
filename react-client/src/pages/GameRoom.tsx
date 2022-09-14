@@ -1,5 +1,5 @@
-import { collection, doc, getDoc, increment, onSnapshot, query, updateDoc } from "firebase/firestore";
-import { AnimatePresence, m } from "framer-motion";
+import { collection, doc, getDoc, getFirestore, increment, onSnapshot, query, updateDoc } from "firebase/firestore";
+import { AnimatePresence, domMax, LazyMotion, m } from "framer-motion";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { FaCrown } from 'react-icons/fa';
@@ -14,10 +14,13 @@ import KeyBoard from "../components/Keyboard";
 import UserPreview from "../components/UserPreview";
 import { UidContext } from "../context/AuthContext";
 import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../context/GameContext";
-import { firestore } from "../utils/firebase";
+import { app } from "../utils/firebase";
 import Logo from "/images/assets/logo.webp";
 
+
+
 export default function GameRoom() {
+    const firestore = useMemo(() => getFirestore(app), [])
     const [roomStatus, setRoomStatus] = useState<RoomStatuses>();
     const [room, setRoom] = useState<Room>({} as Room);
     const [fireOff, setFireOff] = useState(false)
@@ -31,6 +34,7 @@ export default function GameRoom() {
     const [guessFireOff, setGuessFireOff] = useState<string[]>([])
     const [hasGuessed, setHasGuessed] = useState(false)
     const [resetWinner, setResetWinner] = useState(false)
+    const [roundGuessedReset, setRoundGuessedReset] = useState(false)
     const { id } = useParams()
     const { height, width } = useWindowSize()
     const uid = useContext(UidContext)
@@ -50,19 +54,20 @@ export default function GameRoom() {
     const handleEveryoneGuessed = useCallback(async (players: GamePlayer[]) => {
         if (players.length === 0) return
         if (!players.every(player => player.guesses.length === 6)) return
-        toast.warning("Everyone has guessed.", { theme: "dark" })
+        setRoundGuessedReset(true)
         await new Promise((resolve) => setTimeout(resolve, 1750))
+
+        await updateDoc(doc(firestore, "rooms", `${id}`, "players", uid), { guesses: [] })
         if (currentPlayer.role === "creator") {
-            await Promise.all([
-                players.map((p) => updateDoc(doc(firestore, "rooms", `${id}`, "players", p.uid), { guesses: [] })),
-                updateDoc(roomRef, { round: round < answers.length ? increment(1) : round })
-            ])
+            console.log("updated everything")
+            await updateDoc(roomRef, { round: increment(1) })
         }
         setFireOff(true)
         await new Promise(resolve => setTimeout(resolve, 300))
         setFireOff(false)
         setGuesses([])
         setKey("")
+        setRoundGuessedReset(false)
     }, [players])
     const handleEnter = useCallback(async () => {
         if (key.length !== 5) return
@@ -107,11 +112,12 @@ export default function GameRoom() {
         setResetWinner(false);
     }, [answers, players])
 
-    // const handleIdle = useCallback(async (room: Room) => {
-    //     const roomInfo = localStorage.getItem("roomInfo")
-    //     if (!roomInfo) return
-    //     if (roomInfo.split("|")[0] !== id && !(roomInfo.split("|")[1] === room.round)) return
-    // })
+
+    useEffect(() => {
+        if (roundGuessedReset) toast.warning("Everyone has guessed.", { theme: "dark" })
+    }, [roundGuessedReset])
+
+
 
 
     useEffect(() => {
@@ -126,6 +132,7 @@ export default function GameRoom() {
             setPlayers(players)
             setPlacing(players.filter((p) => p.points > 0).length > 0 ? players.sort((a, b) => b.points! - a.points!) : [])
             setCurrentPlayer(players.find((p) => p.uid === uid) as GamePlayer)
+            setGuesses(players.find(p => p.uid === uid)?.guesses)
         })
 
         const unsub2 = onSnapshot(roomRef, (roomRes) => {
@@ -138,7 +145,6 @@ export default function GameRoom() {
             setAnswers(room.answers)
             setRound(room.round)
         })
-        getDoc(playerRef).then((res) => setGuesses(res.data()?.guesses))
         return () => {
             unsub1()
             unsub2()
@@ -189,183 +195,188 @@ export default function GameRoom() {
 
 
     return (
-        <RoomStatusHandler
-            winner={{
-                name: placing[0]?.name || "No one won",
-                points: placing[0]?.points || 0,
-                uid: placing[0]?.uid
-            }}
-            players={players}
-            roomStatus={roomStatus} >
-            <Helmet>
-                <title>Neo Letter</title>
-                <meta name="description" content={`Room ${id} is where the paty is at`} />
-            </Helmet>
-            <UserPreview selectedId={selectedId} height={height} selectedPlayer={selectedPlayer} room={room} setSelectedId={setSelectedId} width={width} />
+        <LazyMotion features={domMax}>
+            <RoomStatusHandler
+                winner={{
+                    name: placing[0]?.name || "No one won",
+                    points: placing[0]?.points || 0,
+                    uid: placing[0]?.uid
+                }}
+                players={players}
+                roomStatus={roomStatus} >
+                <Helmet>
+                    <title>Neo Letter</title>
+                    <meta name="description" content={`Room ${id} is where the paty is at`} />
+                </Helmet>
+                <UserPreview selectedId={selectedId} height={height} selectedPlayer={selectedPlayer} room={room} setSelectedId={setSelectedId} width={width} />
 
-            <div className="min-h-screen">
-                <header>
-                    <div className="grid grid-cols-3">
-                        <div className="flex justify-start items-center">
-                            <Link to="/" >
-                                <img src={Logo} alt="logo" className="translate-y-1 scale-90"
-                                    height={40}
-                                    width={120}
-                                />
-                            </Link>
-                        </div>
-                        <div className="flex flex-col justify-center items-center font-logo">
-                            <div className="flex text-xl gap-2">
-                                <p>Round</p>
-                                <AnimatePresence>
-                                    {fireOff ?
-                                        <m.p
-                                            initial={{ scale: 0, y: 50 }}
-                                            animate={{ scale: [3, 1], y: 0 }}
-                                            transition={{
-                                                type: "spring",
-                                                stiffness: 100,
-                                                damping: 10
-                                            }}>{round + 1}/{answers.length}</m.p> : <p>{round + 1}/{answers.length}</p>
-                                    }
-                                </AnimatePresence>
+                <div className="min-h-screen">
+                    <header>
+                        <div className="grid grid-cols-3">
+                            <div className="flex justify-start items-center">
+                                <Link to="/" >
+                                    <img src={Logo} alt="logo" className="translate-y-1 scale-90"
+                                        height={40}
+                                        width={120}
+                                    />
+                                </Link>
                             </div>
-                            <h1 className=" text-xl font-sans select-text font-semibold">ID: {id}</h1>
-                        </div>
-                        <div className="flex items-center justify-end mr-3">
-                            <div className="tooltip tooltip-left" data-tip={"Share?"}>
-                                <RWebShare
-                                    data={{
-                                        title: `Join room ${id}`,
-                                        text: `${currentPlayer?.name} sent you a request to join room ${id}`,
-                                        url: `${import.meta.env.DEV ? `http://localhost:3005/join?id=${id}` : `https://neo-letter.web.app/join?id=${id}`}`,
-                                    }}>
-                                    <button className=" transition-all duration-300 flex justify-center  items-center rounded-full p-3 bg-primary text-white active:scale-90">
-                                        <FiShare size={25} />
-                                    </button>
-                                </RWebShare>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex items-center h-[4.25rem] border-slate-500/40 border-y-4  ">
-                        <div className="flex items-center overflow-auto scroll-hidden h-full w-full ">
-                            {players && players.filter((p) => p.uid !== uid).map((player) => (
-                                <m.button
-                                    key={player.uid}
-                                    transition={{
-                                        layout: {
-                                            type: "easeInOut",
-                                            duration: 0.5
+                            <div className="flex flex-col justify-center items-center font-logo">
+                                <div className="flex text-xl gap-2">
+                                    <p>Round</p>
+                                    <AnimatePresence>
+                                        {fireOff ?
+                                            <m.p
+                                                initial={{ scale: 0, y: 50 }}
+                                                animate={{ scale: [3, 1], y: 0 }}
+                                                transition={{
+                                                    type: "spring",
+                                                    stiffness: 100,
+                                                    damping: 10
+                                                }}>{round + 1}/{answers.length}</m.p> : <p>{round + 1}/{answers.length}</p>
                                         }
-                                    }}
-                                    layout
-                                    onClick={() => {
-                                        setSelectedId(player.uid)
-                                        setSelectedPlayer(player)
-                                    }}
-                                    className="w-fit"
-                                >
-                                    <div>
-                                        {selectedId !== player.uid &&
-                                            <m.div
-                                                className={`flex  items-center gap-2 carousel-item mx-5 py-2 px-3 rounded transition-all duration-500  bg-gray-400/10  backdrop-blur-md border-b-4  ${placing[0]?.uid === player.uid ? "text-yellow-400 shadow-lg shadow-yellow-200" : "border-primary"}   ${placing[0]?.uid === player?.uid ? "border-yellow-400" : "text-gray-200"}`}
-                                                key={player.uid}
-                                                initial={{ opacity: 0, y: 50 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                            >
-                                                {placing[0]?.points > 0 && placing[0]?.uid === player?.uid && (
-                                                    <m.div
-                                                        initial={{ y: -100 }}
-                                                        animate={{ y: 0 }}
-                                                        exit={{ y: -100 }}
-                                                        transition={{
-                                                            type: "spring",
-                                                            stiffness: 200,
-                                                            damping: 10
-                                                        }}
-                                                    >
-                                                        <FaCrown className="text-yellow-400" aria-label="Crown" size={25} />
-                                                    </m.div>
-                                                )}
-                                                <h1
-
-                                                    className={` 
+                                    </AnimatePresence>
+                                </div>
+                                <h1 className=" text-xl font-sans select-text font-semibold">ID: {id}</h1>
+                            </div>
+                            <div className="flex items-center justify-end mr-3">
+                                <div className="tooltip tooltip-left" data-tip={"Share?"}>
+                                    <RWebShare
+                                        data={{
+                                            title: `Join room ${id}`,
+                                            text: `${currentPlayer?.name} sent you a request to join room ${id}`,
+                                            url: `${import.meta.env.DEV ? `http://localhost:3005/join?id=${id}` : `https://neo-letter.web.app/join?id=${id}`}`,
+                                        }}>
+                                        <button className=" transition-all duration-300 flex justify-center  items-center rounded-full p-3 bg-primary text-white active:scale-90">
+                                            <FiShare size={25} />
+                                        </button>
+                                    </RWebShare>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center h-[4.25rem] border-slate-500/40 border-y-4  ">
+                            <div className="flex items-center  scroll-hidden h-full w-full ">
+                                {players && players.filter((p) => p.uid !== uid).map((player) => (
+                                    <m.button
+                                        key={player.uid}
+                                        transition={{
+                                            layout: {
+                                                type: "easeInOut",
+                                                duration: 0.5
+                                            }
+                                        }}
+                                        layout
+                                        onClick={() => {
+                                            setSelectedId(player.uid)
+                                            setSelectedPlayer(player)
+                                        }}
+                                        className="w-fit"
+                                    >
+                                        <div>
+                                            {selectedId !== player.uid &&
+                                                <m.div
+                                                    className={`flex  items-center gap-2 carousel-item mx-5 py-2 px-3 rounded transition-all duration-500  bg-gray-400/10  backdrop-blur-md border-b-4  
+                                                    ${placing[0]?.uid === player.uid ? "text-yellow-400 shadow-lg shadow-yellow-200" : "border-primary"}   ${placing[0]?.uid === player?.uid ? "border-yellow-400" : "text-gray-200"}
+                                                    ${player.guesses.length === 6 && "text-gray-200 line-through  decoration-[6px]  decoration-primary-dark/90 tooltip first:tooltip-right tooltip-bottom tooltip-error hover:z-50 "}
+                                                    `}
+                                                    data-tip={"They have used all their guesses."}
+                                                    key={player.uid}
+                                                    initial={{ opacity: 0, y: 50 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                >
+                                                    {placing[0]?.points > 0 && placing[0]?.uid === player?.uid && (
+                                                        <m.div
+                                                            initial={{ y: -100 }}
+                                                            animate={{ y: 0 }}
+                                                            exit={{ y: -100 }}
+                                                            transition={{
+                                                                type: "spring",
+                                                                stiffness: 200,
+                                                                damping: 10
+                                                            }}
+                                                        >
+                                                            <FaCrown className="text-yellow-400" aria-label="Crown" size={25} />
+                                                        </m.div>
+                                                    )}
+                                                    <h1
+                                                        className={` 
                                                         transition-all duration-600 font-logo text-xl
                                                         ${placing[0]?.points > 0 && placing[0]?.uid === player?.uid ?
-                                                            `${guessFireOff.includes(player.uid) ? "text-success scale-[150%] " : "scale-100 text-yellow-300"}` :
-                                                            `${guessFireOff.includes(player.uid) ? "text-success scale-[150%] " : "scale-100 text-gray-200"} `}`}
-                                                >
-                                                    {player.name}: {player.points}
-                                                </h1>
-                                            </m.div>
-                                        }
-                                    </div>
-                                </m.button>
-                            ))}
+                                                                `${guessFireOff.includes(player.uid) ? "text-success scale-[150%] " : "scale-100 text-yellow-300"}` :
+                                                                `${guessFireOff.includes(player.uid) ? "text-success scale-[150%] " : "scale-100 text-gray-200"} `}`}
+                                                    >
+                                                        {player.name}: {player.points}
+                                                    </h1>
+                                                </m.div>
+                                            }
+                                        </div>
+                                    </m.button>
+                                ))}
 
+                            </div>
                         </div>
-                    </div>
-                    <div className="flex flex-col items-center">
-                        <m.div
-                            className={`flex  gap-3 justify-center text-xl font-logo mt-2
+                        <div className="flex flex-col items-center">
+                            <m.div
+                                className={`flex  gap-3 justify-center text-xl font-logo mt-2
                     ${placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid ? "text-yellow-300" : "text-gray-200"}
                     `}
-                            layout
-                        >
-                            {placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid && (
+                                layout
+                            >
+                                {placing[0]?.points > 0 && placing[0]?.uid === currentPlayer?.uid && (
+                                    <m.div
+                                        initial={{ y: -100 }}
+                                        animate={{ y: 0 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 100,
+                                            damping: 10
+                                        }}
+                                    >
+                                        <FaCrown className="text-yellow-400" aria-label="Crown" size={25} />
+                                    </m.div>
+                                )}
+                                <h1 className="text-2xl">
+                                    {currentPlayer?.name} : {currentPlayer?.points}
+                                </h1>
+                            </m.div>
+                            <h1 className={`font-logo font-bold text-2xl animate-pulse ${room.customWords ? "text-primary" : "text-success"}`}>{room.customWords ? "Custom" : "Regular"}</h1>
+                        </div>
+                    </header >
+
+
+                    <div className="flex  flex-col mt-2 items-center h-full ">
+                        <div className=" flex justify-center mb-5 2xl:mb-10">
+                            <AnimatePresence>
                                 <m.div
-                                    initial={{ y: -100 }}
-                                    animate={{ y: 0 }}
+                                    animate={{ opacity: winner ? 0 : 1 }}
                                     transition={{
-                                        type: "spring",
-                                        stiffness: 100,
-                                        damping: 10
+                                        duration: 0.5,
+                                        delay: winner ? 4.8 : .5,
                                     }}
                                 >
-                                    <FaCrown className="text-yellow-400" aria-label="Crown" size={25} />
+                                    <Grid answer={`${answers[round]}`.toUpperCase() || ""} />
                                 </m.div>
-                            )}
-                            <h1 className="text-2xl">
-                                {currentPlayer?.name} : {currentPlayer?.points}
-                            </h1>
-                        </m.div>
-                        <h1 className={`font-logo font-bold text-2xl animate-pulse ${room.customWords ? "text-primary" : "text-success"}`}>{room.customWords ? "Custom" : "Regular"}</h1>
+                            </AnimatePresence>
+                        </div>
+                        <div className={` flex justify-center mb-5 ${width < 400 && "scale-[93.5%]"}`}>
+                            <KeyBoard handleEnter={() => handleEnter()} hasGuessed={hasGuessed} answer={`${answers[round]}`.toUpperCase()} />
+                        </div>
                     </div>
-                </header >
-
-
-                <div className="flex  flex-col mt-2 items-center h-full ">
-                    <div className=" flex justify-center mb-5 2xl:mb-10">
-                        <AnimatePresence>
+                    <AnimatePresence>
+                        {(roundGuessedReset || (winner && winner.uid !== uid)) &&
                             <m.div
-                                animate={{ opacity: winner ? 0 : 1 }}
-                                transition={{
-                                    duration: 0.5,
-                                    delay: winner ? 4.8 : .5,
-                                }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-xl"
                             >
-                                <Grid answer={`${answers[round]}`.toUpperCase() || ""} />
+                                <h1 className="text-4xl font-bold text-white">Round Over</h1>
                             </m.div>
-                        </AnimatePresence>
-                    </div>
-                    <div className={` flex justify-center mb-5 ${width < 400 && "scale-[93.5%]"}`}>
-                        <KeyBoard handleEnter={() => handleEnter()} hasGuessed={hasGuessed} answer={`${answers[round]}`.toUpperCase()} />
-                    </div>
-                </div>
-                <AnimatePresence>
-                    {winner && winner.uid !== uid &&
-                        <m.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-xl"
-                        >
-                            <h1 className="text-4xl font-bold text-white">Round Over </h1>
-                        </m.div>
-                    }
-                </AnimatePresence>
-            </div >
-        </RoomStatusHandler >
+                        }
+                    </AnimatePresence>
+                </div >
+            </RoomStatusHandler >
+        </LazyMotion>
     );
 }
 

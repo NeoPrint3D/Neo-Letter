@@ -1,9 +1,13 @@
-import { collection, limit, orderBy, query, where } from "firebase/firestore";
+import { collection, getFirestore, limit, orderBy, query, where } from "firebase/firestore";
 import { m } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 import { UserContext } from "../context/AuthContext";
-import { firestore } from "../utils/firebase";
+import { app } from "../utils/firebase";
+
+
+
+const firestore = getFirestore(app)
 
 export default function LeaderBoard() {
   const user = useContext(UserContext);
@@ -32,7 +36,7 @@ export default function LeaderBoard() {
       limit(10)
     );
 
-    return () => {};
+    return () => { };
   }, []);
 
   return (

@@ -3,7 +3,7 @@ import MobileImage from "/images/assets/App-Mobile.webp"
 import DesktopImage from "/images/assets/App-Desktop.webp"
 import { Outlet } from "react-router-dom"
 
-export default function BgImage() {
+export default function BackgroundLayout() {
     const { width } = useWindowSize()
     return (
         <div

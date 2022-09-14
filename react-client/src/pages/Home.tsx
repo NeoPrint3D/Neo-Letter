@@ -1,12 +1,14 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutGroup, m } from "framer-motion";
+import { domAnimation, LayoutGroup, LazyMotion, m } from "framer-motion";
 import { useCookie, useWindowSize } from "react-use";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/AuthContext";
 import MobileImage from "/images/assets/App-Mobile.webp";
 import DesktopImage from "/images/assets/App-Desktop.webp";
+
+
 
 function Home() {
   const location = useLocation();
@@ -41,13 +43,14 @@ function Home() {
     updateCookie(JSON.stringify({ ...JSON.parse(preference as string), showReminder: false }))
   }
 
+
   return (
-    <>
+    <LazyMotion features={domAnimation}>
       <Helmet>
-        <title>Neo Letter: The Multiplayer Wordle</title>
+        <title>Neo Letter: The Multiplayer Wordle Game</title>
         <meta
           name="description"
-          content="The new wordle party game to play with your friends. Created for easy sharing and lots fo fun."
+          content="The new wordle party game to play with your friends. Created for seamless mobile experience and easy sharing and lots of fun."
         />
 
         <meta property="og:url" content="https://neo-letter.web.app/" />
@@ -77,14 +80,12 @@ function Home() {
         <div
           className="hero min-h-screen"
           style={{
-            backgroundImage: ` url(${width > 1024 ? DesktopImage : MobileImage
+            backgroundImage: ` url(${width > 640 ? DesktopImage : MobileImage
               })`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
-
-          <a className="hidden" href="/signup">test</a>
           <div className="hero-content text-center text-neutral-content ">
             <m.div
               className="sm:max-w-xl main-container px-5 py-10"
@@ -205,7 +206,7 @@ function Home() {
           </div>
         </div>
       </LayoutGroup>
-    </>
+    </LazyMotion>
   );
 }
 

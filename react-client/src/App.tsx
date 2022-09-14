@@ -7,48 +7,52 @@ import Loader from './components/Loader'
 import AppToastContainer from './components/Toast/ToastContainer'
 import Home from './pages/Home'
 import Footer from './components/Footer';
-import BgImage from './components/Wrappers/BgImage';
+import BackgroundLayout from './components/Layouts/BackgroundLayout';
+import { domAnimation, LazyMotion } from 'framer-motion';
+import AnimationLayout from './components/Layouts/AnimationLayout';
 
-import { domMax, LazyMotion } from 'framer-motion'
 
 const GameRoom = lazy(() => import('./pages/GameRoom'))
 const CreateRoom = lazy(() => import('./pages/Create'))
 const JoinRoom = lazy(() => import('./pages/Join'))
 const SignUpPage = lazy(() => import('./pages/SignUp'))
 const NotFound = lazy(() => import('./pages/NotFound'))
-const Profile = lazy(() => import('./pages/Profile'))
+const Profile = lazy(() => import("./pages/Profile"))
+
 
 
 
 function App() {
   return (
-    <LazyMotion features={domMax}>
-      <AuthProvider>
-        <div className="min-h-screen text-white">
-          <Suspense fallback={<Loader />}>
+    <>
+      <div className="min-h-screen text-white">
+        <Suspense fallback={<Loader />}>
+          <AuthProvider>
             <Header />
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route element={<BgImage />}>
-                <Route path="/signup" element={<SignUpPage />} />
-                <Route path="/create" element={<CreateRoom />} />
-                <Route path="/join" element={<JoinRoom />} />
+              <Route element={<BackgroundLayout />}>
                 <Route path="/room/:id" element={
                   <GameContextProvider>
                     <GameRoom />
                   </GameContextProvider>
                 } />
-                <Route path="/profile/:username" element={<Profile />} />
-                <Route path="/404" element={<NotFound />} />
-                <Route path="*" element={<Navigate to="/404" />} />
+                <Route path="/create" element={<CreateRoom />} />
+                <Route element={<AnimationLayout />}>
+                  <Route path="/signup" element={<SignUpPage />} />
+                  <Route path="/join" element={<JoinRoom />} />
+                  <Route path="/profile/:username" element={<Profile />} />
+                  <Route path="/404" element={<NotFound />} />
+                  <Route path="*" element={<Navigate to="/404" />} />
+                </Route>
               </Route>
             </Routes>
-          </Suspense>
-        </div>
-        <Footer />
+          </AuthProvider >
+        </Suspense>
         <AppToastContainer />
-      </AuthProvider >
-    </LazyMotion>
+      </div >
+      <Footer />
+    </>
   )
 }
 

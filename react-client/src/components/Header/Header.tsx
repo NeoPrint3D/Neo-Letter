@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../../context/AuthContext";
-import GoogleSignIn from "../GoogleSignIn/GoogleSignIn";
 import UserDropDown from "../UserMenu";
 import Logo from "/images/assets/logo.webp";
 
@@ -30,7 +29,7 @@ export default function Header() {
         </Link>
       </div>
       <div className="flex justify-end w-full gap-5 pr-5">
-        {user?.uid ? <UserDropDown /> : <GoogleSignIn />}
+        {user?.uid ? <UserDropDown /> : <Link to="/signup" className="transition-all duration-300 ease-in-out  bg-primary/10 backdrop-blur-xl  text-white flex items-center py-2 px-3 text-xl font-logo border-[2.5px] border-white  rounded-lg active:scale-95 hover:scale-105">Sign In</Link>}
       </div>
     </header>
   );

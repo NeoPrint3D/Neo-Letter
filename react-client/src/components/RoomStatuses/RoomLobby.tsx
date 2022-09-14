@@ -1,4 +1,4 @@
-import { arrayRemove, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { arrayRemove, deleteDoc, doc, getFirestore, updateDoc } from "firebase/firestore/lite";
 import { AnimatePresence, LayoutGroup, m } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { BiArrowBack, BiLoader } from "react-icons/bi";
@@ -7,10 +7,15 @@ import { FaCrown } from "react-icons/fa";
 import { FiShare } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { RWebShare } from "react-web-share";
-import { firestore } from "../../utils/firebase";
 import { CgGames } from "react-icons/cg";
-import Tooltip from "../Tooltip";
 import { AiFillDelete } from "react-icons/ai";
+import { app } from "../../utils/firebase";
+
+
+
+const firestore = getFirestore(app)
+
+
 export default function RoomLobby({ id, uid, players, }: { id: string, uid: string, players: GamePlayer[] }) {
   const [ready, setReady] = useState(false);
   const [isShown, setIsShown] = useState(false)
