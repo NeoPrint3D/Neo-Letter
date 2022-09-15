@@ -8,7 +8,7 @@ export default function BackgroundLayout() {
     return (
         <div
             style={{
-                backgroundImage: ` url(${width > 640 ? DesktopImage : MobileImage})`,
+                backgroundImage: ` url(${width > 1024 ? DesktopImage : MobileImage})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",

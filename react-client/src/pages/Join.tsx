@@ -177,7 +177,7 @@ export default function JoinRoom() {
       <div className="flex justify-center items-center h-screen">
         {!roomValid && (
           <m.div
-            className="flex flex-col items-center w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5 py-10"
+            className="flex flex-col items-center w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5 py-5"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{
@@ -187,7 +187,7 @@ export default function JoinRoom() {
             }}
           >
             <div className="flex justify-center mb-10 font-logo">
-              <h1 className="text-4xl sm:text-4xl">Join room</h1>
+              <h1 className="text-5xl">Join room</h1>
             </div>
             <form
               className="flex flex-col items-center gap-5"
@@ -221,7 +221,7 @@ export default function JoinRoom() {
         {roomValid && (
           <LayoutGroup>
             <m.div
-              className="w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5 py-10"
+              className="w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5 py-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               layout
@@ -232,7 +232,7 @@ export default function JoinRoom() {
               }}
             >
               <div className="flex justify-center mb-7 font-logo">
-                <h1 className="text-4xl">Enter</h1>
+                <h1 className="text-5xl">Enter</h1>
               </div>
               <m.form
                 className="flex flex-col items-center gap-5"

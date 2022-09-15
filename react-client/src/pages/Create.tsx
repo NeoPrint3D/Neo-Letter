@@ -332,7 +332,8 @@ function Options({ name, value, func, tooltip }: { name: string, value: boolean,
     <div className={`flex justify-center gap-1.5 items-center ${tooltip && "tooltip tooltip-bottom tooltip-secondary"}`} data-tip={tooltip || ""}>
       <p>{name}</p>
       <div className='flex justify-end '>
-        <input className='checkbox checkbox-primary' type="checkbox" checked={value} onChange={func} />
+        <label htmlFor={name} className="hidden"></label>
+        <input id={name} className='checkbox checkbox-primary' type="checkbox" checked={value} onChange={func} />
       </div>
     </div>
   )

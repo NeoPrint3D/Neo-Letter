@@ -1,5 +1,5 @@
 import { collection, where, limit, query, deleteDoc, doc, onSnapshot, getFirestore } from "firebase/firestore";
-import { m } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { AiFillDelete } from "react-icons/ai";
@@ -99,9 +99,9 @@ export default function Profile() {
 
 
       <article>
-        <div className="h-screen flex justify-center items-center">
+        <div className="h-screen flex justify-center items-center overflow-x-hidden">
           <m.div
-            className={` flex flex-col  main-container max-w-sm sm:max-w-xl w-full pb-2`}
+            className={` flex flex-col  main-container max-w-sm sm:max-w-xl w-full pb-12`}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{
@@ -110,9 +110,15 @@ export default function Profile() {
               damping: 30,
             }}
           >
+            <div className="flex justify-end absolute w-full">
+              <div className="tooltip tooltip-bottom tooltip-error p-2" data-tip="Delete Profile">
+                <button onClick={deleteProfile} className=" btn btn-ghost btn-circle">
+                  <AiFillDelete className="text-red-500/40" size={30} />
+                </button>
+              </div>
+            </div>
             <div className="flex justify-center absolute w-full -translate-y-[2.75rem] ">
               <m.div
-                className={`avatar avatar-sm `}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{
@@ -123,15 +129,15 @@ export default function Profile() {
                   delay: 0.5,
                 }}
               >
-                <div className=" rounded-3xl  border-[3px] border-white/[10%] w-20  ">
-                  <figure>
-                    <img
-                      src={user.profilePic}
-                      alt={`A picture of ${user.username} at NeoPrint3D`}
-                      referrerPolicy="no-referrer"
-                    />
-                  </figure>
-                </div>
+                <figure className="w-20">
+                  <img
+                    src={user.profilePic}
+                    alt={`A picture of ${user.username} at NeoPrint3D`}
+                    referrerPolicy="no-referrer"
+                    className="rounded-3xl   border-[3px] border-white/10  "
+                  />
+                </figure>
+
               </m.div>
             </div>
             <h1 className="text-center text-5xl font-logo mt-14 text-white">
@@ -149,15 +155,10 @@ export default function Profile() {
                   icon={stat.icon}
                 />
               ))}
-              <div className="tooltip tooltip-bottom tooltip-error" data-tip="Delete Profile">
-                <button onClick={deleteProfile} className=" btn btn-ghost">
-                  <AiFillDelete className="text-red-500" size={30} />
-                </button>
-              </div>
             </div>
           </m.div>
         </div>
-      </article>
+      </article >
     </>
   );
 }

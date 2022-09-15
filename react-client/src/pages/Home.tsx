@@ -35,7 +35,7 @@ function Home() {
   async function remindToSignUp() {
     if (user === undefined) return;
     if (user?.username?.length > 0) return;
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3500));
     const { toast } = await import("react-toastify")
     toast.info(({ closeToast }) => <Link to="/signup" >Create Account?</Link>, {
       autoClose: false,
@@ -81,7 +81,7 @@ function Home() {
         <div
           className="hero min-h-screen"
           style={{
-            backgroundImage: ` url(${width > 640 ? DesktopImage : MobileImage
+            backgroundImage: ` url(${width > 1024 ? DesktopImage : MobileImage
               })`,
             backgroundSize: "cover",
             backgroundPosition: "center",
@@ -98,6 +98,7 @@ function Home() {
                 damping: 20,
                 mass: 1,
                 duration: 0.5,
+                delay: .5
               }}
             >
               <div className="flex justify-center">
