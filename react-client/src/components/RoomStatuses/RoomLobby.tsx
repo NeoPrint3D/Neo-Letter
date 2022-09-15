@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { RWebShare } from "react-web-share";
 import { CgGames } from "react-icons/cg";
 import { AiFillDelete } from "react-icons/ai";
-import { app, firestore } from "../../utils/firebase";
+import { loadFiresotre } from "../../utils/firebase";
 
 
 
@@ -23,6 +23,9 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
 
   useEffect(() => {
     const main = async () => {
+
+
+      const firestore = await loadFiresotre()
       updateDoc(doc(firestore, "rooms", id, "players", uid), { ready: ready });
     }
     main();
@@ -31,6 +34,7 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
   async function deleteUser(uid: string) {
     const player = players.find(p => p.uid === uid)
     if (window.confirm(`Are you Sure You want to remove "${player?.name}"`)) {
+      const firestore = await loadFiresotre()
       await Promise.all([
         deleteDoc(doc(firestore, "rooms", id, "players", uid)),
         updateDoc(doc(firestore, "rooms", id), {

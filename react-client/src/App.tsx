@@ -8,7 +8,9 @@ import { domAnimation, LazyMotion } from 'framer-motion';
 
 
 import Header from './components/Header';
+import Footer from './components/Footer';
 import Home from './pages/Home'
+
 const GameRoom = lazy(() => import('./pages/GameRoom'))
 const CreateRoom = lazy(() => import('./pages/Create'))
 const JoinRoom = lazy(() => import('./pages/Join'))
@@ -17,7 +19,6 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 const Profile = lazy(() => import("./pages/Profile"))
 
 const AppToastContainer = lazy(() => import('./components/Toast/ToastContainer'))
-const Footer = lazy(() => import("./components/Footer"))
 
 function App() {
   return (

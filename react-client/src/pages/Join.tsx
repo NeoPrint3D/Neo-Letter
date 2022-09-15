@@ -6,27 +6,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
 import { UserContext, UidContext } from "../context/AuthContext";
-import { analytics } from "../utils/firebase";
+import { analytics, loadFiresotre } from "../utils/firebase";
 import Loader from "../components/Loader";
 import { logEvent } from "firebase/analytics";
 import { v4 } from "uuid";
-import { useFirestore } from "../context/FirestoreContext";
 
 
 
 
 export default function JoinRoom() {
-  const [firestoreRef, setFirestoreRef] = useFirestore()
-  const firestore = useMemo(
-    () => {
-      if (!firestoreRef) {
-        const newFirestore = getFirestore()
-        setFirestoreRef(newFirestore)
-        return newFirestore
-      }
-      return firestoreRef
-    }, [],
-  )
+
   const [loading, setLoading] = useState(false);
   const [username, setUserame] = useState("");
   const [roomId, setRoomId] = useState("");
@@ -68,6 +57,7 @@ export default function JoinRoom() {
   }
 
   async function getRoom(id: string) {
+    const firestore = await loadFiresotre()
     const room = await getDoc(doc(firestore, "rooms", id));
     return room.data();
   }
@@ -98,7 +88,7 @@ export default function JoinRoom() {
       toast.warning("Usernames already taken.", { theme: "dark" })
       return
     }
-
+    const firestore = await loadFiresotre()
     const playerRef = doc(firestore, "rooms", id || roomId, "players", uid);
     const player = await getDoc(playerRef)
     if (player.exists()) {

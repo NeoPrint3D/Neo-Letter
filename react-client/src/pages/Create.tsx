@@ -11,7 +11,7 @@ import { BiCustomize } from 'react-icons/bi';
 import { toast } from 'react-toastify';
 import { logEvent } from 'firebase/analytics';
 import Tooltip from '../components/Tooltip';
-import { analytics, firestore } from '../utils/firebase';
+import { analytics, loadFiresotre as loadFirestore } from '../utils/firebase';
 
 
 interface CustomWord {
@@ -40,6 +40,7 @@ export default function CreateRoom() {
 
   async function generateCleanId() {
     const id = Math.floor(Math.random() * 100000).toString().padStart(5, "0");
+    const firestore = await loadFirestore()
     if (!(await getDoc(doc(firestore, "rooms", `${id}`))).exists()) return id
     generateCleanId()
   }
@@ -103,7 +104,7 @@ export default function CreateRoom() {
       customWords: customWords.length !== 0,
       allowChat: allowChat
     }
-
+    const firestore = await loadFirestore()
     await Promise.all([
       setDoc(doc(firestore, "rooms", `${id}`), roomInfo),
       setDoc(doc(firestore, "rooms", `${id}`, "players", uid), playerInfo),

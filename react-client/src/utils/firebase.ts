@@ -15,13 +15,17 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-const firestore = getFirestore(app);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
-const main = async () => {
+const loadPerformance = async () => {
   const { getPerformance } = await import("firebase/performance");
   getPerformance();
 };
-main();
-export { app, firestore, analytics, auth };
+
+const loadFirestore = async () => {
+  const { getFirestore } = await import("firebase/firestore/lite");
+  return getFirestore(app);
+};
+loadPerformance();
+export { app, analytics, auth, loadFirestore as loadFiresotre };

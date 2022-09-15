@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
 import { UserContext, UidContext } from "../context/AuthContext";
-import { analytics, app, firestore } from "../utils/firebase";
+import { analytics, app, loadFiresotre } from "../utils/firebase";
 
 
 interface Message {
@@ -34,6 +34,7 @@ export default function SignUpPage() {
   const handleSignUp = async () => {
     const provider = new GoogleAuthProvider()
     const user = (await signInWithPopup(auth, provider)).user
+    const firestore = await loadFiresotre()
     const userExists = (await getDoc(doc(firestore, "users", user.uid))).exists()
     if (userExists) { navigate("/"); return }
     else navigate("/signup")
@@ -61,6 +62,8 @@ export default function SignUpPage() {
       })
       return;
     }
+    const firestore = await loadFiresotre()
+
     const nameTaken = (await getDocs(query(collection(firestore, "users"), where("username", "==", username)))).docs[0]
     if (nameTaken) {
       setIsUsernameTaken(true);
@@ -97,6 +100,8 @@ export default function SignUpPage() {
   async function createAccount(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (isUsernameTaken || username.length < 3 || !auth.currentUser) return;
+    const firestore = await loadFiresotre()
+
     const userRef = await getDoc(doc(firestore, "users", `${auth.currentUser?.uid}`))
     if (userRef.exists()) {
       return;
