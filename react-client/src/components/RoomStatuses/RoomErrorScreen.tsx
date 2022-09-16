@@ -25,7 +25,7 @@ export default function RoomErrorScreen({
           damping: 30
         }}
       >
-        <div className=" flex flex-col items-center justify-center  w-full max-w-[22rem] sm:max-w-xl  px-5 py-5 main-container">
+        <div className=" flex flex-col items-center justify-center  w-fullmax-w-[22rem] xs:max-w-[24rem] sm:max-w-xl  px-5 py-5 main-container">
           <h1 className="text-5xl  font-logo text-center mb-7">
             {description}
           </h1>

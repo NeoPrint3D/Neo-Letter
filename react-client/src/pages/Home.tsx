@@ -90,7 +90,7 @@ function Home() {
         >
           <div className="hero-content text-center text-neutral-content ">
             <m.div
-              className=" w-full max-w-[22rem] sm:max-w-xl main-container px-5 py-10"
+              className=" w-fullmax-w-[22rem] xs:max-w-[24rem] sm:max-w-xl main-container px-5 py-10"
               initial={{ rotateX: -90, opacity: 0 }}
               animate={{ rotateX: 0, opacity: 1 }}
               transition={{

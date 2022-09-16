@@ -5,7 +5,8 @@ import { Helmet } from "react-helmet";
 import { AiFillDelete } from "react-icons/ai";
 import { CgGames } from "react-icons/cg";
 import { FaCrown } from "react-icons/fa";
-import { useNavigate, useParams } from "react-router-dom";
+import { IoIosSettings } from "react-icons/io";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import Loader from "../components/Loader";
 
@@ -98,67 +99,62 @@ export default function Profile() {
       </Helmet>
 
 
-      <article>
-        <div className="h-screen flex justify-center items-center overflow-x-hidden">
-          <m.div
-            className={` flex flex-col  main-container max-w-[22rem] sm:max-w-xl w-full pb-12`}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
+      <div className="h-screen w-screen  overflow-hidden flex justify-center items-center">
+        <m.div
+          className={` flex flex-col  main-container max-w-[22rem] xs:max-w-[24rem] sm:max-w-xl w-full pb-12`}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 30,
+          }}
+        >
+
+          <m.figure
+            className={`flex justify-center`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{
               type: "spring",
               stiffness: 300,
               damping: 30,
+              duration: 2,
+              delay: 0.5,
             }}
           >
-            <div className="flex justify-end absolute w-full">
-              <div className="tooltip tooltip-bottom tooltip-error p-2" data-tip="Delete Profile">
-                <button onClick={deleteProfile} className=" btn btn-ghost btn-circle">
-                  <AiFillDelete className="text-red-500/40" size={30} />
-                </button>
-              </div>
-            </div>
-            <div className="flex justify-center absolute w-full -translate-y-[2.75rem] ">
-              <m.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30,
-                  duration: 2,
-                  delay: 0.5,
-                }}
-              >
-                <figure className="w-20">
-                  <img
-                    src={user.profilePic}
-                    alt={`A picture of ${user.username} at NeoPrint3D`}
-                    referrerPolicy="no-referrer"
-                    className="rounded-3xl   border-[3px] border-white/10  "
-                  />
-                </figure>
+            <img
+              src={user.profilePic}
+              alt={`A picture of ${user.username} at NeoPrint3D`}
+              referrerPolicy="no-referrer"
+              className="rounded-3xl absolute w-20 -translate-y-[2.75rem]    border-[3px] border-white/10  "
+            />
 
-              </m.div>
-            </div>
-            <h1 className="text-center text-5xl font-logo mt-14 text-white">
-              {" "}
-              {user.username}{" "}
-            </h1>
+          </m.figure>
+          <div className="flex justify-start absolute w-full">
+            <Link to={`settings`} className="ml-3 mt-3  btn btn-ghost btn-circle">
+              <IoIosSettings size={40} className="text-gray-400" />
+            </Link>
+          </div>
 
-            <div className="flex flex-col items-center mt-5 h-full gap-5">
-              {statContainers.map((stat, index) => (
-                <Stat
-                  index={index}
-                  key={index}
-                  title={stat.title}
-                  stat={stat.value}
-                  icon={stat.icon}
-                />
-              ))}
-            </div>
-          </m.div>
-        </div>
-      </article >
+          <div className="flex items-center justify-center text-center text-5xl font-logo mt-14 text-white">
+            {" "}
+            {user.username}{" "}
+          </div>
+
+          <div className="flex flex-col items-center mt-5 h-full gap-5">
+            {statContainers.map((stat, index) => (
+              <Stat
+                index={index}
+                key={index}
+                title={stat.title}
+                stat={stat.value}
+                icon={stat.icon}
+              />
+            ))}
+          </div>
+        </m.div>
+      </div >
     </>
   );
 }

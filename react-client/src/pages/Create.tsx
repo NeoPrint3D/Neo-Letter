@@ -174,7 +174,7 @@ export default function CreateRoom() {
         <AnimatePresence>
           {switchUi ? (
             <m.div
-              className="flex   w-full max-w-[22rem] sm:max-w-xl  main-container px-2 py-5"
+              className="flex   w-full max-w-[22rem] xs:max-w-[24rem] sm:max-w-xl  main-container px-2 py-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
@@ -229,7 +229,7 @@ export default function CreateRoom() {
             </m.div>
           ) : (
             <m.div
-              className="    w-full max-w-[22rem] sm:max-w-xl  main-container px-2 py-5"
+              className="w-full max-w-[22rem] xs:max-w-[24rem] sm:max-w-xl  main-container px-2 py-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
@@ -246,7 +246,7 @@ export default function CreateRoom() {
                 <h1 className="text-5xl ">Create Room</h1>
               </div>
               <div className="flex flex-col gap-3 items-center">
-                <select className=" bg-transparent focus:outline-none rounded-xl text-xl  shadow-input p-3 w-52" value={maxPlayers} onChange={(e) => { setMaxPlayers(e.target.value); }}>
+                <select className=" input-focus bg-transparent focus:outline-none rounded-xl text-xl  shadow-input p-3 w-52" value={maxPlayers} onChange={(e) => { setMaxPlayers(e.target.value); }}>
                   <option className="bg-primary-dark text-sm text-bold" value="solo">Solo (Max 1)</option>
                   <option className='bg-primary-dark text-sm text-bold' value="versus">Versus (Max 2)</option>
                   <option className='bg-primary-dark text-sm text-bold' value="party">Party (Max 5)</option>
@@ -285,7 +285,7 @@ export default function CreateRoom() {
                         }} />
                     </div>
                   </div> :
-                  <button onClick={() => setSwitchUI(true)} className='gap-3  shadow-input text-xl my-1.5 flex p-3 rounded-3xl outline-dashed outline-primary/40 hover:bg-primary transition-colors'>
+                  <button onClick={() => setSwitchUI(true)} className='gap-3  shadow-input text-xl my-1.5 flex p-3 rounded-3xl input-focus'>
                     <BiCustomize size={25} /> Choose Custom Words
                   </button>
                 }

@@ -49,7 +49,7 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
   return (
     <LayoutGroup>
       <div className="min-h-screen w-screen flex justify-center items-center">
-        <m.div className="flex flex-col  item-center  w-full max-w-[22rem] sm:max-w-xl main-container px-3  py-10"
+        <m.div className="flex flex-col  item-center  w-fullmax-w-[22rem] xs:max-w-[24rem] sm:max-w-xl main-container px-3  py-10"
           layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

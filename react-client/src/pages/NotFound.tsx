@@ -1,3 +1,4 @@
+import { m } from "framer-motion";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
@@ -33,14 +34,25 @@ export default function NotFound() {
         />
       </Helmet>
       <div className="flex flex-col items-center justify-center h-screen">
-        <h1 className="text-5xl font-logo text-center">Are you lost?</h1>
-        <Link to="/">
-          <button className="mt-5">
-            <h1 className="text-3xl font-logo link link-primary k transition-all  duration-300 ">
-              Back to Home
-            </h1>
-          </button>
-        </Link>
+        <m.div
+          className="flex flex-col items-center main-container w-full max-w-[22rem] xs:max-w-[24rem] sm:max-w-xl py-10 justify-center "
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 30
+          }}
+        >
+          <h1 className="text-5xl font-logo text-center">Are you lost?</h1>
+          <Link to="/">
+            <button className="mt-5">
+              <h1 className="text-3xl font-logo link link-primary k transition-all  duration-300 ">
+                Back to Home
+              </h1>
+            </button>
+          </Link>
+        </m.div>
       </div>
     </>
   );
