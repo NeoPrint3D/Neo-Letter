@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { RWebShare } from "react-web-share";
 import { CgGames } from "react-icons/cg";
 import { AiFillDelete } from "react-icons/ai";
-import { loadFiresotre } from "../../utils/firebase";
+import { loadFirestore } from "../../utils/firebase";
 
 
 
@@ -25,7 +25,7 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
     const main = async () => {
 
 
-      const firestore = await loadFiresotre()
+      const firestore = await loadFirestore()
       updateDoc(doc(firestore, "rooms", id, "players", uid), { ready: ready });
     }
     main();
@@ -34,7 +34,7 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
   async function deleteUser(uid: string) {
     const player = players.find(p => p.uid === uid)
     if (window.confirm(`Are you Sure You want to remove "${player?.name}"`)) {
-      const firestore = await loadFiresotre()
+      const firestore = await loadFirestore()
       await Promise.all([
         deleteDoc(doc(firestore, "rooms", id, "players", uid)),
         updateDoc(doc(firestore, "rooms", id), {
@@ -49,7 +49,7 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
   return (
     <LayoutGroup>
       <div className="min-h-screen w-screen flex justify-center items-center">
-        <m.div className="flex flex-col justify-center w-full max-w-sm  sm:max-w-xl px-5 main-container py-10"
+        <m.div className="flex flex-col  item-center  w-full max-w-[22rem] sm:max-w-xl main-container px-3  py-10"
           layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -67,7 +67,7 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
               <h1 className="text-4xl font-logo">Ready Up</h1>
               <h2 className="mt-3 text-xl font-sans font-semibold">Room: {id}</h2>
             </div>
-            <div>
+            <div className="flex justify-end">
               <div className="tooltip" data-tip={"Share?"}>
                 <RWebShare
                   data={{
@@ -82,11 +82,12 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
               </div>
             </div>
           </div>
-          <div className=" flex flex-col gap-5 overflow-y-scroll scroll-lobby shadow-input-inner h-56  rounded-xl p-5 ">
+
+          <div className=" flex flex-col items-center gap-5 overflow-y-scroll scroll-lobby shadow-input-inner px-2 h-56  rounded-xl ">
 
             {players.map((player, i) =>
               <m.div key={player.uid}
-                className={`flex shadow-input group rounded-xl p-3 sm:p-5 items-center ${currentPlayer?.role === "creator" && player.uid !== uid && "hover:bg-red-500/40 transition-all duration-500"}`}
+                className={`flex shadow-input groups rounded-xl p-3 sm:p-5 w-full bg items-center ${currentPlayer?.role === "creator" && player.uid !== uid && "hover:bg-red-500/40 transition-all duration-500"}`}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{
@@ -98,63 +99,67 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
                 onMouseEnter={() => setIsShown(true)}
                 onMouseLeave={() => setIsShown(false)}
               >
-                <div className="flex justify-center w-full items-center">
+                <div className="grid grid-cols-2 items-center  ">
+                  <div>
 
-                  <AnimatePresence>
-                    {currentPlayer?.role === "creator" && player.uid !== uid && isShown &&
-                      <m.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 300,
-                          damping: 30,
-                          duration: .5
-                        }}
-                        className="absolute w-full flex justify-center"
-                      >
-                        <button onClick={() => deleteUser(player.uid)} className="btn btn-ghost tooltip tooltip-top tooltip-error" data-tip="Delete">
-                          <AiFillDelete className="text-red-500" size={40} />
-                        </button>
-                      </m.div>
-                    }
-                  </AnimatePresence>
-                  <div className="flex justify-start items-center w-full ">
-                    <p className="font-logo text-3xl">{player.name}</p>
-                    {player.signedIn && (
-                      <>
-                        <div className="flex items-center gap-1 ml-3">
-                          <FaCrown className="text-yellow-500" aria-label="Games won" size={25} /> <span className="font-semibold text-xl">{formatter.format(player.wins as number)}</span>
-                        </div><div className="flex items-center gap-1 ml-3">
-                          <CgGames className="text-blue-500" aria-label="Games played" size={25} /> <span className="font-semibold text-xl">{formatter.format(player.gamesPlayed as number)}</span>
-                        </div>
-                      </>
-                    )}
+                    <AnimatePresence>
+                      {currentPlayer?.role === "creator" && player.uid !== uid && isShown &&
+                        <m.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30,
+                            duration: .5
+                          }}
+                          className="absolute w-full flex justify-center"
+                        >
+                          <button onClick={() => deleteUser(player.uid)} className="btn btn-ghost tooltip tooltip-top tooltip-error" data-tip="Delete">
+                            <AiFillDelete className="text-red-500" size={40} />
+                          </button>
+                        </m.div>
+                      }
+                    </AnimatePresence>
+                    <div className="flex justify-start items-center ">
+                      <p className="font-logo text-3xl">{player.name}</p>
+                      {player.signedIn && (
+                        <>
+                          <div className="flex items-center ml-1.5 sm:ml-3 gap-0.5 sm:gap-1">
+                            <FaCrown className="text-yellow-500" aria-label="Games won" size={25} /> <span className="font-semibold text-xl">{formatter.format(player.wins as number)}</span>
+                          </div><div className="flex items-center gap-0.5 ml-3 sm:gap-1">
+                            <CgGames className="text-blue-500" aria-label="Games played" size={25} /> <span className="font-semibold text-xl">{formatter.format(player.gamesPlayed as number)}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <AnimatePresence>
-                    {player.ready ?
-                      <m.div
-                        initial={{ scale: 0, y: -20 }}
-                        animate={{ scale: 1, y: 0 }}
-                        transition={{
-                          scale: {
-                            type: "spring",
-                            stiffness: 250,
-                            damping: 10
-                          },
-                          y: {
-                            type: "spring",
-                            stiffness: 250,
-                            damping: 10
-                          },
-                        }}>
-                        <BsCheckLg className="text-green-500 text-4xl" />
-                      </m.div> :
-                      <BiLoader className="text-white text-4xl animate-spin ease-in" />
-                    }
-                  </AnimatePresence>
 
+                  <div className="flex justify-end w-full">
+                    <AnimatePresence>
+                      {player.ready ?
+                        <m.div
+                          initial={{ scale: 0, y: -20 }}
+                          animate={{ scale: 1, y: 0 }}
+                          transition={{
+                            scale: {
+                              type: "spring",
+                              stiffness: 250,
+                              damping: 10
+                            },
+                            y: {
+                              type: "spring",
+                              stiffness: 250,
+                              damping: 10
+                            },
+                          }}>
+                          <BsCheckLg className="text-green-500 text-4xl" />
+                        </m.div> :
+                        <BiLoader className="text-white text-4xl animate-spin ease-in" />
+                      }
+                    </AnimatePresence>
+                  </div>
                 </div>
               </m.div>
             )}

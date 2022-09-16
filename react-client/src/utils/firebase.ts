@@ -15,9 +15,12 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
+const loadAnalytics = async () => {
+  const { getAnalytics } = await import("firebase/analytics");
+  return getAnalytics(app);
+};
 const loadPerformance = async () => {
   const { getPerformance } = await import("firebase/performance");
   getPerformance();
@@ -28,4 +31,4 @@ const loadFirestore = async () => {
   return getFirestore(app);
 };
 loadPerformance();
-export { app, analytics, auth, loadFirestore as loadFiresotre };
+export { app, loadAnalytics, auth, loadFirestore };

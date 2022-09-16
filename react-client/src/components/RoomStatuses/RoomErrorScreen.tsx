@@ -25,12 +25,12 @@ export default function RoomErrorScreen({
           damping: 30
         }}
       >
-        <div className=" flex flex-col items-center justify-center py-10  px-10 main-container">
-          <h1 className="text-4xl  font-logo text-center mb-5">
+        <div className=" flex flex-col items-center justify-center  w-full max-w-[22rem] sm:max-w-xl  px-5 py-5 main-container">
+          <h1 className="text-5xl  font-logo text-center mb-7">
             {description}
           </h1>
           <Link to="/">
-            <button className="btn btn-primary btn-lg mt-5">Return home</button>
+            <button className="main-button px-5 py-3">Return home</button>
           </Link>
         </div>
       </m.div>

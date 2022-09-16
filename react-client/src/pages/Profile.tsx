@@ -101,7 +101,7 @@ export default function Profile() {
       <article>
         <div className="h-screen flex justify-center items-center overflow-x-hidden">
           <m.div
-            className={` flex flex-col  main-container max-w-sm sm:max-w-xl w-full pb-12`}
+            className={` flex flex-col  main-container max-w-[22rem] sm:max-w-xl w-full pb-12`}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{

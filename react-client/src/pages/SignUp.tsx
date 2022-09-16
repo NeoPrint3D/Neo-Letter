@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
 import { UserContext, UidContext } from "../context/AuthContext";
-import { analytics, app, loadFiresotre } from "../utils/firebase";
+import { app, loadAnalytics, loadFirestore, } from "../utils/firebase";
 
 
 interface Message {
@@ -34,7 +34,7 @@ export default function SignUpPage() {
   const handleSignUp = async () => {
     const provider = new GoogleAuthProvider()
     const user = (await signInWithPopup(auth, provider)).user
-    const firestore = await loadFiresotre()
+    const firestore = await loadFirestore()
     const userExists = (await getDoc(doc(firestore, "users", user.uid))).exists()
     if (userExists) { navigate("/"); return }
     else navigate("/signup")
@@ -55,6 +55,8 @@ export default function SignUpPage() {
         status: "error",
         text: "Username must be clean"
       })
+      const analytics = await loadAnalytics()
+
       logEvent(analytics, "profane_words", {
         word: username,
         uid,
@@ -62,7 +64,7 @@ export default function SignUpPage() {
       })
       return;
     }
-    const firestore = await loadFiresotre()
+    const firestore = await loadFirestore()
 
     const nameTaken = (await getDocs(query(collection(firestore, "users"), where("username", "==", username)))).docs[0]
     if (nameTaken) {
@@ -100,7 +102,7 @@ export default function SignUpPage() {
   async function createAccount(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (isUsernameTaken || username.length < 3 || !auth.currentUser) return;
-    const firestore = await loadFiresotre()
+    const firestore = await loadFirestore()
 
     const userRef = await getDoc(doc(firestore, "users", `${auth.currentUser?.uid}`))
     if (userRef.exists()) {
@@ -141,7 +143,7 @@ export default function SignUpPage() {
         {auth.currentUser === null && user !== undefined &&
           <div className="min-h-screen flex items-center justify-center">
             <m.div
-              className="max-w-sm sm:w-full sm:max-w-md main-container px-5 py-5"
+              className="max-w-[22rem] sm:w-full sm:max-w-md main-container px-5 py-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{
@@ -164,7 +166,7 @@ export default function SignUpPage() {
         {user?.username && user !== undefined &&
           <div className="min-h-screen flex items-center justify-center">
             <m.div
-              className="max-w-sm sm:w-full sm:max-w-md main-container px-5 py-10"
+              className="max-w-[22rem] sm:w-full sm:max-w-md main-container px-5 py-10"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{

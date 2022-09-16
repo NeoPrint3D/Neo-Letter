@@ -44,7 +44,7 @@ export default function LeaderBoard() {
       <div className="hidden sm:h-24 sm:block"></div>
       <div className="flex flex-col justify-center items-center h-page gap-5">
         <div
-          className={` flex flex-col  main-container max-w-sm sm:max-w-xl w-full pt-5 h-[60%] sm:h-[75%] `}
+          className={` flex flex-col  main-container max-w-[22rem] sm:max-w-xl w-full pt-5 h-[60%] sm:h-[75%] `}
         >
           <h1 className="text-center text-3xl font-logo"> Leaderboard </h1>
           <div

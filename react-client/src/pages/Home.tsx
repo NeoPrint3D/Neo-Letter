@@ -6,6 +6,7 @@ import { useCookie, useWindowSize } from "react-use";
 import { UserContext } from "../context/AuthContext";
 import MobileImage from "/images/assets/App-Mobile.webp";
 import DesktopImage from "/images/assets/App-Desktop.webp";
+import { loadAnalytics } from "../utils/firebase";
 
 
 
@@ -22,7 +23,6 @@ function Home() {
       }
       updateCookie(JSON.stringify(preferenceValues), { expires: 15 * 60 * 1000 })
     }
-
     if (new URLSearchParams(location.search).get("action") === "reload") {
       window.location.href = "/"
     }
@@ -33,6 +33,7 @@ function Home() {
   }, [user]);
 
   async function remindToSignUp() {
+    loadAnalytics()
     if (user === undefined) return;
     if (user?.username?.length > 0) return;
     await new Promise((resolve) => setTimeout(resolve, 3500));
@@ -89,7 +90,7 @@ function Home() {
         >
           <div className="hero-content text-center text-neutral-content ">
             <m.div
-              className="sm:max-w-xl main-container px-5 py-10"
+              className=" w-full max-w-[22rem] sm:max-w-xl main-container px-5 py-10"
               initial={{ rotateX: -90, opacity: 0 }}
               animate={{ rotateX: 0, opacity: 1 }}
               transition={{
@@ -102,10 +103,10 @@ function Home() {
               }}
             >
               <div className="flex justify-center">
-                <div className=" bg-gray-700 text-5xl sm:text-6xl text-white font-logo px-4 -skew-x-12 rounded-2xl mb-5">
+                <div className="  shadow-input bg-gray-900/40 text-5xl sm:text-6xl text-white font-logo px-4 -skew-x-12 rounded-2xl mb-5">
                   <div className="flex items-center">
                     <m.div
-                      className="p-1  skew-x-[-12deg] rounded"
+                      className="p-1 rounded"
                       initial={{ scale: 2, zIndex: 100, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{
@@ -117,7 +118,7 @@ function Home() {
                       The
                     </m.div>
                     <m.button
-                      className="bg-success skew-x-[-12deg] rounded"
+                      className="bg-success text-black px-1   rounded"
                       initial={{ scale: 3, zIndex: 100, opacity: 0 }}
                       animate={{ scale: [1, 0.75, 1], opacity: 1 }}
                       transition={{
@@ -145,7 +146,7 @@ function Home() {
                   </div>
                   <div className="flex items-center ">
                     <m.button
-                      className="bg-warning skew-x-[-12deg] rounded"
+                      className="bg-warning text-black rounded"
                       initial={{ scale: 4, zIndex: 100, opacity: 0 }}
                       animate={{ scale: [1, 0.7, 1], z: 0, opacity: 1 }}
                       transition={{
@@ -171,7 +172,7 @@ function Home() {
                       Party
                     </m.button>
                     <m.div
-                      className="p-1 skew-x-[-12deg] rounded"
+                      className="p-1 rounded"
                       initial={{ scale: 5, zIndex: 100, opacity: 0 }}
                       animate={{ scale: [1, 0.65, 1], z: 0, opacity: 1 }}
                       transition={{
@@ -199,7 +200,7 @@ function Home() {
                   </button>
                 </Link>
                 <Link to="/create">
-                  <button className="transition-all text-white flex items-center py-4 px-7 text-xl font-logo bg-primary hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
+                  <button className="main-button  py-4 px-7 text-xl">
                     Create
                   </button>
                 </Link>

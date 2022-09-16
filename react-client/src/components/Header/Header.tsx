@@ -1,3 +1,4 @@
+import { AnimatePresence, m } from "framer-motion";
 import { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../../context/AuthContext";
@@ -29,7 +30,24 @@ export default function Header() {
         </Link>
       </div>
       <div className="flex justify-end w-full gap-5 pr-5">
-        {user?.uid ? <UserDropDown /> : <Link to="/signup" className="transition-all duration-300 ease-in-out  bg-primary/10 backdrop-blur-xl  text-white flex items-center py-2 px-3 text-xl font-logo border-[2.5px] border-white  rounded-lg active:scale-95 hover:scale-105">Sign In</Link>}
+        {user?.uid ? <UserDropDown /> :
+          <AnimatePresence>
+            {location.pathname !== "/signup" &&
+              <m.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30,
+                }}
+              >
+                <Link to="/signup" className="transition-all duration-300 ease-in-out  bg-primary/10 backdrop-blur-xl  text-white flex items-center py-2 px-3 text-xl font-logo border-[2.5px] border-white  rounded-lg active:scale-95 hover:scale-105">Sign In</Link>
+              </m.div>
+            }
+          </AnimatePresence>
+        }
       </div>
     </header>
   );

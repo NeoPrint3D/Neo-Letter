@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
 import { UserContext, UidContext } from "../context/AuthContext";
-import { analytics, loadFiresotre } from "../utils/firebase";
+import { loadAnalytics, loadFirestore } from "../utils/firebase";
 import Loader from "../components/Loader";
 import { logEvent } from "firebase/analytics";
 import { v4 } from "uuid";
@@ -57,7 +57,7 @@ export default function JoinRoom() {
   }
 
   async function getRoom(id: string) {
-    const firestore = await loadFiresotre()
+    const firestore = await loadFirestore()
     const room = await getDoc(doc(firestore, "rooms", id));
     return room.data();
   }
@@ -76,6 +76,7 @@ export default function JoinRoom() {
     const isProfane = await fetch(`https://www.purgomalum.com/service/containsprofanity?text=${username}`).then((res) => res.json())
     if (isProfane) {
       toast.error("Inappropriate name", { theme: "dark" });
+      const analytics = await loadAnalytics()
       logEvent(analytics, "profane_words", {
         word: username,
         uid,
@@ -88,7 +89,7 @@ export default function JoinRoom() {
       toast.warning("Usernames already taken.", { theme: "dark" })
       return
     }
-    const firestore = await loadFiresotre()
+    const firestore = await loadFirestore()
     const playerRef = doc(firestore, "rooms", id || roomId, "players", uid);
     const player = await getDoc(playerRef)
     if (player.exists()) {
@@ -177,7 +178,7 @@ export default function JoinRoom() {
       <div className="flex justify-center items-center h-screen">
         {!roomValid && (
           <m.div
-            className="flex flex-col items-center w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5 py-5"
+            className="flex flex-col items-center w-full  max-w-[22rem] sm:max-w-xl  main-container px-5 py-5"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{
@@ -205,7 +206,7 @@ export default function JoinRoom() {
               <button
                 type="submit"
                 disabled={!roomId}
-                className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary disabled:bg-primary/10 hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95"
+                className="main-button disabled:bg-primary/10 py-3 px-5 text-xl"
               >
                 <p className="text-white">Continue</p>
               </button>
@@ -221,7 +222,7 @@ export default function JoinRoom() {
         {roomValid && (
           <LayoutGroup>
             <m.div
-              className="w-full max-w-[23.5rem] sm:max-w-xl  main-container px-5 py-5"
+              className=" w-full max-w-[22rem] sm:max-w-xl main-container px-5 py-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               layout

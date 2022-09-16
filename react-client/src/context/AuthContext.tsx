@@ -19,22 +19,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
 
-        const main = async () => {
-            const unsbscribe = onAuthStateChanged(auth, async (auth) => {
-                setAuthRef(auth as User);
-                if (!auth) { setUser({} as UserProfile); return }
-                const { doc, getDoc, getFirestore, serverTimestamp, updateDoc } = await import("firebase/firestore/lite")
-                const firestore = getFirestore(app)
-                const player = await getDoc(doc(firestore, "users", auth.uid))
-                if (!player.exists()) return;
-                await updateDoc(doc(firestore, "users", auth.uid), {
-                    lastLogin: serverTimestamp(),
-                })
-                setUser(player.data() as UserProfile);
+        const unsbscribe = onAuthStateChanged(auth, async (auth) => {
+            setAuthRef(auth as User);
+            if (!auth) { setUser({} as UserProfile); return }
+            const { doc, getDoc, getFirestore, serverTimestamp, updateDoc } = await import("firebase/firestore/lite")
+            const firestore = getFirestore(app)
+            const player = await getDoc(doc(firestore, "users", auth.uid))
+            if (!player.exists()) return;
+            await updateDoc(doc(firestore, "users", auth.uid), {
+                lastLogin: serverTimestamp(),
             })
-            return () => unsbscribe()
-        }
-        main()
+            setUser(player.data() as UserProfile);
+        })
+        return () => unsbscribe()
+
     }, [])
 
     useEffect(() => {

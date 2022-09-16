@@ -11,7 +11,7 @@ import { BiCustomize } from 'react-icons/bi';
 import { toast } from 'react-toastify';
 import { logEvent } from 'firebase/analytics';
 import Tooltip from '../components/Tooltip';
-import { analytics, loadFiresotre as loadFirestore } from '../utils/firebase';
+import { loadAnalytics, loadFirestore } from '../utils/firebase';
 
 
 interface CustomWord {
@@ -109,6 +109,7 @@ export default function CreateRoom() {
       setDoc(doc(firestore, "rooms", `${id}`), roomInfo),
       setDoc(doc(firestore, "rooms", `${id}`, "players", uid), playerInfo),
     ])
+    const analytics = await loadAnalytics()
     logEvent(analytics, "room_created", { uid: uid, date: new Date().getTime() })
     setLoading(false)
     navigate(`/join?id=${id}`)
@@ -173,7 +174,7 @@ export default function CreateRoom() {
         <AnimatePresence>
           {switchUi ? (
             <m.div
-              className="flex   w-full max-w-sm sm:max-w-xl  main-container px-2 py-5"
+              className="flex   w-full max-w-[22rem] sm:max-w-xl  main-container px-2 py-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
@@ -228,7 +229,7 @@ export default function CreateRoom() {
             </m.div>
           ) : (
             <m.div
-              className=" w-full max-w-sm sm:max-w-xl  main-container px-2 py-5"
+              className="    w-full max-w-[22rem] sm:max-w-xl  main-container px-2 py-5"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
@@ -298,10 +299,8 @@ export default function CreateRoom() {
                 <div className='flex flex-col items-center'>
                   <button
                     onClick={createroom}
-                    className="transition-all flex items-center py-3 px-5 text-xl font-logo bg-primary hover:bg-red-400 active:bg-red-600 rounded-xl active:scale-95">
-                    <p className="">
-                      Create Party
-                    </p>
+                    className="main-button px-5 py-3 text-xl">
+                    Create Party
                   </button>
                   <div className='text-lg my-0.5'>
                     or
@@ -332,8 +331,7 @@ function Options({ name, value, func, tooltip }: { name: string, value: boolean,
     <div className={`flex justify-center gap-1.5 items-center ${tooltip && "tooltip tooltip-bottom tooltip-secondary"}`} data-tip={tooltip || ""}>
       <p>{name}</p>
       <div className='flex justify-end '>
-        <label htmlFor={name} className="hidden"></label>
-        <input id={name} className='checkbox checkbox-primary' type="checkbox" checked={value} onChange={func} />
+        <input aria-label={name} id={name} className='checkbox checkbox-primary' type="checkbox" checked={value} onChange={func} />
       </div>
     </div>
   )

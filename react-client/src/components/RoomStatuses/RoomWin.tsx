@@ -16,7 +16,7 @@ export default function RoomWin({ winner }: {
         <>
             <div className="flex justify-center items-center min-h-screen text-white ">
                 <m.div
-                    className="w-full max-w-sm sm:max-w-md bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl px-8 pt-6 pb-8 mb-4 shadow-2xl"
+                    className="w-full max-w-[22rem] sm:max-w-md bg-primary-dark/30 backdrop-blur-3xl  rounded-3xl px-8 pt-6 pb-8 mb-4 shadow-2xl"
                     initial={{ scale: 0, y: "100%" }}
                     animate={{ scale: 1, y: 0 }}
                     transition={{

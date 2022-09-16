@@ -38,8 +38,11 @@ img {
   @apply bg-primary-dark/[15%] backdrop-blur-[50px]  rounded-3xl shadow-2xl border-[1.5px] border-white/[15%];
 }
 
+.main-button {
+  @apply transition-all text-white flex items-center font-logo bg-primary hover:bg-red-500/80 active:bg-primary rounded-xl active:scale-95;
+}
+
 .scroll-lobby::-webkit-scrollbar {
-  display: block;
   width: 18px;
   border-top-right-radius: 0.75rem;
   border-bottom-right-radius: 0.75rem;
