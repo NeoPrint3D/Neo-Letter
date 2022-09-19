@@ -17,7 +17,7 @@ const JoinRoom = lazy(() => import('./pages/Join'))
 const SignUpPage = lazy(() => import('./pages/SignUp'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Profile = lazy(() => import("./pages/Profile"))
-const SettingsPage = lazy(() => import('./pages/Settings'))
+const SettingsPage = lazy(() => import('./pages/UserSettingsPage'))
 const AppToastContainer = lazy(() => import('./components/Toast/ToastContainer'))
 
 function App() {

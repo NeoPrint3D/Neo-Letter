@@ -5,11 +5,11 @@ import { Helmet } from "react-helmet";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLocation } from "react-use";
-import { UserContext, UidContext } from "../context/AuthContext";
 import { loadAnalytics, loadFirestore } from "../utils/firebase";
 import Loader from "../components/Loader";
 import { logEvent } from "firebase/analytics";
 import { v4 } from "uuid";
+import { useUser, useUid } from "../context/AuthContext";
 
 
 
@@ -23,8 +23,8 @@ export default function JoinRoom() {
   const [id, setId] = useState("");
   const [roomValid, setValidRoom] = useState(false);
   const navigate = useNavigate();
-  const user = useContext(UserContext);
-  const uid = useContext(UidContext);
+  const user = useUser();
+  const uid = useUid();
   const location = useLocation();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -59,6 +59,7 @@ export default function JoinRoom() {
   async function getRoom(id: string) {
     const firestore = await loadFirestore()
     const room = await getDoc(doc(firestore, "rooms", id));
+    console.log(room.data())
     return room.data();
   }
 
@@ -74,13 +75,12 @@ export default function JoinRoom() {
 
 
     const isProfane = await fetch(`https://www.purgomalum.com/service/containsprofanity?text=${username}`).then((res) => res.json())
-    if (isProfane) {
+    if (isProfane && !room.allowProfanity) {
       toast.error("Inappropriate name", { theme: "dark" });
       const analytics = await loadAnalytics()
       logEvent(analytics, "profane_words", {
         word: username,
         uid,
-        date: new Date().getTime()
       })
       return
     }
@@ -99,7 +99,8 @@ export default function JoinRoom() {
           name: username
         }),
         updateDoc(doc(firestore, "rooms", id || roomId), {
-          usernames: arrayUnion(username)
+          usernames: arrayUnion(username),
+          players: arrayUnion(uid)
         })
 
       ])

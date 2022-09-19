@@ -2,13 +2,13 @@ import { logEvent } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { collection, doc, getDoc, getDocs, getFirestore, query, serverTimestamp, setDoc, where } from "firebase/firestore/lite";
 import { AnimatePresence, domAnimation, domMax, LazyMotion, m } from "framer-motion";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { BsGoogle } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
-import { UserContext, UidContext } from "../context/AuthContext";
+import { useUid, useUser } from "../context/AuthContext";
 import { app, loadAnalytics, loadFirestore, } from "../utils/firebase";
 
 
@@ -21,11 +21,11 @@ interface Message {
 export default function SignUpPage() {
   const auth = useMemo(() => getAuth(app), [])
   const navigate = useNavigate()
-  const user = useContext(UserContext)
+  const user = useUser()
   const [username, setUsername] = useState("");
   const [isUsernameTaken, setIsUsernameTaken] = useState(true)
   const [isProfane, setIsProfane] = useState(false)
-  const uid = useContext(UidContext)
+  const uid = useUid()
   const [message, setMessage] = useState<Message>({
     status: "success",
     text: ""
@@ -166,7 +166,7 @@ export default function SignUpPage() {
         {user?.username && user !== undefined &&
           <div className="min-h-screen flex items-center justify-center">
             <m.div
-              className="max-w-[22rem] sm:w-full sm:max-w-md main-container px-5 py-10"
+              className="max-w-[22rem] sm:w-full sm:max-w-md main-container px-5 py-7"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{
@@ -186,7 +186,7 @@ export default function SignUpPage() {
 
         {!user?.uid && auth.currentUser &&
           <div className="flex justify-center items-center min-h-screen">
-            <m.div className=" sm:w-full sm:max-w-md main-container px-5 py-10 "
+            <m.div className=" sm:w-full sm:max-w-md main-container px-5 py-7 "
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{

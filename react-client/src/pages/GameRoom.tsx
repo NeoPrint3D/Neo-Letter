@@ -1,6 +1,6 @@
-import { collection, doc, getDoc, getFirestore, increment, onSnapshot, query, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getFirestore, increment, limit, onSnapshot, orderBy, query, endAt, updateDoc, QueryDocumentSnapshot, DocumentData, limitToLast } from "firebase/firestore";
 import { AnimatePresence, domMax, LazyMotion, m } from "framer-motion";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { FaCrown } from 'react-icons/fa';
 import { FiShare } from 'react-icons/fi';
@@ -11,9 +11,11 @@ import { RWebShare } from "react-web-share";
 import Grid from "../components/Grid/Grid";
 import RoomStatusHandler from "../components/Handlers/RoomStatusHandler";
 import KeyBoard from "../components/Keyboard";
+import MessageUI from "../components/MessageUI";
+import MessageButton from "../components/MessageUI/components/MessageButton";
 import UserPreview from "../components/UserPreview";
-import { UidContext } from "../context/AuthContext";
-import { GuessesContext, GuessesDispatchContext, KeyboardContext, KeyBoardDispatchContext } from "../context/GameContext";
+import { useUid } from "../context/AuthContext";
+import { useGuesses, useKeyboard, useMessages } from "../context/GameContext";
 import { app } from "../utils/firebase";
 import Logo from "/images/assets/logo.webp";
 
@@ -35,41 +37,23 @@ export default function GameRoom() {
     const [hasGuessed, setHasGuessed] = useState(false)
     const [resetWinner, setResetWinner] = useState(false)
     const [roundGuessedReset, setRoundGuessedReset] = useState(false)
-    const { id } = useParams()
+    const { showMessages, setShowMessages, allowMessages, setAllowMessages, setMessages } = useMessages()
+    const [messageLoading, setMessageLoading] = useState(false)
+    const { key, setKey } = useKeyboard()
+    const { guesses, setGuesses } = useGuesses()
     const { height, width } = useWindowSize()
-    const uid = useContext(UidContext)
-    const key = useContext(KeyboardContext)
-    const setKey = useContext(KeyBoardDispatchContext)
-    const guesses: string[] = useContext(GuessesContext)
-    const setGuesses = useContext(GuessesDispatchContext)
+    const { id } = useParams()
+    const uid = useUid()
     const roomRef = useMemo(() => doc(firestore, "rooms", `${id}`), [id])
     const playerRef = useMemo(() => doc(firestore, "rooms", `${id}`, "players", uid), [id, uid])
     const winner = useMemo(() => players.filter(p => p.guesses.includes(answers[round]?.toUpperCase()))[0], [players, answers, round])
 
 
 
-    const handlePlayersGuess = useCallback((players: GamePlayer[]) => {
+    const handleOtherPlayersGuess = useCallback((players: GamePlayer[]) => {
         setGuessFireOff(players.filter(player => player.guessed).map(player => player.uid))
     }, [])
-    const handleEveryoneGuessed = useCallback(async (players: GamePlayer[]) => {
-        if (players.length === 0) return
-        if (!players.every(player => player.guesses.length === 6)) return
-        setRoundGuessedReset(true)
-        await new Promise((resolve) => setTimeout(resolve, 1750))
-
-        await updateDoc(doc(firestore, "rooms", `${id}`, "players", uid), { guesses: [] })
-        if (currentPlayer.role === "creator") {
-            console.log("updated everything")
-            await updateDoc(roomRef, { round: increment(1) })
-        }
-        setFireOff(true)
-        await new Promise(resolve => setTimeout(resolve, 300))
-        setFireOff(false)
-        setGuesses([])
-        setKey("")
-        setRoundGuessedReset(false)
-    }, [players])
-    const handleEnter = useCallback(async () => {
+    const handleGuess = useCallback(async () => {
         if (key.length !== 5) return
         setHasGuessed(true)
         const res = await fetch(import.meta.env.DEV ? `http://localhost:4000/api/valid?word=${key}` : `https://neo-letter-fastify.vercel.app/api/valid?word=${key}`)
@@ -89,6 +73,24 @@ export default function GameRoom() {
         await updateDoc(playerRef, { guessed: false, guessedCorrectly: false })
         setHasGuessed(false)
     }, [key, guesses])
+    const handleEveryoneGuessed = useCallback(async (players: GamePlayer[]) => {
+        if (players.length === 0) return
+        if (!players.every(player => player.guesses.length === 6)) return
+        setRoundGuessedReset(true)
+        await new Promise((resolve) => setTimeout(resolve, 1750))
+
+        await updateDoc(doc(firestore, "rooms", `${id}`, "players", uid), { guesses: [] })
+        if (currentPlayer.role === "creator") {
+            console.log("updated everything")
+            await updateDoc(roomRef, { round: increment(1) })
+        }
+        setFireOff(true)
+        await new Promise(resolve => setTimeout(resolve, 300))
+        setFireOff(false)
+        setGuesses([])
+        setKey("")
+        setRoundGuessedReset(false)
+    }, [players])
     const handleRoomWin = useCallback(async (players: GamePlayer[]) => {
         if (!winner || resetWinner) return
         setResetWinner(true);
@@ -111,91 +113,88 @@ export default function GameRoom() {
         setKey("");
         setResetWinner(false);
     }, [answers, players])
-
-
+    const handleRoomStatus = useCallback(async () => {
+        if (players.length > room.maxPlayers) {
+            setRoomStatus("room_full")
+            return
+        }
+        if (players.map(p => p.uid).includes(uid) === false && players.length > 0) {
+            setRoomStatus("user_not_found")
+            return
+        }
+        if (round >= answers.length && answers.length > 0) {
+            setRoomStatus("room_finished")
+            if (!currentPlayer.signedIn) return
+            const lastRoom = (await getDoc(doc(firestore, "users", currentPlayer.uid))).data()?.lastRoom
+            if (lastRoom === id) return
+            await updateDoc(doc(firestore, "users", uid), {
+                lastRoom: id,
+                wins: placing[0]?.uid === currentPlayer.uid && room.maxPlayers !== 1 ? increment(1) : increment(0),
+                gamesPlayed: increment(1),
+                totalPoints: increment(currentPlayer.points)
+            })
+            return
+        }
+        if ((!players.every(p => p.ready) && !room.started && !(room.maxPlayers === 1)) || (players.length <= 1 && players.length > 0 && !(room.maxPlayers === 1))) {
+            setRoomStatus("players_not_ready")
+            return
+        }
+        if (room && uid && currentPlayer && players && (room.maxPlayers === 1 || players.length > 1)) {
+            setRoomStatus("exists")
+            updateDoc(roomRef, { started: true })
+            return
+        }
+    }, [room, players, round, answers, currentPlayer])
     useEffect(() => {
-        if (roundGuessedReset) toast.warning("Everyone has guessed.", { theme: "dark" })
-    }, [roundGuessedReset])
-
-
-
-
-    useEffect(() => {
-        const q = query(collection(firestore, "rooms", `${id}`, "players"))
-
-
-
-        const unsub1 = onSnapshot(q, async (playersRes) => {
+        const unsub1 = onSnapshot(collection(firestore, "rooms", `${id}`, "players"), async (playersRes) => {
             const players = playersRes.docs.map((doc) => { return { ...doc.data() } }) as GamePlayer[]
-            handlePlayersGuess(players)
+
             handleEveryoneGuessed(players)
+            handleOtherPlayersGuess(players)
+
             setPlayers(players)
             setPlacing(players.filter((p) => p.points > 0).length > 0 ? players.sort((a, b) => b.points! - a.points!) : [])
             setCurrentPlayer(players.find((p) => p.uid === uid) as GamePlayer)
-            setGuesses(players.find(p => p.uid === uid)?.guesses)
+            setGuesses(players.find(p => p.uid === uid)?.guesses as string[])
         })
-
         const unsub2 = onSnapshot(roomRef, (roomRes) => {
             const room = roomRes.data()
-            if (!room) {
-                setRoomStatus("room_not_found")
-                return
-            }
+            if (!room) { setRoomStatus("room_not_found"); return }
+            setAllowMessages(room.allowMessages)
             setRoom(room as Room)
             setAnswers(room.answers)
             setRound(room.round)
+
         })
         return () => {
             unsub1()
             unsub2()
         }
     }, [])
+
     useEffect(() => {
-        const main = async () => {
-            if (players.length > room.maxPlayers) {
-                setRoomStatus("room_full")
-                return
-            }
-            if (players.map(p => p.uid).includes(uid) === false && players.length > 0) {
-                setRoomStatus("user_not_found")
-                return
-            }
-            if (round >= answers.length && answers.length > 0) {
-                setRoomStatus("room_finished")
-                if (!currentPlayer.signedIn) return
-                const lastRoom = (await getDoc(doc(firestore, "users", currentPlayer.uid))).data()?.lastRoom
-                if (lastRoom === id) return
-                await updateDoc(doc(firestore, "users", uid), {
-                    lastRoom: id,
-                    wins: placing[0]?.uid === currentPlayer.uid && room.maxPlayers !== 1 ? increment(1) : increment(0),
-                    gamesPlayed: increment(1),
-                    totalPoints: increment(currentPlayer.points)
-                })
-                return
-            }
-            if ((!players.every(p => p.ready) && !room.started && !(room.maxPlayers === 1)) || (players.length <= 1 && players.length > 0 && !(room.maxPlayers === 1))) {
-                setRoomStatus("players_not_ready")
-                return
-            }
-            if (room && uid && currentPlayer && players && (room.maxPlayers === 1 || players.length > 1)) {
-                setRoomStatus("exists")
-                updateDoc(roomRef, { started: true })
-                return
-            }
-        }
-        main()
-    }, [room, players, round, answers, currentPlayer])
+        const unsub3 = onSnapshot(query(collection(firestore, "rooms", `${id}`, "messages"), orderBy("reversedCreatedAt", "desc"), limitToLast(20)), (messagesRes) => {
+            if (!room.allowMessages) { setShowMessages(false); return }
+            setMessages(messagesRes.docs.map((doc) => doc.data()) as Message[])
+        })
+        return () => unsub3()
+    }, [room.allowMessages])
 
-
-
-
+    useEffect(() => {
+        if (roundGuessedReset) toast.warning("Everyone has guessed.", { theme: "dark" })
+    }, [roundGuessedReset])
     useEffect(() => {
         handleRoomWin(players)
     }, [answers, players])
+    useEffect(() => {
+        handleRoomStatus()
+    }, [room, players, round, answers, currentPlayer])
 
 
     return (
         <LazyMotion features={domMax}>
+            <MessageUI players={players} room={room} />
+            <UserPreview selectedId={selectedId} height={height} selectedPlayer={selectedPlayer} room={room} setSelectedId={setSelectedId} width={width} />
             <RoomStatusHandler
                 winner={{
                     name: placing[0]?.name || "No one won",
@@ -205,10 +204,9 @@ export default function GameRoom() {
                 players={players}
                 roomStatus={roomStatus} >
                 <Helmet>
-                    <title>Neo Letter</title>
+                    <title>Neo Letter | Room {id}</title>
                     <meta name="description" content={`Room ${id} is where the paty is at`} />
                 </Helmet>
-                <UserPreview selectedId={selectedId} height={height} selectedPlayer={selectedPlayer} room={room} setSelectedId={setSelectedId} width={width} />
 
                 <div className="min-h-screen">
                     <header>
@@ -239,8 +237,9 @@ export default function GameRoom() {
                                 </div>
                                 <h1 className=" text-xl font-sans select-text font-semibold">ID: {id}</h1>
                             </div>
-                            <div className="flex items-center justify-end mr-3">
-                                <div className="tooltip tooltip-left" data-tip={"Share?"}>
+                            <div className="flex sm:gap-3 items-center justify-end mr-3">
+                                <MessageButton />
+                                <div className="tooltip tooltip-bottom" data-tip={"Share?"}>
                                     <RWebShare
                                         data={{
                                             title: `Join room ${id}`,
@@ -254,7 +253,7 @@ export default function GameRoom() {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center h-[4.25rem] border-slate-500/40 border-y-4  ">
+                        <div className="flex items-center h-[4.25rem] border-white/20 border-y-4  ">
                             <div className="flex items-center  scroll-hidden h-full w-full ">
                                 {players && players.filter((p) => p.uid !== uid).map((player) => (
                                     <m.button
@@ -359,7 +358,7 @@ export default function GameRoom() {
                             </AnimatePresence>
                         </div>
                         <div className={` flex justify-center mb-5 ${width < 400 && "scale-[93.5%]"}`}>
-                            <KeyBoard handleEnter={() => handleEnter()} hasGuessed={hasGuessed} answer={`${answers[round]}`.toUpperCase()} />
+                            <KeyBoard handleEnter={() => handleGuess()} hasGuessed={hasGuessed} answer={`${answers[round]}`.toUpperCase()} />
                         </div>
                     </div>
                     <AnimatePresence>

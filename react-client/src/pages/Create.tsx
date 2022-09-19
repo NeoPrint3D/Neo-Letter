@@ -1,16 +1,17 @@
 
-import { doc, getDoc, setDoc, getFirestore } from 'firebase/firestore/lite';
-import { FormEvent, useCallback, useContext, useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
-import { Link, useNavigate } from 'react-router-dom';
-import { UserContext, UidContext } from '../context/AuthContext';
-import Loader from '../components/Loader';
-import { AnimatePresence, domMax, LazyMotion, m } from 'framer-motion';
-import { IoIosAddCircleOutline, IoIosArrowBack } from 'react-icons/io';
-import { BiCustomize } from 'react-icons/bi';
-import { toast } from 'react-toastify';
 import { logEvent } from 'firebase/analytics';
+import { addDoc, collection, doc, getDoc, serverTimestamp, setDoc, Timestamp, updateDoc } from 'firebase/firestore/lite';
+import { AnimatePresence, domMax, LazyMotion, m } from 'framer-motion';
+import { FormEvent, useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet';
+import { BiCustomize } from 'react-icons/bi';
+import { IoIosAddCircleOutline, IoIosArrowBack } from 'react-icons/io';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { v4 } from 'uuid';
+import Loader from '../components/Loader';
 import Tooltip from '../components/Tooltip';
+import { useUid, useUser } from '../context/AuthContext';
 import { loadAnalytics, loadFirestore } from '../utils/firebase';
 
 
@@ -29,20 +30,21 @@ export default function CreateRoom() {
   const [isPrivate, setIsPrivate] = useState(true);
   const [allowJoinAfterStart, setAllowJoinAfterStart] = useState(true);
   const [allowCustomWords, setAllowCustomWords] = useState(false)
-  const [allowChat, setAllowChat] = useState(true)
+  const [allowMessages, setAllowMessages] = useState(true)
+  const [allowProfanity, setAllowProfanity] = useState(false)
   const [rounds, setRounds] = useState(5);
   const [customWords, setCustomWords] = useState<CustomWord[]>([])
   const [customWord, setCustomWord] = useState("")
   const [switchUi, setSwitchUI] = useState(false)
   const navigate = useNavigate()
-  const user = useContext(UserContext)
-  const uid = useContext(UidContext);
+  const user = useUser()
+  const uid = useUid();
 
-  async function generateCleanId() {
+  async function generateCleanRoomId() {
     const id = Math.floor(Math.random() * 100000).toString().padStart(5, "0");
     const firestore = await loadFirestore()
     if (!(await getDoc(doc(firestore, "rooms", `${id}`))).exists()) return id
-    generateCleanId()
+    generateCleanRoomId()
   }
 
   function roomSelectToNumber(select: string) {
@@ -77,7 +79,7 @@ export default function CreateRoom() {
         : `https://neo-letter-fastify.vercel.app/api/words?count=${rounds}`
     ).then((res) => res.json())
     const wordlist = res.words
-    const id = await generateCleanId()
+    const id = await generateCleanRoomId()
     const playerInfo: GamePlayer = {
       name: "",
       uid,
@@ -102,13 +104,27 @@ export default function CreateRoom() {
       round: 0,
       allowLateJoiners: allowJoinAfterStart,
       customWords: customWords.length !== 0,
-      allowChat: allowChat
+      allowMessages: allowMessages,
+      allowProfanity: allowProfanity,
+    }
+    const messageInfo: Message = {
+      messengerID: 'Admin',
+      messengerUsername: 'Neo Letter',
+      content: 'Welcome To Messages!!!',
+      createdAt: serverTimestamp() as Timestamp,
+      readBy: [],
+      reversedCreatedAt: -1 * (new Date().getTime()),
+      id: ""
     }
     const firestore = await loadFirestore()
     await Promise.all([
       setDoc(doc(firestore, "rooms", `${id}`), roomInfo),
       setDoc(doc(firestore, "rooms", `${id}`, "players", uid), playerInfo),
     ])
+    if (allowMessages) {
+      const docRef = await addDoc(collection(firestore, "rooms", `${id}`, "messages"), messageInfo);
+      await updateDoc(doc(firestore, "rooms", `${id}`, "messages", docRef.id), { id: docRef.id })
+    }
     const analytics = await loadAnalytics()
     logEvent(analytics, "room_created", { uid: uid, date: new Date().getTime() })
     setLoading(false)
@@ -129,7 +145,8 @@ export default function CreateRoom() {
       func: (e: any) => {
         if (e.target.checked === false) setCustomWords([]); setCustomWord("")
         setAllowCustomWords(e.target.checked)
-      }
+      },
+      color: "checkbox-primary",
     },
     {
       name: "Private",
@@ -138,9 +155,13 @@ export default function CreateRoom() {
     },
     {
       name: "Chattting",
-      value: allowChat,
-      func: (e: any) => setAllowChat(e.target.checked),
-      tooltip: "Coming Soon!!!"
+      value: allowMessages,
+      func: (e: any) => setAllowMessages(e.target.checked),
+    },
+    {
+      name: "Profanity",
+      value: allowProfanity,
+      func: (e: any) => setAllowProfanity(e.target.checked),
     }
   ]
 
@@ -197,7 +218,7 @@ export default function CreateRoom() {
                   <h1>Rounds:</h1>
                   <h2>{customWords.length}</h2>
                 </div>
-                <form className='flex gap-5' onSubmit={(e) => addWords(e)}>
+                <form className='flex gap-3' onSubmit={(e) => addWords(e)}>
                   <input placeholder='words' type="text" value={customWord} className='input-focus rounded-xl p-3  bg-transparent focus:outline-none  placeholder:text-white/50 ' onChange={(e) => setCustomWord(e.target.value.replace(/[^a-z]/gi, '').slice(0, 5))} />
                   <button type='submit'>
                     <IoIosAddCircleOutline className='btn btn-primary btn-circle' size={35} />
@@ -326,12 +347,12 @@ export default function CreateRoom() {
 }
 
 
-function Options({ name, value, func, tooltip }: { name: string, value: boolean, func: any, tooltip?: string }) {
+function Options({ name, value, func, tooltip, color = "checkbox-accent" }: { name: string, value: boolean, func: any, tooltip?: string, color?: string }) {
   return (
-    <div className={`flex justify-center gap-1.5 items-center ${tooltip && "tooltip tooltip-bottom tooltip-secondary"}`} data-tip={tooltip || ""}>
+    <div className={`flex justify-center gap-1.5 items-center ${tooltip && "tooltip tooltip-bottom"}`} data-tip={tooltip || ""}>
       <p>{name}</p>
       <div className='flex justify-end '>
-        <input aria-label={name} id={name} className='checkbox checkbox-primary' type="checkbox" checked={value} onChange={func} />
+        <input aria-label={name} id={name} className={`checkbox ${color}`} type="checkbox" checked={value} onChange={func} />
       </div>
     </div>
   )

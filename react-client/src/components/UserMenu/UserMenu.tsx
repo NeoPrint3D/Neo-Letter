@@ -1,14 +1,14 @@
 import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion"
 import { useCallback, useContext, useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { UserContext } from "../../context/AuthContext"
+import { useUser } from "../../context/AuthContext"
 
 
 export default function UserDropDown() {
 
     const [open, setOpen] = useState(false)
 
-    const user = useContext(UserContext)
+    const user = useUser()
 
     const handleBlur = useCallback((e) => {
         const currentTarget = e.currentTarget

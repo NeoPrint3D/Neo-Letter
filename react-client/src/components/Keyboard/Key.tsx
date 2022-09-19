@@ -1,14 +1,13 @@
 import { m } from "framer-motion";
 import { memo, useCallback, useContext } from "react";
 import { useWindowSize } from "react-use";
-import { GuessesContext, KeyboardContext, KeyBoardDispatchContext } from "../../context/GameContext";
+import { useKeyboard, useGuesses } from "../../context/GameContext";
 import { CharStatus } from "../Grid/utils/getStatuses";
 
 function Key({ value, status }: { value?: string, status?: CharStatus, socket?: any }) {
     const { width } = useWindowSize()
-    const key = useContext(KeyboardContext);
-    const setKey = useContext(KeyBoardDispatchContext)
-    const guesses = useContext(GuessesContext)
+    const { key, setKey } = useKeyboard()
+    const { guesses } = useGuesses()
 
 
     const handleClick = useCallback(async () => {

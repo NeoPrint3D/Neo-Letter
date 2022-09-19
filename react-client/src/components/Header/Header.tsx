@@ -1,13 +1,13 @@
 import { AnimatePresence, m } from "framer-motion";
 import { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { UserContext } from "../../context/AuthContext";
+import { useUser } from "../../context/AuthContext";
 import UserDropDown from "../UserMenu";
 import Logo from "/images/assets/logo.webp";
 
 export default function Header() {
   const location = useLocation();
-  const user = useContext(UserContext);
+  const user = useUser();
   const hideHeader = ["/room"].includes(`/${location.pathname.split("/")[1]}`);
 
   return hideHeader ? (

@@ -28,14 +28,14 @@ img {
 }
 
 .input-focus {
-  @apply border-[3px] transition-colors duration-500 border-white/20  focus:border-white;
+  @apply border-[3px] transition-colors duration-500 border-white/50  focus:border-white;
 }
 .tooltip-calc:nth-child(-n + 1) {
   @apply bg-red-400;
 }
 
 .main-container {
-  @apply bg-primary-dark/[15%] backdrop-blur-[50px]  rounded-3xl shadow-2xl border-[1.5px] border-white/[15%];
+  @apply bg-primary-dark/[15%] backdrop-blur-[50px]  rounded-3xl shadow-2xl border-[1.5px] border-white/20;
 }
 
 .main-button {

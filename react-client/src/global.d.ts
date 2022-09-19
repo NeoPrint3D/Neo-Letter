@@ -12,9 +12,10 @@ interface Room {
   roomType: "public" | "private";
   started: boolean;
   allowLateJoiners: boolean;
-  allowChat: boolean;
+  allowMessages: boolean;
   round: number;
   customWords: boolean;
+  allowProfanity: boolean;
 }
 
 interface GamePlayer {
@@ -42,6 +43,16 @@ interface UserProfile {
   updatedAt: Timestamp;
   lastRoom: string;
   email: string;
+}
+
+interface Message {
+  messengerID: string;
+  messengerUsername: string;
+  content: string;
+  createdAt: Timestamp;
+  reversedCreatedAt: number;
+  readBy: string[];
+  id: string;
 }
 
 type RoomStatuses =

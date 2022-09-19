@@ -54,7 +54,7 @@ export default function FilledRow({ guess, answer }: { guess: string, answer: st
                     }}
                     key={index}
                     className={`
-                                h-12 w-12 sm:h-14 sm:w-14 rounded flex justify-center items-center text-3xl text-white 
+                                h-12 w-12 sm:h-14 sm:w-14 rounded flex justify-center items-center text-3xl text-white z-50
                                 ${status[index] === "correct" && "bg-success"}
                                 ${status[index] === "present" && "bg-warning"}
                                 ${status[index] === "absent" && "bg-gray-500"}

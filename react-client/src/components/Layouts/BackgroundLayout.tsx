@@ -1,7 +1,7 @@
-import { useWindowSize } from "react-use"
-import MobileImage from "/images/assets/App-Mobile.webp"
-import DesktopImage from "/images/assets/App-Desktop.webp"
 import { Outlet } from "react-router-dom"
+import { useWindowSize } from "react-use"
+import DesktopImage from "/images/assets/App-Desktop.webp"
+import MobileImage from "/images/assets/App-Mobile.webp"
 
 export default function BackgroundLayout() {
     const { width } = useWindowSize()

@@ -2,7 +2,7 @@ import { collection, getFirestore, limit, orderBy, query, where } from "firebase
 import { m } from "framer-motion";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useWindowSize } from "react-use";
-import { UserContext } from "../context/AuthContext";
+import { useUser } from "../context/AuthContext";
 import { app } from "../utils/firebase";
 
 
@@ -10,7 +10,7 @@ import { app } from "../utils/firebase";
 
 export default function LeaderBoard() {
   const firestore = useMemo(() => getFirestore(app), [])
-  const user = useContext(UserContext);
+  const user = useUser()
   const { width } = useWindowSize();
   const [userPlace, setUserPlace] = useState(20);
   const [users, setUsers] = useState([] as UserProfile[]);

@@ -1,6 +1,7 @@
 import { AnimatePresence, m } from "framer-motion";
 import { memo } from "react";
 import { FaSquare } from "react-icons/fa";
+import { IoIosArrowBack } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { getGuessStatuses } from "../Grid/utils/getStatuses";
 
@@ -10,14 +11,14 @@ function UserPreview({ selectedId, selectedPlayer, room, setSelectedId, width, h
             {selectedId &&
                 <>
                     <m.div
-                        className=" fixed backdrop-blur-lg bg-black/20 z-[5]  h-screen w-screen  "
+                        className=" fixed backdrop-blur-lg bg-gray-500/20 z-10  h-screen w-screen  "
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     />
                     <div className="flex fixed  justify-center items-center top-0  h-screen w-screen z-20 ">
                         <m.div
-                            className={`grid grid-rows-6 bg-gray-500/30 backdrop-blur-xl  z-10 p-4 rounded-3xl w-full max-w-[22rem] lg:w-[60%] lg:max-w-none ${width > 600 ? "h-[75%]" : "h-[50%]"} shadow-2xl `}
+                            className={`grid grid-rows-6 main-container z-10 w-full max-w-[22rem] xs:max-w-[24rem] sm:max-w-lg lg:w-[60%] lg:max-w-none ${width > 600 ? "h-[75%]" : "h-[50%]"} shadow-2xl `}
                             initial={{ scale: 0, y: -height / 2 }}
                             animate={{ scale: 1, y: 0 }}
                             exit={{ scale: 0, opacity: 0 }}
@@ -37,14 +38,13 @@ function UserPreview({ selectedId, selectedPlayer, room, setSelectedId, width, h
                         >
                             <div>
                                 <div className="grid grid-cols-5 h-full">
-                                    <div />
+                                    <div className="flex items-start  w-full ">
+                                        <button onClick={() => setSelectedId("")} className="  ml-3 mt-3 p-2 rounded-full hover:bg-white/10 hover:scale-105 active:scale-95 transition-all duration-300">
+                                            <IoIosArrowBack size={35} />
+                                        </button>
+                                    </div>
                                     <div className="flex items-end justify-center col-span-3 text-white">
                                         <h1 className="text-center text-4xl font-bold">{selectedPlayer.name}</h1>
-                                    </div>
-                                    <div className="flex items-start justify-end w-full ">
-                                        <button className="z-50" onClick={() => setSelectedId("")}>
-                                            <IoClose className="text-white" size={45} />
-                                        </button>
                                     </div>
                                 </div>
                             </div>

@@ -4,8 +4,12 @@ import { v4 } from "uuid";
 import { app, auth } from "../utils/firebase";
 
 
-export const UserContext = createContext(undefined as unknown as UserProfile);
-export const UidContext = createContext(undefined as unknown as string);
+
+
+
+
+const UserContext = createContext(undefined as unknown as UserProfile);
+const UidContext = createContext(undefined as unknown as string);
 const AuthContext = createContext(undefined as unknown as User);
 
 
@@ -65,5 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
 }
 
-export function useAuth() { return useContext(AuthContext); }
+export const useAuth = () => useContext(AuthContext)
+export const useUid = () => useContext(UidContext)
+export const useUser = () => useContext(UserContext)
+
 

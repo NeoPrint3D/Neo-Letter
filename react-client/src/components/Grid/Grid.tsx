@@ -1,11 +1,11 @@
 import { useContext, useMemo } from "react";
-import { GuessesContext } from "../../context/GameContext";
+import { useGuesses } from "../../context/GameContext";
 import CurrentRow from "./Rows/CurrentRow";
 import { EmptyRow } from "./Rows/EmptyRow";
 import FilledRow from "./Rows/FilledRow";
 
 function Grid({ answer }: { answer: string }) {
-    const guesses = useContext(GuessesContext)
+    const { guesses } = useGuesses()
     const empties = useMemo(() => guesses?.length < 5 ? Array.from(Array(5 - guesses.length)) : [], [guesses])
     return (
         <div className="grid grid-rows-6 gap-1.5">

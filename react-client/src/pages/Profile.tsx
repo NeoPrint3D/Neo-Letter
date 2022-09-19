@@ -81,7 +81,7 @@ export default function Profile() {
 
 
   return (
-    <>
+    <div className="h-screen overflow-x-hidden flex justify-center items-center">
       <Helmet>
         <title>{user.username}'s Profile </title>
         <meta name="description" content={`${user.username}'s profile`} />
@@ -99,63 +99,83 @@ export default function Profile() {
       </Helmet>
 
 
-      <div className="h-screen w-screen  overflow-hidden flex justify-center items-center">
-        <m.div
-          className={` flex flex-col  main-container max-w-[22rem] xs:max-w-[24rem] sm:max-w-xl w-full pb-12`}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
+      <m.div
+        className={` flex flex-col  main-container max-w-[22rem] xs:max-w-[24rem] sm:max-w-xl w-full pb-8`}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 30,
+        }}
+      >
+
+        <m.figure
+          className={`flex justify-center`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{
             type: "spring",
             stiffness: 300,
             damping: 30,
+            duration: 2,
+            delay: 0.5,
           }}
+          onMouseEnter={() => setShow(true)}
+          onMouseLeave={() => setShow(false)}
         >
+          <img
+            src={user.profilePic}
+            alt={`A picture of ${user.username} at NeoPrint3D`}
+            referrerPolicy="no-referrer"
+            className="rounded-3xl absolute w-20 -translate-y-[2.75rem] border-[3px] border-white/10  "
+          />
+        </m.figure>
 
-          <m.figure
-            className={`flex justify-center`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+
+
+        <div className="flex items-center justify-center text-center text-5xl font-logo mt-14 text-white">
+          {" "}
+          {user.username}
+        </div>
+
+        <div className="flex font-logo flex-col items-center mt-5 h-full gap-4">
+          {statContainers.map((stat, index) => (
+            <Stat
+              index={index}
+              key={index}
+              title={stat.title}
+              stat={stat.value}
+              icon={stat.icon}
+            />
+          ))}
+          <m.div className="w-full px-5"
+            initial={{ opacity: 0, y: -100 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 30,
-              duration: 2,
-              delay: 0.5,
+              y: {
+                type: "spring",
+                stiffness: 300,
+                damping: 10,
+                delay: 3 * 0.25 + 0.7,
+                duration: 1,
+              },
+              opacity: {
+                delay: 3 * 0.2 + 0.7,
+                duration: 0.5,
+              },
             }}
           >
-            <img
-              src={user.profilePic}
-              alt={`A picture of ${user.username} at NeoPrint3D`}
-              referrerPolicy="no-referrer"
-              className="rounded-3xl absolute w-20 -translate-y-[2.75rem]    border-[3px] border-white/10  "
-            />
-
-          </m.figure>
-          <div className="flex justify-start absolute w-full">
-            <Link to={`settings`} className="ml-3 mt-3  btn btn-ghost btn-circle">
-              <IoIosSettings size={40} className="text-gray-400" />
-            </Link>
-          </div>
-
-          <div className="flex items-center justify-center text-center text-5xl font-logo mt-14 text-white">
-            {" "}
-            {user.username}{" "}
-          </div>
-
-          <div className="flex flex-col items-center mt-5 h-full gap-5">
-            {statContainers.map((stat, index) => (
-              <Stat
-                index={index}
-                key={index}
-                title={stat.title}
-                stat={stat.value}
-                icon={stat.icon}
-              />
-            ))}
-          </div>
-        </m.div>
-      </div >
-    </>
+            <div className="flex justify-center items-center shadow-input py-3 rounded-xl px-4 w-full">
+              <Link to="settings" className="btn btn-ghost flex justify-center gap-3">
+                <h1 className="text-2xl text-white font-medium col-span-4">Settings</h1>
+                <IoIosSettings size={40} className="text-gray-300" />
+              </Link>
+            </div>
+          </m.div>
+        </div>
+      </m.div >
+    </div >
   );
 }
 
@@ -171,9 +191,9 @@ function Stat({
   index: number;
 }) {
   return (
-    <section className="w-[90%]">
+    <section className="w-full px-5">
       <m.div
-        className="grid grid-cols-7 items-center shadow-input h-20 rounded-3xl px-4"
+        className="grid grid-cols-7 items-center shadow-input py-4 rounded-xl px-4"
         initial={{ opacity: 0, y: -100 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
@@ -190,7 +210,7 @@ function Stat({
           },
         }}
       >
-        <h1 className=" text-2xl text-white font-medium col-span-4">{title}</h1>
+        <h1 className=" text-2xl sm:text-4xl text-white font-medium col-span-4">{title}</h1>
         <div className="flex justify-end w-full gap-3 items-center col-span-3">
           <h1 className="text-2xl sm:text-4xl text-white font-medium">{stat}</h1>
           {icon}

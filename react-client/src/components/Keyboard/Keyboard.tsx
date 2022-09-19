@@ -1,14 +1,14 @@
-import { useCallback, useContext, useEffect, useState } from "react";
-import { GuessesContext, KeyboardContext, KeyBoardDispatchContext } from "../../context/GameContext";
+import { useCallback, useEffect, useState } from "react";
+import { useGuesses, useKeyboard } from "../../context/GameContext";
 import { CharStatus } from "../Grid/utils/getStatuses";
 import { m } from "framer-motion";
 import Key from "./Key";
 
 function KeyBoard({ answer, handleEnter, hasGuessed }: { answer: string, handleEnter: any, hasGuessed: boolean }) {
     const [statuses, setStatuses] = useState<{ [key: string]: CharStatus }>({})
-    const guesses = useContext(GuessesContext)
-    const key = useContext(KeyboardContext)
-    const setKey = useContext(KeyBoardDispatchContext)
+    const { guesses } = useGuesses()
+    const { key, setKey } = useKeyboard()
+
 
     useEffect(() => {
         handlekeyboardStatuses()

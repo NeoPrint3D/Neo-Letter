@@ -54,8 +54,12 @@ app.delete("/api/rooms", async (req, res) => {
   if (ids.length > 0) {
     ids.map(async (id) => {
       console.log(id)
-
       await db.collection("rooms").doc(id).collection("players").get().then(async (snapshot) => {
+        snapshot.docs.map(async (doc) => {
+          await doc.ref.delete()
+        })
+      })
+      await db.collection("rooms").doc(id).collection("messages").get().then(async (snapshot) => {
         snapshot.docs.map(async (doc) => {
           await doc.ref.delete()
         })

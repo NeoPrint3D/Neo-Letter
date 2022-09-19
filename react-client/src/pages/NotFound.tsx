@@ -35,7 +35,7 @@ export default function NotFound() {
       </Helmet>
       <div className="flex flex-col items-center justify-center h-screen">
         <m.div
-          className="flex flex-col items-center main-container w-full max-w-[22rem] xs:max-w-[24rem] sm:max-w-xl py-10 justify-center "
+          className="flex flex-col items-center main-container w-full max-w-[22rem] xs:max-w-[24rem] sm:max-w-xl py-7 justify-center "
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{

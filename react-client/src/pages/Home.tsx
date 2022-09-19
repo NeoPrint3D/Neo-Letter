@@ -1,12 +1,15 @@
-import { useContext, useEffect } from "react";
+import { domAnimation, LayoutGroup, LazyMotion, m } from "framer-motion";
+import { useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useLocation } from "react-router-dom";
-import { domAnimation, LayoutGroup, LazyMotion, m } from "framer-motion";
 import { useCookie, useWindowSize } from "react-use";
-import { UserContext } from "../context/AuthContext";
-import MobileImage from "/images/assets/App-Mobile.webp";
-import DesktopImage from "/images/assets/App-Desktop.webp";
+import { useUser } from "../context/AuthContext";
 import { loadAnalytics } from "../utils/firebase";
+import DesktopImage from "/images/assets/App-Desktop.webp";
+import MobileImage from "/images/assets/App-Mobile.webp";
+
+
+
 
 
 
@@ -14,7 +17,7 @@ function Home() {
   const location = useLocation();
   const { width } = useWindowSize();
   const [preference, updateCookie] = useCookie("preferences")
-  const user = useContext(UserContext)
+  const user = useUser();
 
   useEffect(() => {
     if (!preference) {
@@ -27,6 +30,9 @@ function Home() {
       window.location.href = "/"
     }
   }, []);
+
+
+
 
   useEffect(() => {
     if (JSON.parse(preference as string)?.showReminder) remindToSignUp();
@@ -90,7 +96,7 @@ function Home() {
         >
           <div className="hero-content text-center text-neutral-content ">
             <m.div
-              className=" w-fullmax-w-[22rem] xs:max-w-[24rem] sm:max-w-xl main-container px-5 py-10"
+              className=" w-fullmax-w-[22rem] xs:max-w-[24rem] sm:max-w-xl main-container px-5 py-7"
               initial={{ rotateX: -90, opacity: 0 }}
               animate={{ rotateX: 0, opacity: 1 }}
               transition={{
