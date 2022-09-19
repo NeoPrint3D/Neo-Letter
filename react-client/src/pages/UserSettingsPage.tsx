@@ -1,8 +1,8 @@
-import { collection, doc, getDoc, getDocs, limit, query, where } from "firebase/firestore/lite"
-import { useContext, useEffect, useState } from "react"
+import { collection, getDocs, limit, query, where } from "firebase/firestore/lite"
+import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import Loader from "../components/Loader"
-import { UidContext, useAuth } from "../context/AuthContext"
+import { useAuth } from "../context/AuthContext"
 import { loadFirestore } from "../utils/firebase"
 
 
@@ -10,7 +10,7 @@ export default function SettingsPage() {
     const [requestedUser, setRequestedUser] = useState(undefined as unknown as UserProfile)
     const [isAuthorized, setIsAuthorized] = useState(undefined as unknown as boolean)
     const { username } = useParams()
-    const user = useAuth()
+    const auth = useAuth()
 
     useEffect(() => {
         console.log(username)
@@ -19,24 +19,24 @@ export default function SettingsPage() {
             const requestedUsers = (await getDocs(query(collection(firestore, "users"), where("username", "==", username), limit(1))))
             if (requestedUsers.docs.length === 0) { setIsAuthorized(false); setRequestedUser({} as UserProfile); return }
             setRequestedUser(requestedUsers.docs[0].data() as UserProfile)
-            if (!user) return
-            setIsAuthorized(requestedUsers.docs[0].data().uid === user.uid)
+            if (!auth) return
+            setIsAuthorized(requestedUsers.docs[0].data().uid === auth.uid)
         }
         main()
-    }, [user])
+    }, [auth])
 
     useEffect(() => {
         console.log(requestedUser?.uid, isAuthorized)
     })
 
-    if (user && requestedUser?.uid && isAuthorized) {
+    if (auth && requestedUser?.uid && isAuthorized) {
         return (
             <div className="flex  justify-center items-center w-screen min-h-screen">
                 Autorized
             </div>
         )
     }
-    if (user !== undefined && requestedUser?.uid && isAuthorized === false) {
+    if (auth !== undefined && requestedUser?.uid && isAuthorized === false) {
         return (
             <div className="flex w-screen min-h-screen justify-center items-center">
                 Not Authorized
@@ -45,7 +45,7 @@ export default function SettingsPage() {
         )
     }
 
-    if (user !== undefined && !requestedUser?.uid && isAuthorized !== undefined) {
+    if (auth !== undefined && !requestedUser?.uid && isAuthorized !== undefined) {
         return (
             <div className="flex justify-center items-center w-screen min-h-screen">
                 User not found
