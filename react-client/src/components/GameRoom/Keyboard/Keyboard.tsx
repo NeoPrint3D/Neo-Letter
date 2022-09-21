@@ -1,7 +1,7 @@
+import { m } from "framer-motion";
 import { memo, useCallback, useEffect, useState } from "react";
 import { useGuesses, useKeyboard } from "../../../context/GameContext";
-import { CharStatus } from "../../Grid/utils/getStatuses";
-import { m } from "framer-motion";
+import { CharStatus } from "../Grid/utils/getStatuses";
 import Key from "./Key";
 
 function Keyboard({ answer, handleEnter, hasGuessed }: { answer: string, handleEnter: any, hasGuessed: boolean }) {

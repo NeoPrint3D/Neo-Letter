@@ -29,6 +29,7 @@ specifiers:
   vite-plugin-pwa: ^0.12.0
   vite-plugin-qrcode: ^0.1.1
   vite-plugin-remove-console: ^1.1.0
+  vite-plugin-webfont-dl: ^3.1.1
   workbox-window: ^6.5.4
 
 dependencies:
@@ -62,6 +63,7 @@ devDependencies:
   vite-plugin-pwa: 0.12.3_ytzi5swfraj2n2tmn6nztjm3nm
   vite-plugin-qrcode: 0.1.1_vite@2.9.14
   vite-plugin-remove-console: 1.1.0
+  vite-plugin-webfont-dl: 3.1.1_vite@2.9.14
   workbox-window: 6.5.4
 
 packages:
@@ -2777,6 +2779,14 @@ packages:
   /axe-core/4.4.1:
     resolution: {integrity: sha512-gd1kmb21kwNuWr6BQz8fv6GNECPBnUasepcoLbekws23NVBLODdsClRZ+bQ8+9Uomf3Sm3+Vwn0oYG9NvwnJCw==}
     engines: {node: '>=4'}
+    dev: true
+
+  /axios/0.25.0:
+    resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
+    dependencies:
+      follow-redirects: 1.15.2
+    transitivePeerDependencies:
+      - debug
     dev: true
 
   /axios/0.27.2:
@@ -7177,6 +7187,17 @@ packages:
 
   /vite-plugin-remove-console/1.1.0:
     resolution: {integrity: sha512-FZ0gLEsRqgHPCl+blHpT3h004+InKrGddmBXTfs7Cj/xWY7FdHpL9Zc9kgjxh8zIzjZ/MblsPDDEqg5BVHIXDA==}
+    dev: true
+
+  /vite-plugin-webfont-dl/3.1.1_vite@2.9.14:
+    resolution: {integrity: sha512-TR7EQ0IRL0yauWs328qUG+w4PPhdmAGQFyH/8ODDI0xseHEcHAt1Bd5H8Y9MAqjhOiPz8odjxt24lUizIVCNAw==}
+    peerDependencies:
+      vite: ^2 || ^3
+    dependencies:
+      axios: 0.25.0
+      vite: 2.9.14
+    transitivePeerDependencies:
+      - debug
     dev: true
 
   /vite/2.9.14:
