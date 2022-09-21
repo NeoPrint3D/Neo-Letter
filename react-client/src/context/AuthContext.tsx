@@ -27,6 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setAuthRef(auth as User);
             if (!auth) { setUser({} as UserProfile); return }
             const { doc, getDoc, getFirestore, serverTimestamp, updateDoc } = await import("firebase/firestore/lite")
+            //TODO fix the uid problems
             const firestore = getFirestore(app)
             const player = await getDoc(doc(firestore, "users", auth.uid))
             if (!player.exists()) return;

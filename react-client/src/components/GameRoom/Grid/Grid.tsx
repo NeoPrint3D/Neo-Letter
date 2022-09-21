@@ -1,7 +1,7 @@
-import { useContext, useMemo } from "react";
-import { useGuesses } from "../../context/GameContext";
+import { memo, useMemo } from "react";
+import { useGuesses } from "../../../context/GameContext";
 import CurrentRow from "./Rows/CurrentRow";
-import { EmptyRow } from "./Rows/EmptyRow";
+import EmptyRow from "./Rows/EmptyRow";
 import FilledRow from "./Rows/FilledRow";
 
 function Grid({ answer }: { answer: string }) {
@@ -16,4 +16,4 @@ function Grid({ answer }: { answer: string }) {
     );
 }
 
-export default Grid
+export default memo(Grid)

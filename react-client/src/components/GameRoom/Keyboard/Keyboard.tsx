@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
-import { useGuesses, useKeyboard } from "../../context/GameContext";
-import { CharStatus } from "../Grid/utils/getStatuses";
+import { memo, useCallback, useEffect, useState } from "react";
+import { useGuesses, useKeyboard } from "../../../context/GameContext";
+import { CharStatus } from "../../Grid/utils/getStatuses";
 import { m } from "framer-motion";
 import Key from "./Key";
 
-function KeyBoard({ answer, handleEnter, hasGuessed }: { answer: string, handleEnter: any, hasGuessed: boolean }) {
+function Keyboard({ answer, handleEnter, hasGuessed }: { answer: string, handleEnter: any, hasGuessed: boolean }) {
     const [statuses, setStatuses] = useState<{ [key: string]: CharStatus }>({})
     const { guesses } = useGuesses()
     const { key, setKey } = useKeyboard()
@@ -43,19 +43,19 @@ function KeyBoard({ answer, handleEnter, hasGuessed }: { answer: string, handleE
     return (
         <div className="flex flex-col mx-2">
             <div className="flex justify-center mb-[0.1875rem] gap-[0.1875rem]">
-                {['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'].map((key, i) => (
+                {['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'].map((key) => (
                     <Key
                         value={key}
-                        key={i}
+                        key={key}
                         status={statuses[key]}
                     />
                 ))}
             </div>
             <div className="flex justify-center mb-[0.1875rem] gap-[0.1875rem]">
-                {['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'].map((key, i) => (
+                {['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'].map((key) => (
                     <Key
                         value={key}
-                        key={i}
+                        key={key}
                         status={statuses[key]}
                     />
                 ))}
@@ -71,10 +71,10 @@ function KeyBoard({ answer, handleEnter, hasGuessed }: { answer: string, handleE
                     Enter
                 </m.button>
 
-                {['Z', 'X', 'C', 'V', 'B', 'N', 'M'].map((key, i) => (
+                {['Z', 'X', 'C', 'V', 'B', 'N', 'M'].map((key) => (
                     <Key
                         value={key}
-                        key={i}
+                        key={key}
                         status={statuses[key]}
                     />
                 ))}
@@ -92,5 +92,5 @@ function KeyBoard({ answer, handleEnter, hasGuessed }: { answer: string, handleE
 }
 
 
-export default KeyBoard
+export default memo(Keyboard)
 

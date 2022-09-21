@@ -1,15 +1,15 @@
-import { Suspense, lazy } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from "./context/AuthContext";
-import { GameContextProvider } from './context/GameContext'
-import Loader from './components/Loader'
-import BackgroundLayout from './components/Layouts/BackgroundLayout';
 import { domAnimation, LazyMotion } from 'framer-motion';
+import { lazy, Suspense } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import BackgroundLayout from './components/Layouts/BackgroundLayout';
+import Loader from './components/Loader';
+import { AuthProvider } from "./context/AuthContext";
+import { GameContextProvider } from './context/GameContext';
 
 
-import Header from './components/Header';
 import Footer from './components/Footer';
-import Home from './pages/Home'
+import Header from './components/Header';
+import Home from './pages/Home';
 
 const GameRoom = lazy(() => import('./pages/GameRoom'))
 const CreateRoom = lazy(() => import('./pages/Create'))

@@ -9,9 +9,9 @@ import { Link } from "react-router-dom";
 import { RWebShare } from "react-web-share";
 import { CgGames } from "react-icons/cg";
 import { AiFillDelete } from "react-icons/ai";
-import { loadFirestore } from "../../utils/firebase";
+import { loadFirestore } from "../../../utils/firebase";
 import { IoIosArrowBack } from "react-icons/io";
-import MessageButton from "../MessageUI/components/MessageButton";
+import MessageButton from "../../MessageUI/components/MessageButton";
 import { Helmet } from "react-helmet";
 
 
@@ -95,33 +95,18 @@ export default function RoomLobby({ id, uid, players, }: { id: string, uid: stri
                   delay: i * 0.25 + 0.5
                 }}
               >
-                <AnimatePresence>
-                  {currentPlayer?.role === "creator" && player?.uid !== uid && isShownID === player?.uid &&
-                    <m.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 30,
-                        duration: .5
-                      }}
-                      className="absolute w-full flex items-center justify-center"
-                    >
-                      <button onClick={() => deleteUser(player?.uid)} className="btn btn-ghost tooltip tooltip-top tooltip-error" data-tip="Delete">
-                        <AiFillDelete className="text-red-500" size={40} />
-                      </button>
-                    </m.div>}
-                </AnimatePresence>
 
                 <div
-                  className={`flex shadow-input mx-3 groups rounded-xl p-3 sm:p-5 w-full items-center ${currentPlayer?.role === "creator" && player?.uid !== uid && "group-hover:bg-red-500/40 transition-all duration-500"}`}
-
+                  className={`flex shadow-input mx-3 groups rounded-xl p-3 sm:p-5 w-full items-center `}
                 >
 
                   <div className="grid grid-cols-2 items-center w-full  ">
                     <div className="flex justify-start items-center ">
+                      {currentPlayer?.role === "creator" &&
+                        <button onClick={() => deleteUser(player?.uid)} className="rounded-full hover:bg-white/10 hover:scale-105 active:scale-95 p-1 mx-0.5 transition-all duration-300">
+                          <AiFillDelete className="text-red-500 mx-auto" size={30} />
+                        </button>
+                      }
                       <p className="font-logo text-3xl">{player?.name}</p>
                       {player?.signedIn && (
                         <>

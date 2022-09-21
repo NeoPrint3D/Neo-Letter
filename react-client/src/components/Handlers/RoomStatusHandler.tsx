@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useUid } from "../../context/AuthContext";
 import Loader from "../Loader";
-import RoomErrorScreen from '../RoomStatuses/RoomErrorScreen';
-import RoomLobby from '../RoomStatuses/ReadyLobby';
-import RoomWin from '../RoomStatuses/RoomWin';
+import RoomErrorScreen from '../GameRoom/RoomStatuses/RoomErrorScreen';
+import RoomLobby from '../GameRoom/RoomStatuses/ReadyLobby';
+import RoomWin from '../GameRoom/RoomStatuses/RoomWin';
 
 interface RoomProps {
     children: any,

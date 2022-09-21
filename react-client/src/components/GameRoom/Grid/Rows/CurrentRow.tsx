@@ -1,4 +1,4 @@
-import { useKeyboard } from "../../../context/GameContext";
+import { useKeyboard } from "../../../../context/GameContext";
 import Cell from "../Cell";
 
 

@@ -79,9 +79,6 @@ export default function MessageUI({ players, room }: { players: GamePlayer[], ro
         rest: {
             x: [-50, 0],
             opacity: [0, 1],
-            transition: {
-                delay: 1
-            }
         }
     }
     return (

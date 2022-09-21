@@ -20,11 +20,13 @@ export default function FilledRow({ guess, answer }: { guess: string, answer: st
                     initial={{
                         scale: 0.9,
                         rotateY: 90,
+                        z: 0
                     }}
                     animate={{
                         scale: isCorrect ? [1, .9, 1] : 1,
                         rotateY: 0,
                         y: isCorrect ? [0, -40, 40, -40, 0] : 0,
+                        z: isCorrect ? 50 : 0
                     }}
                     exit={{
                         opacity: 0,
@@ -52,9 +54,9 @@ export default function FilledRow({ guess, answer }: { guess: string, answer: st
                             repeat: 2
                         }
                     }}
-                    key={index}
+                    key={`${letter}-${index}`}
                     className={`
-                                h-12 w-12 sm:h-14 sm:w-14 rounded flex justify-center items-center text-3xl text-white z-50
+                                h-12 w-12 sm:h-14 sm:w-14 rounded flex justify-center items-center text-3xl text-white
                                 ${status[index] === "correct" && "bg-success"}
                                 ${status[index] === "present" && "bg-warning"}
                                 ${status[index] === "absent" && "bg-gray-500"}

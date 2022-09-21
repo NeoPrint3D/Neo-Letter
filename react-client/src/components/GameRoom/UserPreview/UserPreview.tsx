@@ -2,8 +2,7 @@ import { AnimatePresence, m } from "framer-motion";
 import { memo } from "react";
 import { FaSquare } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
-import { IoClose } from "react-icons/io5";
-import { getGuessStatuses } from "../Grid/utils/getStatuses";
+import { getGuessStatuses } from "../../GameRoom/Grid/utils/getStatuses";
 
 function UserPreview({ selectedId, selectedPlayer, room, setSelectedId, width, height }: { selectedId: string, selectedPlayer: GamePlayer, room: Room, setSelectedId: any, width: number, height: number }) {
     return (
@@ -11,14 +10,14 @@ function UserPreview({ selectedId, selectedPlayer, room, setSelectedId, width, h
             {selectedId &&
                 <>
                     <m.div
-                        className=" fixed backdrop-blur-lg bg-gray-500/20 z-10  h-screen w-screen  "
+                        className=" fixed backdrop-blur-lg bg-gray-500/20 z-40  h-screen w-screen  "
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     />
-                    <div className="flex fixed  justify-center items-center top-0  h-screen w-screen z-20 ">
+                    <div className="flex fixed  justify-center items-center top-0  h-screen w-screen z-50 ">
                         <m.div
-                            className={`grid grid-rows-6 main-container z-10 w-full max-w-[22rem] xs:max-w-[24rem] sm:max-w-lg lg:w-[60%] lg:max-w-none ${width > 600 ? "h-[75%]" : "h-[50%]"} shadow-2xl `}
+                            className={`grid grid-rows-6 main-container z-50 w-full max-w-[22rem] xs:max-w-[24rem] sm:max-w-lg lg:w-[60%] lg:max-w-none ${width > 600 ? "h-[75%]" : "h-[50%]"} shadow-2xl `}
                             initial={{ scale: 0, y: -height / 2 }}
                             animate={{ scale: 1, y: 0 }}
                             exit={{ scale: 0, opacity: 0 }}

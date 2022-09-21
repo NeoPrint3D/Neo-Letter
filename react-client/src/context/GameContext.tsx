@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, memo, useContext, useState } from "react";
 
 
 
@@ -61,6 +61,5 @@ export function GameContextProvider({ children }: { children: React.ReactNode })
         </KeyboardContext.Provider>
     )
 }
-
 
 
