@@ -1,5 +1,7 @@
 # Neo-Letter
-Neo Letter is a multiplayer 
+
+Neo Letter is a multiplayer wordle game with the upmost care for design and user experience. Neo Letter is built in a way where theoretically unlimited number of people can play in a single room.
+
 [![Deploy to Firebase Hosting on merge](https://github.com/NeoPrint3D/Neo-Letter/actions/workflows/firebase.yml/badge.svg?branch=master)](https://github.com/NeoPrint3D/Neo-Letter/actions/workflows/firebase.yml)
 
 ## How to contribute 
