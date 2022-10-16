@@ -9,6 +9,7 @@ Neo Letter is a multiplayer wordle game with the upmost care for design and user
 - Find visual inconsistencies
 - Improve performance for mobile
 - Add a leaderboard function to get the current users place
+- Add at least 20 appropriate words ./fastify-server/src/static/words.json
 
 ## SPAM WILL BE BLOCKED AND REPORTED
 ## Setting up project for local machine COMING SOON...
