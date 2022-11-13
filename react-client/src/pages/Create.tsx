@@ -104,7 +104,7 @@ export default function CreateRoom() {
       round: 0,
       allowLateJoiners: allowJoinAfterStart,
       customWords: customWords.length !== 0,
-      allowMessages: allowMessages,
+      allowMessages: maxPlayers === "solo" ? false : allowMessages,
       allowProfanity: allowProfanity,
     }
     const messageInfo: Message = {

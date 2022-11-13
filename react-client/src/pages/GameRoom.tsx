@@ -19,51 +19,40 @@ import { app } from "../utils/firebase";
 export default function GameRoom() {
     const firestore = useMemo(() => getFirestore(app), [])
     const [roomStatus, setRoomStatus] = useState<RoomStatuses>();
-    const [room, setRoom] = useState<Room>({} as Room);
+    const [room, setRoom] = useState<Room>({
+        id: "",
+        answers: [],
+        maxPlayers: 0,
+        players: [],
+        usernames: [],
+        roomType: "public",
+        started: false,
+        allowLateJoiners: false,
+        allowMessages: false,
+        round: 0,
+        customWords: false,
+        allowProfanity: false
+    });
     const [fireOff, setFireOff] = useState(false)
     const [players, setPlayers] = useState<GamePlayer[]>([])
-    const [answers, setAnswers] = useState<string[]>([])
-    const [round, setRound] = useState(0)
-    const [placing, setPlacing] = useState<GamePlayer[]>([])
     const [guessFireOff, setGuessFireOff] = useState<string[]>([])
-    const [hasGuessed, setHasGuessed] = useState(false)
     const [resetWinner, setResetWinner] = useState(false)
     const [roundGuessedReset, setRoundGuessedReset] = useState(false)
-    const { showMessages, setShowMessages, allowMessages, setAllowMessages, setMessages } = useMessages()
-    const { key, setKey } = useKeyboard()
-    const { guesses, setGuesses } = useGuesses()
-    const { height, width } = useWindowSize()
+    const { setShowMessages, setAllowMessages, setMessages } = useMessages()
+    const { setKey } = useKeyboard()
+    const { setGuesses } = useGuesses()
+    const { width } = useWindowSize()
     const { id } = useParams()
     const uid = useUid()
     const roomRef = useMemo(() => doc(firestore, "rooms", `${id}`), [id])
-    const playerRef = useMemo(() => doc(firestore, "rooms", `${id}`, "players", uid), [id, uid])
-    const winner = useMemo(() => players.filter(p => p.guesses.includes(answers[round]?.toUpperCase()))[0], [players, answers, round])
+    const winner = useMemo(() => players.filter(p => p.guesses.includes(room.answers[room.round]?.toUpperCase()))[0], [players, room])
     const currentPlayer = useMemo(() => players.find(p => p.uid === uid) as GamePlayer, [players])
-
-
+    const placing = useMemo(() => players.filter((p) => p.points > 0).length > 0 ? players.sort((a, b) => b.points! - a.points!) : [], [players])
     const handleOtherPlayersGuess = useCallback((players: GamePlayer[]) => {
         setGuessFireOff(players.filter(player => player.guessed).map(player => player.uid))
     }, [])
-    const handleGuess = useCallback(async () => {
-        if (key.length !== 5) return
-        setHasGuessed(true)
-        const res = await fetch(import.meta.env.DEV ? `http://localhost:4000/api/valid?word=${key}` : `https://neo-letter-fastify.vercel.app/api/valid?word=${key}`)
-        const data = await res.json()
-        if (!data.isValid && !room.customWords) {
-            toast.error("Invalid Guess.", { theme: "dark" })
-            setHasGuessed(false)
-            return
-        }
-        setKey("")
-        await new Promise(resolve => setTimeout(resolve, 150))
-        setGuesses([...guesses, key])
-        await updateDoc(playerRef, {
-            guesses: [...guesses, key], guessed: true,
-        })
-        await new Promise(resolve => setTimeout(resolve, 450))
-        await updateDoc(playerRef, { guessed: false, guessedCorrectly: false })
-        setHasGuessed(false)
-    }, [key, guesses])
+
+
     const handleEveryoneGuessed = useCallback(async (players: GamePlayer[]) => {
         if (players.length === 0) return
         if (!players.every(player => player.guesses.length === 6)) return
@@ -94,7 +83,7 @@ export default function GameRoom() {
                 points: winner.uid === p.uid ? increment(100 - (p.guesses.length - 1) * 10) : increment(0),
             })));
             await Promise.all([...playerStack, updateDoc(roomRef, {
-                round: round < answers.length ? increment(1) : increment(0),
+                round: room.round < room.answers.length ? increment(1) : increment(0),
             })]);
         }
         setFireOff(true);
@@ -103,7 +92,7 @@ export default function GameRoom() {
         setGuesses([]);
         setKey("");
         setResetWinner(false);
-    }, [answers, players])
+    }, [room.answers, players])
     const handleRoomStatus = useCallback(async () => {
         if (players.length > room.maxPlayers) {
             setRoomStatus("room_full")
@@ -113,7 +102,7 @@ export default function GameRoom() {
             setRoomStatus("user_not_found")
             return
         }
-        if (round >= answers.length && answers.length > 0) {
+        if (room.round >= room.answers.length && room.answers.length > 0) {
             setRoomStatus("room_finished")
             if (!currentPlayer.signedIn) return
             const lastRoom = (await getDoc(doc(firestore, "users", currentPlayer.uid))).data()?.lastRoom
@@ -135,16 +124,13 @@ export default function GameRoom() {
             updateDoc(roomRef, { started: true })
             return
         }
-    }, [room, players, round, answers, currentPlayer])
+    }, [room, players, currentPlayer])
     useEffect(() => {
         const unsub1 = onSnapshot(collection(firestore, "rooms", `${id}`, "players"), async (playersRes) => {
             const players = playersRes.docs.map((doc) => { return { ...doc.data() } }) as GamePlayer[]
-
             handleEveryoneGuessed(players)
             handleOtherPlayersGuess(players)
-
             setPlayers(players)
-            setPlacing(players.filter((p) => p.points > 0).length > 0 ? players.sort((a, b) => b.points! - a.points!) : [])
             setGuesses(players.find(p => p.uid === uid)?.guesses as string[])
         })
         const unsub2 = onSnapshot(roomRef, (roomRes) => {
@@ -152,9 +138,6 @@ export default function GameRoom() {
             if (!room) { setRoomStatus("room_not_found"); return }
             setAllowMessages(room.allowMessages)
             setRoom(room as Room)
-            setAnswers(room.answers)
-            setRound(room.round)
-
         })
         return () => {
             unsub1()
@@ -175,10 +158,10 @@ export default function GameRoom() {
     }, [roundGuessedReset])
     useEffect(() => {
         handleRoomWin(players)
-    }, [answers, players])
+    }, [room.answers, players])
     useEffect(() => {
         handleRoomStatus()
-    }, [room, players, round, answers, currentPlayer])
+    }, [room, players, currentPlayer])
 
 
     return (
@@ -209,12 +192,12 @@ export default function GameRoom() {
                                         delay: winner ? 4.8 : .5,
                                     }}
                                 >
-                                    <Grid answer={`${answers[round]}`.toUpperCase() || ""} />
+                                    <Grid answer={`${room.answers[room.round]}`.toUpperCase() || ""} />
                                 </m.div>
                             </AnimatePresence>
                         </div>
                         <div className={` flex justify-center mb-5 ${width < 400 && "scale-[93.5%]"}`}>
-                            <Keyboard handleEnter={() => handleGuess()} hasGuessed={hasGuessed} answer={`${answers[round]}`.toUpperCase()} />
+                            <Keyboard room={room} />
                         </div>
                     </div>
                     <AnimatePresence>

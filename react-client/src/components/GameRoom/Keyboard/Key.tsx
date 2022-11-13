@@ -1,5 +1,5 @@
 import { m } from "framer-motion";
-import { memo, useCallback, useContext } from "react";
+import { memo, useCallback } from "react";
 import { useWindowSize } from "react-use";
 import { useKeyboard, useGuesses } from "../../../context/GameContext";
 import { CharStatus } from "../Grid/utils/getStatuses";

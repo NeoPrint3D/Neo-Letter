@@ -22,7 +22,7 @@ function GameHeader({ room, players, fireOff, placing, guessFireOff }: { room: R
     return (
         <>
             <UserPreview selectedId={selectedId} height={height} selectedPlayer={selectedPlayer} room={room} setSelectedId={setSelectedId} width={width} /><header>
-                <div className="grid grid-cols-3">
+                <div className={`grid grid-cols-3 ${room.maxPlayers === 1 && "border-b-4 border-white/20"}`}>
                     <div className="flex justify-start items-center">
                         <Link to="/">
                             <img src={Logo} alt="logo" className="translate-y-1 scale-90"
@@ -31,7 +31,7 @@ function GameHeader({ room, players, fireOff, placing, guessFireOff }: { room: R
                         </Link>
                     </div>
                     <div className="flex flex-col justify-center items-center font-logo">
-                        <div className="flex text-xl gap-2">
+                        <div className="flex text-2xl gap-2">
                             <p>Round</p>
                             <AnimatePresence>
                                 {fireOff ?
@@ -45,7 +45,7 @@ function GameHeader({ room, players, fireOff, placing, guessFireOff }: { room: R
                                         }}>{room.round + 1}/{room.answers.length}</m.p> : <p>{room.round + 1}/{room.answers.length}</p>}
                             </AnimatePresence>
                         </div>
-                        <h1 className=" text-xl font-sans select-text font-semisbold">ID: {id}</h1>
+                        <h1 className=" text-xl font-sans select-text font-semibold">ID: {id}</h1>
                     </div>
                     <div className="flex gap-3 sm:gap-5 items-center justify-end mr-3">
                         <MessageButton />
@@ -63,64 +63,65 @@ function GameHeader({ room, players, fireOff, placing, guessFireOff }: { room: R
                         </div>
                     </div>
                 </div>
-                <div className="overflow-scroll">
-                    <div className="flex items-center gap-5 h-[4.25rem] min-w-max border-white/20 border-y-4 ">
-                        {players && players.filter((p) => p.uid !== uid).map((player) => (
-                            <m.button
-                                key={player.uid}
-                                transition={{
-                                    layout: {
-                                        type: "easeInOut",
-                                        duration: 0.5
-                                    }
-                                }}
-                                layout
-                                onClick={() => {
-                                    setSelectedId(player.uid)
-                                    setSelectedPlayer(player)
-                                }}
-                                className="first:ml-[.625rem] last:mr-[.625rem]"
-                            >
-                                {selectedId !== player.uid &&
-                                    <m.div
-                                        className={`flex  items-center gap-2 carousel-item py-2 px-3 rounded transition-all duration-500  bg-gray-400/10  backdrop-blur-md border-b-4 w-fit 
+                {room.maxPlayers !== 1 &&
+                    <div className="overflow-scroll">
+                        <div className="flex items-center gap-5 h-[4.25rem] min-w-max border-white/20 border-y-4 ">
+                            {players && players.filter((p) => p.uid !== uid).map((player) => (
+                                <m.button
+                                    key={player.uid}
+                                    transition={{
+                                        layout: {
+                                            type: "easeInOut",
+                                            duration: 0.5
+                                        }
+                                    }}
+                                    layout
+                                    onClick={() => {
+                                        setSelectedId(player.uid)
+                                        setSelectedPlayer(player)
+                                    }}
+                                    className="first:ml-[.625rem] last:mr-[.625rem]"
+                                >
+                                    {selectedId !== player.uid &&
+                                        <m.div
+                                            className={`flex  items-center gap-2 carousel-item py-2 px-3 rounded transition-all duration-500  bg-gray-400/10  backdrop-blur-md border-b-4 w-fit 
                                     ${placing[0]?.uid === player.uid ? "text-yellow-400 shadow-lg shadow-yellow-200" : "border-primary"}   ${placing[0]?.uid === player?.uid ? "border-yellow-400" : "text-gray-200"}
                                     ${player.guesses.length === 6 && "text-gray-200 line-through  decoration-[6px]  decoration-primary-dark/90 tooltip first:tooltip-right tooltip-bottom tooltip-error hover:z-50 "}
                                     `}
-                                        data-tip={"They have used all their guesses."}
-                                        key={player.uid}
-                                        initial={{ opacity: 0, y: 50 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                    >
-                                        {placing[0]?.points > 0 && placing[0]?.uid === player?.uid && (
-                                            <m.div
-                                                initial={{ y: -100 }}
-                                                animate={{ y: 0 }}
-                                                exit={{ y: -100 }}
-                                                transition={{
-                                                    type: "spring",
-                                                    stiffness: 200,
-                                                    damping: 10
-                                                }}
-                                            >
-                                                <FaCrown className="text-yellow-400" aria-label="Crown" size={25} />
-                                            </m.div>
-                                        )}
-                                        <h1
-                                            className={` 
+                                            data-tip={"They have used all their guesses."}
+                                            key={player.uid}
+                                            initial={{ opacity: 0, y: 50 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                        >
+                                            {placing[0]?.points > 0 && placing[0]?.uid === player?.uid && (
+                                                <m.div
+                                                    initial={{ y: -100 }}
+                                                    animate={{ y: 0 }}
+                                                    exit={{ y: -100 }}
+                                                    transition={{
+                                                        type: "spring",
+                                                        stiffness: 200,
+                                                        damping: 10
+                                                    }}
+                                                >
+                                                    <FaCrown className="text-yellow-400" aria-label="Crown" size={25} />
+                                                </m.div>
+                                            )}
+                                            <h1
+                                                className={` 
                                         transition-all duration-600 font-logo text-xl
                                         ${placing[0]?.points > 0 && placing[0]?.uid === player?.uid ?
-                                                    `${guessFireOff.includes(player.uid) ? "text-success scale-[150%] " : "scale-100 text-yellow-300"}` :
-                                                    `${guessFireOff.includes(player.uid) ? "text-success scale-[150%] " : "scale-100 text-gray-200"} `}`}
-                                        >
-                                            {player.name}: {player.points}
-                                        </h1>
-                                    </m.div>}
-                            </m.button>
-                        ))}
+                                                        `${guessFireOff.includes(player.uid) ? "text-success scale-[150%] " : "scale-100 text-yellow-300"}` :
+                                                        `${guessFireOff.includes(player.uid) ? "text-success scale-[150%] " : "scale-100 text-gray-200"} `}`}
+                                            >
+                                                {player.name}: {player.points}
+                                            </h1>
+                                        </m.div>}
+                                </m.button>
+                            ))}
+                        </div>
                     </div>
-
-                </div>
+                }
                 <div className="flex flex-col items-center">
                     <m.div
                         className={`flex  gap-3 justify-center text-xl font-logo mt-2
@@ -149,7 +150,6 @@ function GameHeader({ room, players, fireOff, placing, guessFireOff }: { room: R
                 </div>
             </header>
         </>
-
     )
 }
 

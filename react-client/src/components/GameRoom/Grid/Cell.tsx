@@ -17,9 +17,12 @@ function Cell({ keypress, status = 'empty' }: { keypress?: string; status?: "emp
                         animate={{ scale: 1, opacity: 1, }}
                         exit={{ scale: 0, opacity: 0, }}
                         transition={{
-                            type: "tween",
-                            duration: 0.15,
-                            ease: "easeInOut",
+                            scale: {
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30
+                            },
+                            duration: 0.05,
                         }}>
                         {keypress?.toLocaleUpperCase()}
                     </m.p>

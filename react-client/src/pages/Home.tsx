@@ -31,9 +31,6 @@ function Home() {
     }
   }, []);
 
-
-
-
   useEffect(() => {
     if (JSON.parse(preference as string)?.showReminder) remindToSignUp();
   }, [user]);
